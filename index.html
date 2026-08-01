@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOB CONNECT - Trouvez un travail, trouvez un travailleur, partout dans le monde</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2312805A'/%3E%3Cstop offset='100%25' stop-color='%23073C28'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-family='Georgia, serif' font-size='50' font-weight='700' fill='%23FFFFFF' text-anchor='middle'%3EJC%3C/text%3E%3Ccircle cx='78' cy='24' r='7' fill='%23E8A33D'/%3E%3C/svg%3E">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #FAF6EF;
+    color: #1C2620;
+    padding-bottom: 40px;
+  }
+  header {
+    position: relative;
+    background: linear-gradient(135deg, #073C28, #0E6E46, #2FA870);
+    color: white;
+    padding: 30px 16px 22px;
+    text-align: center;
+    overflow: hidden;
+  }
+  header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.16;
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,0.5) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,0.5) 25%, transparent 25%);
+    background-size: 22px 22px;
+    background-position: 0 0, 11px 0;
+    pointer-events: none;
+  }
+  header .brandmark {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 8px;
+    border-radius: 50%;
+  }
+  header h1 {
+    position: relative;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  header p { position: relative; font-size: 0.85rem; opacity: 0.92; letter-spacing: 0.2px; }
+
+  .signature-divider {
+    height: 8px;
+    background:
+      linear-gradient(135deg, #E8A33D 25%, transparent 25%) -4px 0,
+      linear-gradient(225deg, #E8A33D 25%, transparent 25%) -4px 0,
+      linear-gradient(315deg, #E8A33D 25%, transparent 25%) 0 0,
+      linear-gradient(45deg, #E8A33D 25%, transparent 25%) 0 0;
+    background-size: 8px 8px;
+    background-color: #FAF6EF;
+  }
+
+  .tabs {
+    display: flex;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    padding: 6px 6px 0;
+    gap: 4px;
+  }
+  .tab-btn {
+    position: relative;
+    flex: 1;
+    padding: 12px 4px;
+    text-align: center;
+    background: none;
+    border: none;
+    border-radius: 10px 10px 0 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #6B7A72;
+    border-bottom: 3px solid transparent;
+  }
+  .tab-notif-badge {
+    display: none;
+    position: absolute;
+    top: 6px;
+    right: 18%;
+    background: #B33F2E;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    min-width: 17px;
+    height: 17px;
+    line-height: 17px;
+    border-radius: 9px;
+    padding: 0 4px;
+    box-shadow: 0 0 0 2px white;
+  }
+  .tab-btn.active {
+    color: #0E6E46;
+    background: #E7F2E9;
+    border-bottom: 3px solid #0E6E46;
+  }
+
+  .screen { display: none; padding: 16px; max-width: 520px; margin: 0 auto; }
+  .screen.active { display: block; }
+
+  .role-select {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .role-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    background: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #444;
+  }
+  .role-btn.selected {
+    border-color: #0E6E46;
+    background: #E7F2E9;
+    color: #073C28;
+  }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 4px 14px rgba(7,60,40,0.08);
+    margin-bottom: 16px;
+    border-top: 3px solid #E8A33D;
+  }
+  .card h2 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 14px;
+    color: #073C28;
+    letter-spacing: 0.3px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #E7F2E9;
+  }
+
+  label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #555;
+    margin: 12px 0 5px;
+  }
+  input, select {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    background: #fafafa;
+  }
+  input:focus, select:focus { outline: none; border-color: #0E6E46; background: white; }
+
+  .country-picker-btn {
+    width: 100%;
+    text-align: left;
+    padding: 11px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    background: #fafafa;
+    color: #1a1a1a;
+  }
+  .country-picker-btn:active { background: #eee; }
+
+  .hamburger-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+  .hamburger-btn:active { background: rgba(255,255,255,0.25); }
+
+  .settings-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 14px 12px;
+    border-radius: 10px;
+    background: #FAF6EF;
+    border: 1px solid #eee;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1C2620;
+    text-decoration: none;
+  }
+  .settings-item:active { background: #E7F2E9; }
+  .settings-item-value { color: #6B7A72; font-weight: 500; font-size: 0.85rem; }
+
+
+  .country-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .country-modal-overlay.open { display: flex; }
+  .country-modal {
+    background: white;
+    width: 100%;
+    max-height: 75vh;
+    border-radius: 18px 18px 0 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .country-modal-search {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #0E6E46;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    background: #f0f7f3;
+  }
+  .country-modal-list {
+    overflow-y: auto;
+    flex: 1;
+    border-top: 1px solid #eee;
+  }
+  .country-modal-item {
+    padding: 13px 6px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .country-modal-item:active { background: #E7F2E9; }
+  .country-modal-close {
+    margin-top: 12px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #eee;
+    color: #444;
+    font-weight: 700;
+  }
+
+  .submit-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: #0E6E46;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .submit-btn:active { background: #073C28; }
+  .submit-btn:disabled { background: #9FC2AC; }
+
+  .password-wrapper {
+    position: relative;
+  }
+  .password-wrapper input {
+    padding-right: 46px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 4px;
+  }
+
+  .msg {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+  }
+  .msg.success { background: #E7F2E9; color: #073C28; display: block; }
+  .msg.error { background: #F7E6E2; color: #B33F2E; display: block; }
+
+  .filter-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .filter-row select { flex: 1; }
+
+  .result-card {
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    border-left: 4px solid #0E6E46;
+  }
+  .result-card h3 { font-size: 1rem; font-weight: 800; color: #073C28; margin-bottom: 4px; letter-spacing: 0.2px; }
+  .result-card p { font-size: 0.82rem; color: #555; margin: 2px 0; }
+  .whatsapp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #e7f9ee;
+    color: #0E6E46;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    margin: 6px 0 2px;
+  }
+  .whatsapp-link:active { background: #cdf0dc; }
+  .badge {
+    display: inline-block;
+    background: #E7F2E9;
+    color: #073C28;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  .badge-domestique { background: #fdeee0; color: #b5541a; }
+  .badge-ventes     { background: #fdf0dc; color: #a3760a; }
+  .badge-routes     { background: #e3eefd; color: #1a5cb5; }
+  .badge-finances   { background: #f0e6fa; color: #6a1ab5; }
+  .badge-soins      { background: #fde0e6; color: #b5194a; }
+  .badge-technique  { background: #e0f7f5; color: #0a8a7a; }
+  .search-time-bar {
+    background: #eef6ff;
+    color: #1a5cb5;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .new-msg-badge {
+    display: block;
+    width: fit-content;
+    background: #ff9d1a;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .empty-state {
+    text-align: center;
+    color: #888;
+    padding: 30px 10px;
+    font-size: 0.88rem;
+  }
+  .compte-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 14px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+  }
+  .compte-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #333;
+    margin: 8px 0;
+  }
+  .compte-checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #0E6E46;
+  }
+  .statut-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 10px;
+    margin: 8px 0;
+  }
+  .statut-actif { background: #E7F2E9; color: #073C28; }
+  .statut-inactif { background: #f1f1f1; color: #888; }
+  .toggle-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    margin-top: 10px;
+  }
+  .toggle-btn.desactiver { background: #F7E6E2; color: #B33F2E; }
+  .toggle-btn.activer { background: #E7F2E9; color: #073C28; }
+  .toggle-btn.supprimer { background: #B33F2E; color: white; }
+  .toggle-row {
+    display: flex;
+    gap: 10px;
+  }
+  .toggle-row .toggle-btn { margin-top: 10px; }
+
+  /* ===== Signalement d'une annonce ===== */
+  .report-link-btn {
+    display: inline-block;
+    background: none;
+    border: none;
+    color: #B33F2E;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 0 0;
+    margin-top: 4px;
+  }
+  .report-link-btn:active { opacity: 0.6; }
+  .signal-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .signal-modal-overlay.open { display: flex; }
+  .signal-modal {
+    background: white;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    padding: 18px;
+  }
+  .signal-reason-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+  }
+  .signal-reason-label input[type="radio"] { width: 18px; height: 18px; accent-color: #B33F2E; }
+  .signal-reason-label.checked { border-color: #B33F2E; background: #F7E6E2; }
+
+  /* ===== Badges de signalement dans le panneau admin ===== */
+  .admin-search-input {
+    margin-bottom: 4px;
+  }
+  .signal-badge {
+    display: inline-block;
+    background: #B33F2E;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 10px;
+    margin: 8px 0;
+  }
+  .signal-details {
+    background: #FDF3F1;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 0.82rem;
+    color: #7a2e22;
+  }
+  .signal-details p { margin: 4px 0; }
+  .compte-card.a-des-signalements { border: 2px solid #B33F2E; }
+
+  .recup-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .recup-modal-overlay.open { display: flex; }
+  .recup-modal {
+    background: white;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    padding: 18px;
+  }
+  .google-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: white;
+    color: #444;
+    font-weight: 700;
+    margin: 10px 0 16px;
+  }
+  .recup-separateur {
+    text-align: center;
+    color: #999;
+    font-size: 0.82rem;
+    margin: 6px 0 14px;
+  }
+  .search-btn {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 2px solid #0E6E46;
+    color: #0E6E46;
+    border-radius: 10px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  /* ===== Sélecteur de travail (catégorie -> métier) ===== */
+  .job-picker-btn {
+    width: 100%;
+    text-align: left;
+    padding: 11px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    background: #fafafa;
+    color: #1a1a1a;
+  }
+  .job-picker-btn:active { background: #eee; }
+
+  .job-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .job-modal-overlay.open { display: flex; }
+  .job-modal {
+    background: white;
+    width: 100%;
+    max-height: 78vh;
+    border-radius: 18px 18px 0 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .job-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .job-modal-back {
+    display: none;
+    background: #E7F2E9;
+    color: #073C28;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .job-modal-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #073C28;
+  }
+  .job-modal-list {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px 2px;
+  }
+  .job-cat-btn {
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: none;
+    background: #0E6E46;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .job-cat-btn:active { background: #073C28; }
+  .job-checkbox {
+    flex-shrink: 0;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid white;
+    border-radius: 4px;
+    background: transparent;
+  }
+  .job-checkbox.checked {
+    background: white;
+    position: relative;
+  }
+  .job-checkbox.checked::after {
+    content: "✔";
+    position: absolute;
+    top: -4px;
+    left: 1px;
+    font-size: 0.8rem;
+    color: #0E6E46;
+    font-weight: 900;
+  }
+  .job-modal-close {
+    margin-top: 12px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #eee;
+    color: #444;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brandmark">
+    <svg viewBox="0 0 100 100" width="100%" height="100%">
+      <circle cx="50" cy="50" r="48" fill="rgba(255,255,255,0.14)" stroke="#E8A33D" stroke-width="3"/>
+      <text x="50" y="66" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="700"
+            fill="#FFFFFF" text-anchor="middle">JC</text>
+    </svg>
+  </div>
+  <h1>JOB <span style="color:#E8A33D;">CONNECT</span></h1>
+  <p data-i18n="tagline">La plateforme qui connecte patrons et travailleurs, partout dans le monde</p>
+  <button type="button" class="hamburger-btn" id="btn-settings" onclick="ouvrirParametres()" aria-label="Paramètres">☰</button>
+</header>
+<div class="signature-divider"></div>
+
+<div class="tabs">
+  <button class="tab-btn active" data-screen="inscription" data-i18n="tab_inscription">Inscription</button>
+  <button class="tab-btn" data-screen="recherche" data-i18n="tab_recherche">Recherche<span class="tab-notif-badge" id="tab-notif-badge">0</span></button>
+  <button class="tab-btn" data-screen="compte" data-i18n="tab_compte">Mon compte</button>
+  <button class="tab-btn" data-screen="admin" data-i18n="tab_admin">Admin</button>
+</div>
+
+<!-- ============ FENÊTRE DE SÉLECTION DE LANGUE ============ -->
+<div class="country-modal-overlay" id="lang-modal-overlay" onclick="if(event.target===this) fermerSelecteurLangue()">
+  <div class="country-modal">
+    <div class="country-modal-list" id="lang-modal-list"></div>
+    <button type="button" class="country-modal-close" onclick="fermerSelecteurLangue()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ PANNEAU PARAMÈTRES ============ -->
+<div class="country-modal-overlay" id="settings-modal-overlay" onclick="if(event.target===this) fermerParametres()">
+  <div class="country-modal">
+    <div class="settings-menu">
+      <button type="button" class="settings-item" onclick="fermerParametres(); ouvrirSelecteurLangue();">
+        <span>🌐 Langue</span>
+        <span class="settings-item-value" id="settings-lang-value">Français</span>
+      </button>
+      <a class="settings-item" href="confidentialite.html" target="_blank" rel="noopener">
+        <span>🔒 Politique de confidentialité</span>
+        <span>›</span>
+      </a>
+    </div>
+    <button type="button" class="country-modal-close" onclick="fermerParametres()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ ECRAN INSCRIPTION ============ -->
+<div class="screen active" id="screen-inscription">
+
+  <div class="role-select">
+    <button class="role-btn selected" id="role-travailleur-btn" onclick="setRole('travailleur')" data-i18n="btn_role_travailleur">👷 Je suis Travailleur</button>
+    <button class="role-btn" id="role-patron-btn" onclick="setRole('patron')" data-i18n="btn_role_patron">🧑‍💼 Je suis Patron</button>
+  </div>
+
+  <!-- FORMULAIRE TRAVAILLEUR -->
+  <div class="card" id="form-travailleur">
+    <h2 data-i18n="h2_inscription_travailleur">Inscription Travailleur</h2>
+    <label data-i18n="lbl_nom">Nom</label>
+    <input type="text" id="t-nom" placeholder="Nom">
+    <label data-i18n="lbl_postnom">Post-nom</label>
+    <input type="text" id="t-postnom" placeholder="Post-nom">
+    <label data-i18n="lbl_prenom">Prénom</label>
+    <input type="text" id="t-prenom" placeholder="Prénom">
+    <label data-i18n="lbl_adresse">Adresse</label>
+    <input type="text" id="t-adresse" placeholder="Adresse complète">
+    <label data-i18n="lbl_date_naissance">Date de naissance</label>
+    <input type="date" id="t-naissance">
+    <label data-i18n="lbl_niveau_etude">Niveau d'étude</label>
+    <select id="t-niveau">
+      <option value="">-- Choisir --</option>
+      <option>Primaire</option>
+      <option>Secondaire</option>
+      <option>Universitaire</option>
+      <option>Aucun</option>
+    </select>
+    <label data-i18n="lbl_telephone">Numéro de téléphone</label>
+    <input type="tel" id="t-tel" placeholder="+243 ...">
+    <label data-i18n="lbl_pays_voulez">Pays où vous voulez travailler</label>
+    <button type="button" class="country-picker-btn" id="btn-t-pays" onclick="ouvrirSelecteurPays('t-pays','btn-t-pays')">-- Choisir un pays --</button>
+    <input type="hidden" id="t-pays" value="">
+    <label data-i18n="lbl_type_travail_prefere">Type de travail préféré</label>
+    <button type="button" class="job-picker-btn" id="btn-t-type" onclick="ouvrirSelecteurTravail('t-type','t-poste','btn-t-type')">-- Choisir un type de travail --</button>
+    <input type="hidden" id="t-type" value="">
+    <input type="hidden" id="t-poste" value="">
+    <label data-i18n="lbl_email">Adresse email</label>
+    <input type="email" id="t-email" placeholder="exemple@gmail.com">
+    <label data-i18n="lbl_password">Mot de passe</label>
+    <div class="password-wrapper">
+      <input type="password" id="t-password" placeholder="6 caractères minimum">
+      <button type="button" class="password-toggle" onclick="togglePasswordVisibility('t-password', this)">👁️</button>
+    </div>
+
+    <button class="submit-btn" onclick="inscrireTravailleur()" data-i18n="btn_enregistrer">Enregistrer</button>
+    <div class="msg" id="t-msg"></div>
+  </div>
+
+  <!-- FORMULAIRE PATRON -->
+  <div class="card" id="form-patron" style="display:none;">
+    <h2 data-i18n="h2_inscription_patron">Inscription Patron</h2>
+    <label data-i18n="lbl_nom">Nom</label>
+    <input type="text" id="p-nom" placeholder="Nom">
+    <label data-i18n="lbl_postnom">Post-nom</label>
+    <input type="text" id="p-postnom" placeholder="Post-nom">
+    <label data-i18n="lbl_prenom">Prénom</label>
+    <input type="text" id="p-prenom" placeholder="Prénom">
+    <label data-i18n="lbl_lieu_naissance">Lieu de naissance</label>
+    <input type="text" id="p-naissance-lieu" placeholder="Lieu de naissance">
+    <label data-i18n="lbl_travail_propose">Travail proposé</label>
+    <button type="button" class="job-picker-btn" id="btn-p-type" onclick="ouvrirSelecteurTravail('p-type','p-poste','btn-p-type')">-- Choisir un type de travail --</button>
+    <input type="hidden" id="p-type" value="">
+    <input type="hidden" id="p-poste" value="">
+    <label data-i18n="lbl_pays_travail">Pays du travail</label>
+    <button type="button" class="country-picker-btn" id="btn-p-pays" onclick="ouvrirSelecteurPays('p-pays','btn-p-pays')">-- Choisir un pays --</button>
+    <input type="hidden" id="p-pays" value="">
+    <label data-i18n="lbl_lieu_travail">Lieu du travail (ville / adresse)</label>
+    <input type="text" id="p-lieu" placeholder="Ville ou adresse précise">
+    <label data-i18n="lbl_numero_contacter">Numéro à contacter</label>
+    <input type="tel" id="p-tel" placeholder="+243 ...">
+    <label data-i18n="lbl_email">Adresse email</label>
+    <input type="email" id="p-email" placeholder="exemple@gmail.com">
+    <label data-i18n="lbl_password">Mot de passe</label>
+    <div class="password-wrapper">
+      <input type="password" id="p-password" placeholder="6 caractères minimum">
+      <button type="button" class="password-toggle" onclick="togglePasswordVisibility('p-password', this)">👁️</button>
+    </div>
+
+    <button class="submit-btn" onclick="inscrirePatron()" data-i18n="btn_enregistrer">Enregistrer</button>
+    <div class="msg" id="p-msg"></div>
+  </div>
+
+  <div class="card">
+    <p style="text-align:center; color:#555; font-size:0.88rem; margin-bottom:10px;" data-i18n="txt_probleme_compte">Un problème avec votre compte ?</p>
+    <button type="button" class="toggle-btn activer" onclick="allerVersMonCompte()" data-i18n="btn_activer_mon_compte">🔓 Activer mon compte</button>
+    <button type="button" class="toggle-btn desactiver" onclick="ouvrirRecuperationCompte()" data-i18n="btn_retrouver_compte_supprime">🔎 Retrouver mon compte supprimé</button>
+  </div>
+</div>
+
+<!-- ============ ECRAN RECHERCHE ============ -->
+<div class="screen" id="screen-recherche">
+  <div class="role-select">
+    <button class="role-btn selected" id="search-role-patron-btn" onclick="setSearchRole('patron')" data-i18n="btn_search_patron">🧑‍💼 Je cherche un travailleur</button>
+    <button class="role-btn" id="search-role-travailleur-btn" onclick="setSearchRole('travailleur')" data-i18n="btn_search_travailleur">👷 Je cherche un travail</button>
+  </div>
+
+  <div class="card">
+    <div class="filter-row">
+      <div style="flex:1;">
+        <button type="button" class="country-picker-btn" id="btn-s-pays" onclick="ouvrirSelecteurPays('s-pays','btn-s-pays')">-- Choisir un pays --</button>
+        <input type="hidden" id="s-pays" value="">
+      </div>
+      <div style="flex:1;">
+        <button type="button" class="job-picker-btn" id="btn-s-type" onclick="ouvrirSelecteurTravail('s-type','','btn-s-type')">-- Tout type de travail --</button>
+        <input type="hidden" id="s-type" value="">
+      </div>
+    </div>
+    <button class="search-btn" onclick="lancerRecherche()" data-i18n="btn_rechercher">🔍 Rechercher</button>
+    <div id="s-results"></div>
+  </div>
+</div>
+
+<!-- ============ ECRAN MON COMPTE ============ -->
+<div class="screen" id="screen-compte">
+  <div class="card">
+    <h2 data-i18n="h2_retrouver_annonce">Retrouver mon annonce</h2>
+    <label data-i18n="lbl_telephone_inscription">Numéro de téléphone utilisé à l'inscription</label>
+    <input type="tel" id="c-tel" placeholder="+243 ...">
+    <button class="submit-btn" onclick="retrouverCompte()" data-i18n="btn_retrouver_annonce">🔎 Retrouver mon annonce</button>
+    <div class="msg" id="c-msg"></div>
+  </div>
+  <div id="c-results"></div>
+</div>
+
+<!-- ============ ECRAN ADMIN (réservé au gérant de l'application) ============ -->
+<div class="screen" id="screen-admin">
+  <div class="card" id="admin-login-card">
+    <h2 data-i18n="h2_admin">Espace administrateur</h2>
+    <p style="color:#666; font-size:14px;">Réservé au gérant de JOB CONNECT.</p>
+    <label data-i18n="lbl_email">Adresse email</label>
+    <input type="email" id="admin-email" placeholder="exemple@gmail.com">
+    <label data-i18n="lbl_password">Mot de passe</label>
+    <div class="password-wrapper">
+      <input type="password" id="admin-password" placeholder="Votre mot de passe">
+      <button type="button" class="password-toggle" onclick="togglePasswordVisibility('admin-password', this)">👁️</button>
+    </div>
+    <button class="submit-btn" onclick="connexionAdmin()" data-i18n="btn_se_connecter">Se connecter</button>
+    <div class="msg" id="admin-msg"></div>
+  </div>
+  <div class="card" id="admin-panel-card" style="display:none;">
+    <h2 data-i18n="h2_tous_comptes">Tous les comptes enregistrés</h2>
+    <button type="button" class="toggle-btn desactiver" onclick="deconnexionAdmin()" data-i18n="btn_deconnexion_admin">🚪 Se déconnecter de l'admin</button>
+    <div class="msg" id="admin-panel-msg"></div>
+    <input type="text" id="admin-search" class="admin-search-input" placeholder="🔍 Chercher par nom ou téléphone..." oninput="filtrerPanneauAdmin()">
+  </div>
+  <div id="admin-results"></div>
+</div>
+
+<!-- ============ MODAL SIGNALEMENT D'UNE ANNONCE ============ -->
+<div class="signal-modal-overlay" id="signal-modal-overlay" onclick="if(event.target===this) fermerSignalement()">
+  <div class="signal-modal">
+    <h2 style="font-size:1.05rem; margin-bottom:10px; color:#073C28;">🚩 Signaler cette annonce</h2>
+    <p style="font-size:0.85rem; color:#666; margin-bottom:14px;" id="signal-cible-nom"></p>
+    <div id="signal-raisons">
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Faux profil / arnaque"> Faux profil ou arnaque</label>
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Spam / publicité"> Spam ou publicité</label>
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Contenu inapproprié"> Contenu inapproprié</label>
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Ne répond pas / faux numéro"> Ne répond pas / faux numéro</label>
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Autre"> Autre raison</label>
+    </div>
+    <label>Détails (facultatif)</label>
+    <input type="text" id="signal-details" placeholder="Précisez si besoin...">
+    <button class="submit-btn" onclick="envoyerSignalement()">🚩 Envoyer le signalement</button>
+    <button class="country-modal-close" style="width:100%; margin-top:10px;" onclick="fermerSignalement()">Annuler</button>
+    <div class="msg" id="signal-msg"></div>
+  </div>
+</div>
+
+<!-- ============ FENÊTRE DE SÉLECTION DE PAYS (avec recherche intégrée) ============ -->
+<div class="country-modal-overlay" id="country-modal-overlay" onclick="if(event.target===this) fermerSelecteurPays()">
+  <div class="country-modal">
+    <input type="text" id="country-modal-search" class="country-modal-search" placeholder="🔍 Tapez une lettre, ex: R..." autocomplete="off">
+    <div class="country-modal-list" id="country-modal-list"></div>
+    <button type="button" class="country-modal-close" onclick="fermerSelecteurPays()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ FENÊTRE DE SÉLECTION DU TRAVAIL (catégorie -> métier) ============ -->
+<div class="job-modal-overlay" id="job-modal-overlay" onclick="if(event.target===this) fermerSelecteurTravail()">
+  <div class="job-modal">
+    <div class="job-modal-header">
+      <button type="button" class="job-modal-back" id="job-modal-back" onclick="retourCategoriesTravail()">◀ Retour</button>
+      <div class="job-modal-title" id="job-modal-title">Choisissez une catégorie</div>
+    </div>
+    <div class="job-modal-list" id="job-modal-list"></div>
+    <button type="button" class="job-modal-close" onclick="fermerSelecteurTravail()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ FENÊTRE DE RÉCUPÉRATION DE COMPTE (Google / email + mot de passe) ============ -->
+<div class="recup-modal-overlay" id="recup-modal-overlay" onclick="if(event.target===this) fermerRecuperationCompte()">
+  <div class="recup-modal">
+    <h2 data-i18n="h2_retrouver_compte">Retrouver mon compte</h2>
+    <p style="color:#666; font-size:0.88rem; margin-bottom:14px;">Connectez-vous avec l'email utilisé à l'inscription pour retrouver et réactiver votre compte.</p>
+
+    <label data-i18n="lbl_telephone_inscription">Numéro de téléphone utilisé à l'inscription</label>
+    <input type="tel" id="r-tel" placeholder="+243 ...">
+
+    <button type="button" class="google-btn" onclick="connexionGoogle()" data-i18n="btn_google">🔵 Continuer avec Google</button>
+    <div class="recup-separateur" data-i18n="txt_ou_email">— ou avec votre email —</div>
+
+    <label data-i18n="lbl_email">Adresse email</label>
+    <input type="email" id="r-email" placeholder="exemple@gmail.com">
+    <label data-i18n="lbl_password">Mot de passe</label>
+    <div class="password-wrapper">
+      <input type="password" id="r-password" placeholder="Votre mot de passe">
+      <button type="button" class="password-toggle" onclick="togglePasswordVisibility('r-password', this)">👁️</button>
+    </div>
+    <button class="submit-btn" onclick="connexionEmail()" data-i18n="btn_se_connecter">Se connecter</button>
+    <div class="msg" id="r-msg"></div>
+
+    <div id="r-results"></div>
+
+    <button type="button" class="job-modal-close" onclick="fermerRecuperationCompte()">Fermer</button>
+  </div>
+</div>
+
+<!-- Script normal : remplit les listes déroulantes IMMÉDIATEMENT, sans dépendre d'Internet -->
+<script>
+  const PAYS = [
+    "Afghanistan", "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre",
+    "Angola", "Arabie Saoudite", "Argentine", "Arménie", "Australie", "Autriche",
+    "Azerbaïdjan", "Bahreïn", "Bangladesh", "Belgique", "Bénin", "Bhoutan",
+    "Biélorussie", "Birmanie", "Bolivie", "Bosnie-Herzégovine", "Botswana", "Brésil",
+    "Bulgarie", "Burkina Faso", "Burundi", "Cambodge", "Cameroun", "Canada",
+    "Chili", "Chine", "Chypre", "Colombie", "Comores", "Congo-Brazzaville",
+    "Corée du Sud", "Costa Rica", "Côte d'Ivoire", "Croatie", "Cuba", "Danemark",
+    "Djibouti", "Égypte", "Émirats Arabes Unis", "Équateur", "Érythrée", "Espagne",
+    "Estonie", "États-Unis", "Éthiopie", "Fidji", "Finlande", "France", "Gabon",
+    "Gambie", "Géorgie", "Ghana", "Grèce", "Guatemala", "Guinée", "Guinée-Bissau",
+    "Guinée Équatoriale", "Haïti", "Honduras", "Hongrie", "Inde", "Indonésie",
+    "Irak", "Iran", "Irlande", "Islande", "Israël", "Italie", "Jamaïque", "Japon",
+    "Jordanie", "Kazakhstan", "Kenya", "Kirghizistan", "Kosovo", "Koweït", "Laos",
+    "Lesotho", "Lettonie", "Liban", "Liberia", "Libye", "Liechtenstein", "Lituanie",
+    "Luxembourg", "Macédoine du Nord", "Madagascar", "Malaisie", "Malawi", "Mali",
+    "Malte", "Maroc", "Maurice", "Mauritanie", "Mexique", "Moldavie", "Monaco",
+    "Mongolie", "Monténégro", "Mozambique", "Namibie", "Népal", "Nicaragua",
+    "Niger", "Nigeria", "Norvège", "Nouvelle-Zélande", "Oman", "Ouganda",
+    "Ouzbékistan", "Pakistan", "Panama", "Papouasie-Nouvelle-Guinée", "Paraguay",
+    "Pays-Bas", "Pérou", "Philippines", "Pologne", "Portugal", "Qatar",
+    "RD Congo", "République Centrafricaine", "République Dominicaine",
+    "République Tchèque", "Roumanie", "Royaume-Uni", "Russie", "Rwanda",
+    "Salvador", "Sao Tomé-et-Principe", "Sénégal", "Serbie", "Seychelles",
+    "Sierra Leone", "Singapour", "Slovaquie", "Slovénie", "Somalie", "Soudan",
+    "Soudan du Sud", "Sri Lanka", "Suède", "Suisse", "Suriname", "Syrie",
+    "Tadjikistan", "Tanzanie", "Tchad", "Thaïlande", "Togo", "Tunisie",
+    "Turkménistan", "Turquie", "Ukraine", "Uruguay", "Venezuela", "Vietnam",
+    "Yémen", "Zambie", "Zimbabwe", "Autre"
+  ];
+
+  const TYPES_TRAVAIL = [
+    { id: "domestique", label: "Domestique", jobs: ["Ménage", "Garde d'enfants", "Sécurité", "Cuisine"] },
+    { id: "ventes", label: "Ventes", jobs: ["Vêtements", "Machines", "Galerie", "Restaurant"] },
+    { id: "routes", label: "Routes", jobs: ["Chauffeur", "Moto-taxi", "Bateau", "Avion"] },
+    { id: "finances", label: "Finances", jobs: ["Banque", "Hôpital", "École", "Frontière", "Port", "Aéroport"] },
+    { id: "soins", label: "Soins", jobs: ["Enseignant", "Garde-malade", "Santé mentale"] },
+    { id: "technique", label: "Technique", jobs: ["Musiciens", "Informaticiens", "Électriciens", "Peintres", "Mécaniciens", "Réparateurs", "Arrangeur de son"] }
+  ];
+
+  function fillSelect(select, items, isObj) {
+    select.innerHTML = '<option value="">-- Choisir --</option>' +
+      items.map(it => isObj
+        ? `<option value="${it.id}">${it.label}</option>`
+        : `<option value="${it}">${it}</option>`
+      ).join("");
+  }
+
+  // ===== Sélecteur de travail : catégorie (bouton vert) -> métiers précis (boutons verts) =====
+  let cibleTravailActuelle = null; // { catInputId, posteInputId, btnId }
+
+  function afficherCategoriesTravail() {
+    const listEl = document.getElementById("job-modal-list");
+    document.getElementById("job-modal-title").textContent = "Choisissez une catégorie";
+    document.getElementById("job-modal-back").style.display = "none";
+    let html = "";
+    if (cibleTravailActuelle && cibleTravailActuelle.optionnel) {
+      html += `<button type="button" class="job-cat-btn" style="background:#666;" onclick="choisirTravail('','')">Tout type de travail</button>`;
+    }
+    html += TYPES_TRAVAIL.map(cat =>
+      `<button type="button" class="job-cat-btn" onclick="afficherJobsCategorie('${cat.id}')">${cat.label}</button>`
+    ).join("");
+    listEl.innerHTML = html;
+  }
+
+  function afficherJobsCategorie(catId) {
+    const cat = TYPES_TRAVAIL.find(t => t.id === catId);
+    if (!cat) return;
+    const posteActuel = (cibleTravailActuelle && cibleTravailActuelle.posteInputId)
+      ? (document.getElementById(cibleTravailActuelle.posteInputId) || {}).value : "";
+    const catActuelle = cibleTravailActuelle ? (document.getElementById(cibleTravailActuelle.catInputId) || {}).value : "";
+    const listEl = document.getElementById("job-modal-list");
+    document.getElementById("job-modal-title").textContent = cat.label;
+    document.getElementById("job-modal-back").style.display = "inline-block";
+    const cocheTous = catActuelle === catId && !posteActuel;
+    listEl.innerHTML =
+      `<button type="button" class="job-cat-btn" style="background:#073C28;" onclick="choisirTravail('${cat.id}','')">
+         <span class="job-checkbox${cocheTous ? " checked" : ""}"></span> ✅ ${cat.label} (tous les métiers)
+       </button>` +
+      cat.jobs.map(job => {
+        const coche = catActuelle === catId && posteActuel === job;
+        return `<button type="button" class="job-cat-btn" onclick="choisirTravail('${cat.id}', '${job.replace(/'/g, "\\'")}')">
+          <span class="job-checkbox${coche ? " checked" : ""}"></span> ${job}
+        </button>`;
+      }).join("");
+  }
+
+  window.retourCategoriesTravail = function () {
+    afficherCategoriesTravail();
+  };
+
+  window.ouvrirSelecteurTravail = function (catInputId, posteInputId, btnId) {
+    cibleTravailActuelle = { catInputId, posteInputId, btnId, optionnel: catInputId === "s-type" };
+    afficherCategoriesTravail();
+    document.getElementById("job-modal-overlay").classList.add("open");
+  };
+
+  window.fermerSelecteurTravail = function () {
+    document.getElementById("job-modal-overlay").classList.remove("open");
+  };
+
+  window.choisirTravail = function (catId, jobName) {
+    if (!cibleTravailActuelle) return;
+    const { catInputId, posteInputId, btnId } = cibleTravailActuelle;
+    document.getElementById(catInputId).value = catId;
+    if (posteInputId) {
+      const posteEl = document.getElementById(posteInputId);
+      if (posteEl) posteEl.value = jobName;
+    }
+    const cat = TYPES_TRAVAIL.find(t => t.id === catId);
+    let label = "-- Choisir un type de travail --";
+    if (cat) label = jobName ? `${cat.label} — ${jobName}` : `${cat.label} (tous les métiers)`;
+    else if (catId === "") label = "-- Tout type de travail --";
+    document.getElementById(btnId).textContent = label;
+    window.fermerSelecteurTravail();
+  };
+
+  // ===== Sélecteur de pays personnalisé avec recherche intégrée =====
+  let ciblePaysActuelle = null; // { inputId, btnId }
+
+  function afficherListePays(liste) {
+    const listEl = document.getElementById("country-modal-list");
+    if (!liste.length) {
+      listEl.innerHTML = '<div class="empty-state">Aucun pays trouvé.</div>';
+      return;
+    }
+    listEl.innerHTML = liste.map(p =>
+      `<div class="country-modal-item" onclick="choisirPays('${p.replace(/'/g, "\\'")}')">${p}</div>`
+    ).join("");
+  }
+
+  window.ouvrirSelecteurPays = function (inputId, btnId) {
+    ciblePaysActuelle = { inputId, btnId };
+    const searchEl = document.getElementById("country-modal-search");
+    searchEl.value = "";
+    afficherListePays(PAYS);
+    document.getElementById("country-modal-overlay").classList.add("open");
+    setTimeout(() => searchEl.focus(), 100);
+  };
+
+  window.fermerSelecteurPays = function () {
+    document.getElementById("country-modal-overlay").classList.remove("open");
+  };
+
+  window.choisirPays = function (pays) {
+    if (!ciblePaysActuelle) return;
+    document.getElementById(ciblePaysActuelle.inputId).value = pays;
+    document.getElementById(ciblePaysActuelle.btnId).textContent = pays;
+    window.fermerSelecteurPays();
+  };
+
+  document.getElementById("country-modal-search").addEventListener("input", (e) => {
+    const terme = e.target.value.trim().toLowerCase();
+    // Priorité aux pays qui COMMENCENT par la lettre/le texte tapé
+    const filtres = terme ? PAYS.filter(p => p.toLowerCase().startsWith(terme)) : PAYS;
+    afficherListePays(filtres);
+  });
+</script>
+
+<!-- Firebase SDK : gère uniquement l'enregistrement et la recherche en ligne -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp, orderBy, doc, updateDoc, deleteDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
+    GoogleAuthProvider, signInWithRedirect, getRedirectResult
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBn2SAqVmUez262KRcZo54MVbSS512zsIg",
+    authDomain: "africa-jobs-a465c.firebaseapp.com",
+    projectId: "africa-jobs-a465c",
+    storageBucket: "africa-jobs-a465c.firebasestorage.app",
+    messagingSenderId: "59043305598",
+    appId: "1:59043305598:web:458168e88ac6a8ad89e02f",
+    measurementId: "G-Q5BPSW078D"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  function showMsg(elId, ok, textOk, textErr) {
+    const el = document.getElementById(elId);
+    el.style.display = "";
+    el.className = "msg " + (ok ? "success" : "error");
+    el.textContent = ok ? textOk : textErr;
+  }
+
+  // Normalise un numéro de téléphone pour comparaison (ignore espaces, tirets, parenthèses)
+  function normalizerTel(tel) {
+    return (tel || "").replace(/[\s\-().]/g, "");
+  }
+
+  // Vérifie si le numéro est déjà utilisé par un compte avec un AUTRE email
+  async function telephoneDejaUtiliseParAutreEmail(telephone, email) {
+    const telNorm = normalizerTel(telephone);
+    for (const coll of ["travailleurs", "patrons"]) {
+      const snap = await getDocs(collection(db, coll));
+      for (const docSnap of snap.docs) {
+        const d = docSnap.data();
+        if (normalizerTel(d.telephone) === telNorm && d.supprime !== true && d.email && d.email !== email) return true;
+      }
+    }
+    return false;
+  }
+
+  window.inscrireTravailleur = async function () {
+    const email = document.getElementById("t-email").value.trim();
+    const password = document.getElementById("t-password").value;
+    const data = {
+      nom: document.getElementById("t-nom").value.trim(),
+      postnom: document.getElementById("t-postnom").value.trim(),
+      prenom: document.getElementById("t-prenom").value.trim(),
+      adresse: document.getElementById("t-adresse").value.trim(),
+      dateNaissance: document.getElementById("t-naissance").value,
+      niveauEtude: document.getElementById("t-niveau").value,
+      telephone: document.getElementById("t-tel").value.trim(),
+      pays: document.getElementById("t-pays").value,
+      typeTravail: document.getElementById("t-type").value,
+      posteTravail: document.getElementById("t-poste").value,
+      email: email,
+      dateInscription: serverTimestamp(),
+      actif: true,
+      supprime: false
+    };
+
+    if (!data.nom || !data.telephone || !data.pays || !data.typeTravail || !email || !password) {
+      const manquants = [];
+      if (!data.nom) manquants.push("Nom");
+      if (!data.telephone) manquants.push("Numéro de téléphone");
+      if (!data.pays) manquants.push("Pays où vous voulez travailler");
+      if (!data.typeTravail) manquants.push("Type de travail préféré");
+      if (!email) manquants.push("Adresse email");
+      if (!password) manquants.push("Mot de passe");
+      showMsg("t-msg", false, "", "Champ(s) manquant(s) : " + manquants.join(", ") + ".");
+      return;
+    }
+    if (password.length < 6) {
+      showMsg("t-msg", false, "", "Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+    if (await telephoneDejaUtiliseParAutreEmail(data.telephone, email)) {
+      showMsg("t-msg", false, "", "Veuillez saisir l'email ou le mot de passe correspondant à votre numéro de téléphone.");
+      return;
+    }
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      data.uid = cred.user.uid;
+      await addDoc(collection(db, "travailleurs"), data);
+      showMsg("t-msg", true, "Enregistrement réussi avec succès !", "");
+      document.getElementById("form-travailleur").querySelectorAll("input").forEach(i => i.value = "");
+      document.getElementById("t-niveau").selectedIndex = 0;
+      document.getElementById("t-pays").value = "";
+      document.getElementById("btn-t-pays").textContent = "-- Choisir un pays --";
+      document.getElementById("t-type").value = "";
+      document.getElementById("t-poste").value = "";
+      document.getElementById("btn-t-type").textContent = "-- Choisir un type de travail --";
+    } catch (e) {
+      if (e.code === "auth/email-already-in-use") {
+        // Le compte Google/Auth existe peut-être déjà sans fiche Firestore (inscription interrompue).
+        // On tente de se connecter avec le mot de passe fourni pour réparer automatiquement.
+        try {
+          const cred = await signInWithEmailAndPassword(auth, email, password);
+          const q = query(collection(db, "travailleurs"), where("uid", "==", cred.user.uid));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            showMsg("t-msg", false, "", "Un compte existe déjà pour cet email. Utilisez « Retrouver mon compte » en bas de la page.");
+          } else {
+            data.uid = cred.user.uid;
+            await addDoc(collection(db, "travailleurs"), data);
+            showMsg("t-msg", true, "Compte réparé et enregistré avec succès !", "");
+            document.getElementById("form-travailleur").querySelectorAll("input").forEach(i => i.value = "");
+          }
+        } catch (e2) {
+          showMsg("t-msg", false, "", "Cet email est déjà utilisé avec un autre mot de passe. Utilisez « Retrouver mon compte » en bas de la page.");
+        }
+      } else if (e.code === "auth/invalid-email") {
+        showMsg("t-msg", false, "", "Adresse email invalide.");
+      } else if (e.code === "auth/weak-password") {
+        showMsg("t-msg", false, "", "Mot de passe trop faible (6 caractères minimum).");
+      } else {
+        showMsg("t-msg", false, "", "Enregistrement échoué (" + (e.code || e.message || "erreur inconnue") + ").");
+      }
+    }
+  };
+
+  window.inscrirePatron = async function () {
+    const email = document.getElementById("p-email").value.trim();
+    const password = document.getElementById("p-password").value;
+    const data = {
+      nom: document.getElementById("p-nom").value.trim(),
+      postnom: document.getElementById("p-postnom").value.trim(),
+      prenom: document.getElementById("p-prenom").value.trim(),
+      lieuNaissance: document.getElementById("p-naissance-lieu").value.trim(),
+      typeTravail: document.getElementById("p-type").value,
+      posteTravail: document.getElementById("p-poste").value,
+      pays: document.getElementById("p-pays").value,
+      lieuTravail: document.getElementById("p-lieu").value.trim(),
+      telephone: document.getElementById("p-tel").value.trim(),
+      email: email,
+      dateInscription: serverTimestamp(),
+      actif: true,
+      supprime: false
+    };
+
+    if (!data.nom || !data.telephone || !data.pays || !data.typeTravail || !email || !password) {
+      const manquants = [];
+      if (!data.nom) manquants.push("Nom");
+      if (!data.telephone) manquants.push("Numéro à contacter");
+      if (!data.pays) manquants.push("Pays du travail");
+      if (!data.typeTravail) manquants.push("Travail proposé");
+      if (!email) manquants.push("Adresse email");
+      if (!password) manquants.push("Mot de passe");
+      showMsg("p-msg", false, "", "Champ(s) manquant(s) : " + manquants.join(", ") + ".");
+      return;
+    }
+    if (password.length < 6) {
+      showMsg("p-msg", false, "", "Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+    if (await telephoneDejaUtiliseParAutreEmail(data.telephone, email)) {
+      showMsg("p-msg", false, "", "Veuillez saisir l'email ou le mot de passe correspondant à votre numéro de téléphone.");
+      return;
+    }
+
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      data.uid = cred.user.uid;
+      await addDoc(collection(db, "patrons"), data);
+      showMsg("p-msg", true, "Enregistrement réussi avec succès !", "");
+      document.getElementById("form-patron").querySelectorAll("input").forEach(i => i.value = "");
+      document.getElementById("p-type").value = "";
+      document.getElementById("p-poste").value = "";
+      document.getElementById("btn-p-type").textContent = "-- Choisir un type de travail --";
+      document.getElementById("p-pays").value = "";
+      document.getElementById("btn-p-pays").textContent = "-- Choisir un pays --";
+    } catch (e) {
+      if (e.code === "auth/email-already-in-use") {
+        try {
+          const cred = await signInWithEmailAndPassword(auth, email, password);
+          const q = query(collection(db, "patrons"), where("uid", "==", cred.user.uid));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            showMsg("p-msg", false, "", "Un compte existe déjà pour cet email. Utilisez « Retrouver mon compte » en bas de la page.");
+          } else {
+            data.uid = cred.user.uid;
+            await addDoc(collection(db, "patrons"), data);
+            showMsg("p-msg", true, "Compte réparé et enregistré avec succès !", "");
+            document.getElementById("form-patron").querySelectorAll("input").forEach(i => i.value = "");
+          }
+        } catch (e2) {
+          showMsg("p-msg", false, "", "Cet email est déjà utilisé avec un autre mot de passe. Utilisez « Retrouver mon compte » en bas de la page.");
+        }
+      } else if (e.code === "auth/invalid-email") {
+        showMsg("p-msg", false, "", "Adresse email invalide.");
+      } else if (e.code === "auth/weak-password") {
+        showMsg("p-msg", false, "", "Mot de passe trop faible (6 caractères minimum).");
+      } else {
+        showMsg("p-msg", false, "", "Enregistrement échoué (" + (e.code || e.message || "erreur inconnue") + ").");
+      }
+    }
+  };
+
+  let searchRole = "patron"; // "patron" cherche des "travailleurs" ; "travailleur" cherche des "patrons"
+
+  window.setSearchRole = function (role) {
+    searchRole = role;
+    document.getElementById("search-role-patron-btn").classList.toggle("selected", role === "patron");
+    document.getElementById("search-role-travailleur-btn").classList.toggle("selected", role === "travailleur");
+    document.getElementById("s-results").innerHTML = "";
+  };
+
+  // Formatte une date/heure en français, lisible sur mobile
+  function formatDateHeure(date) {
+    return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" }) +
+      " à " + date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  window.lancerRecherche = async function () {
+    const pays = document.getElementById("s-pays").value;
+    const type = document.getElementById("s-type").value;
+    const resultsEl = document.getElementById("s-results");
+    resultsEl.innerHTML = '<div class="empty-state">Recherche en cours...</div>';
+
+    const targetCollection = searchRole === "patron" ? "travailleurs" : "patrons";
+
+    // Horodatage : on lit la date de la dernière recherche AVANT de la remplacer
+    const storageKey = "derniereRecherche_" + searchRole;
+    const previousSearchISO = localStorage.getItem(storageKey);
+    const previousSearchDate = previousSearchISO ? new Date(previousSearchISO) : null;
+    const now = new Date();
+
+    try {
+      let constraints = [where("actif", "==", true)];
+      if (pays) constraints.push(where("pays", "==", pays));
+      if (type) constraints.push(where("typeTravail", "==", type));
+
+      const q = query(collection(db, targetCollection), ...constraints);
+
+      const snap = await getDocs(q);
+
+      // On enregistre l'heure de cette recherche pour la prochaine fois
+      localStorage.setItem(storageKey, now.toISOString());
+
+      const infoBar = `<div class="search-time-bar">
+          🕒 Recherche lancée le ${formatDateHeure(now)}<br>
+          ${previousSearchDate ? "Dernière recherche précédente : " + formatDateHeure(previousSearchDate) : "Première recherche effectuée."}
+        </div>`;
+
+      if (snap.empty) {
+        resultsEl.innerHTML = infoBar + '<div class="empty-state">Aucun résultat trouvé pour ces critères.</div>';
+        return;
+      }
+
+      const typeLabel = (id) => (TYPES_TRAVAIL.find(t => t.id === id) || {}).label || id;
+      const badgeClass = (id) => "badge badge-" + (id || "");
+
+      // Transforme un numéro de téléphone en lien WhatsApp valide (wa.me)
+      const waLink = (tel) => {
+        if (!tel) return "#";
+        const clean = tel.replace(/[^\d+]/g, "").replace(/^\+/, "");
+        return `https://wa.me/${clean}`;
+      };
+
+      // Trie les résultats du plus récent au plus ancien
+      let docs = [];
+      snap.forEach(docSnap => docs.push({ id: docSnap.id, ...docSnap.data() }));
+      docs.sort((a, b) => {
+        const ta = a.dateInscription?.toMillis ? a.dateInscription.toMillis() : 0;
+        const tb = b.dateInscription?.toMillis ? b.dateInscription.toMillis() : 0;
+        return tb - ta;
+      });
+
+      let html = infoBar;
+      docs.forEach(d => {
+        const inscritDate = d.dateInscription?.toDate ? d.dateInscription.toDate() : null;
+        const isNew = previousSearchDate && inscritDate && inscritDate > previousSearchDate;
+        const newBadge = isNew ? '<span class="new-msg-badge">🆕 Nouveau message</span>' : "";
+
+        const nomAffiche = `${d.prenom || ""} ${d.nom || ""}`.trim();
+        if (searchRole === "patron") {
+          html += `<div class="result-card">
+            ${newBadge}
+            <h3>${d.prenom || ""} ${d.nom || ""}</h3>
+            <p>📍 ${d.pays || ""} — ${d.adresse || ""}</p>
+            <p>🎓 ${d.niveauEtude || "Non précisé"}</p>
+            <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${d.telephone || ""} (WhatsApp)</a>
+            <span class="${badgeClass(d.typeTravail)}">${typeLabel(d.typeTravail)}${d.posteTravail ? " — " + d.posteTravail : ""}</span><br>
+            <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
+          </div>`;
+        } else {
+          html += `<div class="result-card">
+            ${newBadge}
+            <h3>${d.prenom || ""} ${d.nom || ""}</h3>
+            <p>📍 ${d.pays || ""} — ${d.lieuTravail || ""}</p>
+            <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${d.telephone || ""} (WhatsApp)</a>
+            <span class="${badgeClass(d.typeTravail)}">${typeLabel(d.typeTravail)}${d.posteTravail ? " — " + d.posteTravail : ""}</span><br>
+            <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
+          </div>`;
+        }
+      });
+      resultsEl.innerHTML = html;
+    } catch (e) {
+      resultsEl.innerHTML = '<div class="empty-state">Erreur de recherche. Vérifiez votre connexion.</div>';
+    }
+  };
+
+  // ===== Notification au lancement : signale les nouveaux patrons/travailleurs =====
+  const VISITE_KEY = "derniereVisiteApp";
+
+  async function compterNouveautes(nomCollection, depuisDate) {
+    try {
+      const snap = await getDocs(collection(db, nomCollection));
+      let count = 0;
+      snap.forEach(doc => {
+        const d = doc.data();
+        const dt = d.dateInscription?.toDate ? d.dateInscription.toDate() : null;
+        if (dt && (!depuisDate || dt > depuisDate)) count++;
+      });
+      return count;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  async function verifierNouveautesAuLancement() {
+    const derniereVisiteISO = localStorage.getItem(VISITE_KEY);
+    const derniereVisite = derniereVisiteISO ? new Date(derniereVisiteISO) : null;
+
+    // Première ouverture : on ne notifie rien, on enregistre juste le repère de départ
+    if (!derniereVisite) {
+      localStorage.setItem(VISITE_KEY, new Date().toISOString());
+      return;
+    }
+
+    const [nbTravailleurs, nbPatrons] = await Promise.all([
+      compterNouveautes("travailleurs", derniereVisite),
+      compterNouveautes("patrons", derniereVisite)
+    ]);
+    const total = nbTravailleurs + nbPatrons;
+
+    const badgeEl = document.getElementById("tab-notif-badge");
+    if (total > 0) {
+      badgeEl.textContent = total > 99 ? "99+" : total;
+      badgeEl.style.display = "inline-block";
+    }
+  }
+
+  // Quand l'utilisateur ouvre l'onglet Recherche, on considère les nouveautés comme vues
+  window.marquerNotifCommeVue = function () {
+    const badgeEl = document.getElementById("tab-notif-badge");
+    badgeEl.style.display = "none";
+    localStorage.setItem(VISITE_KEY, new Date().toISOString());
+  };
+
+  verifierNouveautesAuLancement();
+
+  // ===== Mon compte : retrouver son annonce via son numéro et l'activer/désactiver =====
+  window.retrouverCompte = async function () {
+    const telSaisi = document.getElementById("c-tel").value.trim();
+    const resultsEl = document.getElementById("c-results");
+    resultsEl.innerHTML = "";
+
+    if (!telSaisi) {
+      showMsg("c-msg", false, "", "Veuillez entrer votre numéro de téléphone.");
+      return;
+    }
+    document.getElementById("c-msg").className = "msg";
+
+    try {
+      const telNorm = normalizerTel(telSaisi);
+      let trouvés = [];
+      for (const coll of ["travailleurs", "patrons"]) {
+        const snap = await getDocs(collection(db, coll));
+        snap.forEach(docSnap => {
+          const d = docSnap.data();
+          if (normalizerTel(d.telephone) === telNorm && d.supprime !== true) trouvés.push({ id: docSnap.id, coll, data: d });
+        });
+      }
+
+      if (trouvés.length === 0) {
+        showMsg("c-msg", false, "", "Aucune annonce trouvée avec ce numéro. Si votre compte a été supprimé, utilisez « Retrouver mon compte supprimé » sur l'écran Inscription.");
+        return;
+      }
+
+      document.getElementById("c-msg").style.display = "none";
+
+      let html = "";
+      trouvés.forEach(item => {
+        const estProprietaire = auth.currentUser && auth.currentUser.uid === item.data.uid;
+        const catActuelle = TYPES_TRAVAIL.find(t => t.id === item.data.typeTravail);
+        const labelType = catActuelle
+          ? (item.data.posteTravail ? `${catActuelle.label} — ${item.data.posteTravail}` : `${catActuelle.label} (tous les métiers)`)
+          : "-- Choisir un type de travail --";
+
+        if (!estProprietaire) {
+          // Compte trouvé mais l'identité n'est pas encore vérifiée : on ne montre aucune donnée de gestion
+          html += `<div class="compte-card" id="carte-${item.id}">
+            <h3>${item.data.prenom || ""} ${item.data.nom || ""}</h3>
+            <p style="color:#a15c00; background:#fff3e0; padding:8px 10px; border-radius:8px; font-size:0.9rem;">
+              🔒 Ce compte existe. Pour le modifier, l'activer/désactiver ou le supprimer, connectez-vous avec l'email et le mot de passe utilisés à l'inscription.
+            </p>
+            <label>Adresse email</label>
+            <input type="email" id="proof-email-${item.id}" placeholder="Email utilisé à l'inscription">
+            <label>Mot de passe</label>
+            <input type="password" id="proof-password-${item.id}" placeholder="Votre mot de passe">
+            <button class="toggle-btn activer" onclick="verifierProprietaireEtGerer('${item.coll}', '${item.id}')">🔐 Se connecter pour gérer ce compte</button>
+            <div class="msg" id="msg-${item.id}"></div>
+          </div>`;
+          return;
+        }
+
+        const estActif = item.data.actif !== false;
+        html += `<div class="compte-card" id="carte-${item.id}">
+          <h3>${item.data.prenom || ""} ${item.data.nom || ""}</h3>
+          <label data-i18n="lbl_pays">Pays</label>
+          <button type="button" class="country-picker-btn" id="btn-editpays-${item.id}"
+            onclick="ouvrirSelecteurPays('editpays-${item.id}','btn-editpays-${item.id}')">${item.data.pays || "-- Choisir un pays --"}</button>
+          <input type="hidden" id="editpays-${item.id}" value="${item.data.pays || ""}">
+          <label data-i18n="lbl_type_travail">Type de travail</label>
+          <button type="button" class="job-picker-btn" id="btn-edittype-${item.id}"
+            onclick="ouvrirSelecteurTravail('edittype-${item.id}','editposte-${item.id}','btn-edittype-${item.id}')">${labelType}</button>
+          <input type="hidden" id="edittype-${item.id}" value="${item.data.typeTravail || ""}">
+          <input type="hidden" id="editposte-${item.id}" value="${item.data.posteTravail || ""}">
+          <button class="toggle-btn activer" onclick="enregistrerModifProfil('${item.coll}', '${item.id}')">💾 Enregistrer les modifications</button>
+          <label class="compte-checkbox-label">
+            <input type="checkbox" id="check-${item.id}" ${estActif ? "checked" : ""}
+              onchange="toggleViaCase(this.checked, '${item.coll}', '${item.id}')">
+            Compte activé
+          </label>
+          <span class="statut-tag ${estActif ? "statut-actif" : "statut-inactif"}" id="statut-${item.id}">
+            ${estActif ? "🟢 Annonce active (visible dans la recherche)" : "⚪ Annonce désactivée (invisible)"}
+          </span><br>
+          <div class="toggle-row">
+            <button class="toggle-btn activer" onclick="activerCompte('${item.coll}', '${item.id}')">✅ Activer le compte</button>
+            <button class="toggle-btn desactiver" onclick="desactiverCompte('${item.coll}', '${item.id}')">⛔ Désactiver le compte</button>
+          </div>
+          <button class="toggle-btn supprimer" onclick="supprimerCompte('${item.coll}', '${item.id}')">🗑️ Supprimer le compte</button>
+          <div class="msg" id="msg-${item.id}"></div>
+        </div>`;
+      });
+      resultsEl.innerHTML = html;
+    } catch (e) {
+      showMsg("c-msg", false, "", "Erreur lors de la recherche. Vérifiez votre connexion.");
+    }
+  };
+
+  // Vérifie que la personne connectée est bien le propriétaire du compte trouvé avant d'afficher les contrôles de gestion
+  window.verifierProprietaireEtGerer = async function (coll, docId) {
+    const email = document.getElementById("proof-email-" + docId).value.trim();
+    const password = document.getElementById("proof-password-" + docId).value;
+    if (!email || !password) {
+      afficherMsgCarte(docId, false, "Veuillez entrer votre email et votre mot de passe.");
+      return;
+    }
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const docSnap = await getDocs(query(collection(db, coll), where("uid", "==", cred.user.uid)));
+      let estLeBonCompte = false;
+      docSnap.forEach(d => { if (d.id === docId) estLeBonCompte = true; });
+      if (!estLeBonCompte) {
+        await signOut(auth);
+        afficherMsgCarte(docId, false, "Ces identifiants ne correspondent pas à ce compte.");
+        return;
+      }
+      // Identité confirmée : on relance la recherche pour afficher les contrôles de gestion complets
+      await retrouverCompte();
+    } catch (e) {
+      afficherMsgCarte(docId, false, "Email ou mot de passe incorrect.");
+    }
+  };
+
+  // Affiche un message de confirmation sous une carte de compte spécifique
+  function afficherMsgCarte(docId, ok, texte) {
+    const el = document.getElementById("msg-" + docId);
+    if (!el) return;
+    el.className = "msg " + (ok ? "success" : "error");
+    el.textContent = texte;
+  }
+
+  // Permet à l'utilisateur de changer son pays et/ou son type de travail sans se réinscrire
+  window.enregistrerModifProfil = async function (coll, docId) {
+    try {
+      const pays = document.getElementById("editpays-" + docId).value;
+      const typeTravail = document.getElementById("edittype-" + docId).value;
+      const posteTravail = document.getElementById("editposte-" + docId).value;
+      await updateDoc(doc(db, coll, docId), { pays, typeTravail, posteTravail });
+      afficherMsgCarte(docId, true, "✅ Profil mis à jour avec succès !");
+    } catch (e) {
+      afficherMsgCarte(docId, false, "Erreur lors de la mise à jour du profil.");
+    }
+  };
+
+  // ===== Espace Admin : réservé au gérant de l'application =====
+  // ===== Système multilingue =====
+  const LANGUES = [
+    { code: "fr", label: "🇫🇷 Français" },
+    { code: "en", label: "🇬🇧 English" },
+    { code: "sw", label: "🇹🇿 Kiswahili" },
+    { code: "ln", label: "🇨🇩 Lingála" },
+    { code: "rw", label: "🇷🇼 Kinyarwanda" },
+    { code: "pt", label: "🇵🇹 Português" },
+    { code: "ar", label: "🇸🇦 العربية" },
+    { code: "es", label: "🇪🇸 Español" },
+    { code: "zh", label: "🇨🇳 中文" }
+  ];
+
+  const TRANSLATIONS = {
+    fr: {
+      tagline: "La plateforme qui connecte patrons et travailleurs, partout dans le monde",
+      tab_inscription: "Inscription", tab_recherche: "Recherche", tab_compte: "Mon compte", tab_admin: "Admin",
+      lbl_adresse: "Adresse", lbl_email: "Adresse email", lbl_date_naissance: "Date de naissance",
+      lbl_lieu_naissance: "Lieu de naissance", lbl_lieu_travail: "Lieu du travail (ville / adresse)",
+      lbl_password: "Mot de passe", lbl_niveau_etude: "Niveau d'étude", lbl_nom: "Nom",
+      lbl_telephone: "Numéro de téléphone", lbl_telephone_inscription: "Numéro de téléphone utilisé à l'inscription",
+      lbl_numero_contacter: "Numéro à contacter", lbl_pays: "Pays", lbl_pays_travail: "Pays du travail",
+      lbl_pays_voulez: "Pays où vous voulez travailler", lbl_postnom: "Post-nom", lbl_prenom: "Prénom",
+      lbl_travail_propose: "Travail proposé", lbl_type_travail: "Type de travail", lbl_type_travail_prefere: "Type de travail préféré",
+      h2_admin: "Espace administrateur", h2_inscription_patron: "Inscription Patron", h2_inscription_travailleur: "Inscription Travailleur",
+      h2_retrouver_annonce: "Retrouver mon annonce", h2_retrouver_compte: "Retrouver mon compte", h2_tous_comptes: "Tous les comptes enregistrés",
+      btn_enregistrer: "Enregistrer", btn_retrouver_annonce: "🔎 Retrouver mon annonce", btn_se_connecter: "Se connecter",
+      btn_role_travailleur: "👷 Je suis Travailleur", btn_role_pa
