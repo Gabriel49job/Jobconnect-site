@@ -1797,7 +1797,8 @@
       }
     });
     const langue = LANGUES.find(l => l.code === code);
-    document.getElementById("btn-lang").textContent = "🌐 " + (langue ? langue.label.replace(/^\S+\s/, "") : "Français");
+    const langValueEl = document.getElementById("settings-lang-value");
+    if (langValueEl) langValueEl.textContent = langue ? langue.label.replace(/^\S+\s/, "") : "Français";
     document.documentElement.setAttribute("lang", code);
     document.documentElement.setAttribute("dir", code === "ar" ? "rtl" : "ltr");
     try { localStorage.setItem("jc_langue", code); } catch (e) {}
