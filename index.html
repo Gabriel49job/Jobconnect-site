@@ -180,16 +180,43 @@
   }
   .country-picker-btn:active { background: #eee; }
 
-  .lang-picker-btn {
-    margin-top: 10px;
-    padding: 6px 14px;
-    border-radius: 20px;
+  .hamburger-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.5);
     background: rgba(255,255,255,0.12);
     color: #fff;
-    font-size: 0.85rem;
+    font-size: 1.25rem;
+    line-height: 1;
   }
-  .lang-picker-btn:active { background: rgba(255,255,255,0.25); }
+  .hamburger-btn:active { background: rgba(255,255,255,0.25); }
+
+  .settings-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 14px 12px;
+    border-radius: 10px;
+    background: #FAF6EF;
+    border: 1px solid #eee;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1C2620;
+    text-decoration: none;
+  }
+  .settings-item:active { background: #E7F2E9; }
+  .settings-item-value { color: #6B7A72; font-weight: 500; font-size: 0.85rem; }
 
 
   .country-modal-overlay {
@@ -640,7 +667,7 @@
   </div>
   <h1>JOB <span style="color:#E8A33D;">CONNECT</span></h1>
   <p data-i18n="tagline">La plateforme qui connecte patrons et travailleurs, partout dans le monde</p>
-  <button type="button" class="lang-picker-btn" id="btn-lang" onclick="ouvrirSelecteurLangue()">🌐 Français</button>
+  <button type="button" class="hamburger-btn" id="btn-settings" onclick="ouvrirParametres()" aria-label="Paramètres">☰</button>
 </header>
 <div class="signature-divider"></div>
 
@@ -656,6 +683,23 @@
   <div class="country-modal">
     <div class="country-modal-list" id="lang-modal-list"></div>
     <button type="button" class="country-modal-close" onclick="fermerSelecteurLangue()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ PANNEAU PARAMÈTRES ============ -->
+<div class="country-modal-overlay" id="settings-modal-overlay" onclick="if(event.target===this) fermerParametres()">
+  <div class="country-modal">
+    <div class="settings-menu">
+      <button type="button" class="settings-item" onclick="fermerParametres(); ouvrirSelecteurLangue();">
+        <span>🌐 Langue</span>
+        <span class="settings-item-value" id="settings-lang-value">Français</span>
+      </button>
+      <a class="settings-item" href="confidentialite.html" target="_blank" rel="noopener">
+        <span>🔒 Politique de confidentialité</span>
+        <span>›</span>
+      </a>
+    </div>
+    <button type="button" class="country-modal-close" onclick="fermerParametres()">Fermer</button>
   </div>
 </div>
 
@@ -1756,6 +1800,13 @@
     document.documentElement.setAttribute("dir", code === "ar" ? "rtl" : "ltr");
     try { localStorage.setItem("jc_langue", code); } catch (e) {}
   }
+
+  window.ouvrirParametres = function () {
+    document.getElementById("settings-modal-overlay").classList.add("open");
+  };
+  window.fermerParametres = function () {
+    document.getElementById("settings-modal-overlay").classList.remove("open");
+  };
 
   window.ouvrirSelecteurLangue = function () {
     const listEl = document.getElementById("lang-modal-list");
