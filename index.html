@@ -961,7 +961,7 @@
     { id: "routes", label: "Routes", jobs: ["Chauffeur", "Moto-taxi", "Bateau", "Avion"] },
     { id: "finances", label: "Finances", jobs: ["Banque", "Hôpital", "École", "Frontière", "Port", "Aéroport"] },
     { id: "soins", label: "Soins", jobs: ["Enseignant", "Garde-malade", "Santé mentale"] },
-    { id: "technique", label: "Technique", jobs: ["Musiciens", "Informaticiens", "Électriciens", "Peintres", "Mécaniciens", "Réparateurs", "Arrangeur de son"] }
+    { id: "technique", label: "Technique", jobs: ["Musiciens", "Informaticiens", "Électriciens", "Peintres", "Mécaniciens", "Réparateurs", "Arrangeur de son", "Constructions"] }
   ];
 
   function fillSelect(select, items, isObj) {
@@ -1091,7 +1091,7 @@
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
-    GoogleAuthProvider, signInWithRedirect, getRedirectResult
+    GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendEmailVerification
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -1177,7 +1177,8 @@
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       data.uid = cred.user.uid;
       await addDoc(collection(db, "travailleurs"), data);
-      showMsg("t-msg", true, "Enregistrement réussi avec succès !", "");
+      try { await sendEmailVerification(cred.user); } catch (eVerif) {}
+      showMsg("t-msg", true, "Enregistrement réussi ! Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail.", "");
       document.getElementById("form-travailleur").querySelectorAll("input").forEach(i => i.value = "");
       document.getElementById("t-niveau").selectedIndex = 0;
       document.getElementById("t-pays").value = "";
@@ -1257,7 +1258,8 @@
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       data.uid = cred.user.uid;
       await addDoc(collection(db, "patrons"), data);
-      showMsg("p-msg", true, "Enregistrement réussi avec succès !", "");
+      try { await sendEmailVerification(cred.user); } catch (eVerif) {}
+      showMsg("p-msg", true, "Enregistrement réussi ! Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail.", "");
       document.getElementById("form-patron").querySelectorAll("input").forEach(i => i.value = "");
       document.getElementById("p-type").value = "";
       document.getElementById("p-poste").value = "";
