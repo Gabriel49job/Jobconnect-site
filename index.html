@@ -1377,6 +1377,13 @@
     const pays = document.getElementById("s-pays").value;
     const type = document.getElementById("s-type").value;
     const resultsEl = document.getElementById("s-results");
+
+    // Un travailleur (EMPLOYÉ) doit obligatoirement choisir un pays et/ou un type de travail
+    if (searchRole !== "patron" && !pays && !type) {
+      resultsEl.innerHTML = '<div class="empty-state">Veuillez choisir un pays et/ou un type de travail où vous voulez travailler, pour trouver un employeur.</div>';
+      return;
+    }
+
     resultsEl.innerHTML = '<div class="empty-state">Recherche en cours...</div>';
 
     const targetCollection = searchRole === "patron" ? "travailleurs" : "patrons";
