@@ -457,6 +457,17 @@
     margin-top: 4px;
   }
   .share-link-btn:active { opacity: 0.6; }
+  .verified-badge {
+    display: inline-block;
+    background: #E3F2FD;
+    color: #1565C0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
   .signal-modal-overlay {
     display: none;
     position: fixed;
@@ -1399,10 +1410,11 @@
         const newBadge = isNew ? '<span class="new-msg-badge">🆕 Nouveau message</span>' : "";
 
         const nomAffiche = `${esc(d.prenom || "")} ${esc(d.nom || "")}`.trim();
+        const badgeVerifie = d.emailVerifie === true ? '<span class="verified-badge">✅ Vérifié</span>' : "";
         if (searchRole === "patron") {
           html += `<div class="result-card">
             ${newBadge}
-            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}</h3>
+            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}${badgeVerifie}</h3>
             <p>📍 ${esc(d.pays || "")} — ${esc(d.adresse || "")}</p>
             <p>🎓 ${esc(d.niveauEtude || "Non précisé")}</p>
             <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
@@ -1413,7 +1425,7 @@
         } else {
           html += `<div class="result-card">
             ${newBadge}
-            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}</h3>
+            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}${badgeVerifie}</h3>
             <p>📍 ${esc(d.pays || "")} — ${esc(d.lieuTravail || "")}</p>
             <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
             <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
@@ -1585,6 +1597,10 @@
         await signOut(auth);
         afficherMsgCarte(docId, false, "Ces identifiants ne correspondent pas à ce compte.");
         return;
+      }
+      // Si l'email est confirmé chez Firebase, on marque le profil comme vérifié
+      if (cred.user.emailVerified) {
+        try { await updateDoc(doc(db, coll, docId), { emailVerifie: true }); } catch (eUp) {}
       }
       // Identité confirmée : on relance la recherche pour afficher les contrôles de gestion complets
       await retrouverCompte();
@@ -2138,7 +2154,7 @@
     document.getElementById("recup-modal-overlay").classList.remove("open");
   };
 
-  async function traiterConnexionReussie(uid) {
+  async function traiterConnexionReussie(uid, emailVerifie) {
     const resultsEl = document.getElementById("r-results");
     resultsEl.innerHTML = "";
     const telSaisi = document.getElementById("r-tel").value.trim();
@@ -2153,6 +2169,13 @@
     if (trouvés.length === 0) {
       showMsg("r-msg", false, "", "Aucun compte trouvé pour cet email.");
       return;
+    }
+
+    // Si l'email est confirmé, on marque tous les comptes trouvés comme vérifiés
+    if (emailVerifie) {
+      for (const item of trouvés) {
+        try { await updateDoc(doc(db, item.coll, item.id), { emailVerifie: true }); } catch (eUp) {}
+      }
     }
 
     // Si un numéro a été saisi, on vérifie qu'il correspond bien au compte
@@ -2209,7 +2232,7 @@
     document.getElementById("r-msg").className = "msg";
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      await traiterConnexionReussie(cred.user.uid);
+      await traiterConnexionReussie(cred.user.uid, cred.user.emailVerified);
     } catch (e) {
       showMsg("r-msg", false, "", "Email ou mot de passe incorrect.");
     }
@@ -2220,7 +2243,7 @@
     const provider = new GoogleAuthProvider();
     try {
       const cred = await signInWithPopup(auth, provider);
-      await traiterConnexionReussie(cred.user.uid);
+      await traiterConnexionReussie(cred.user.uid, cred.user.emailVerified);
     } catch (e) {
       // Si le popup est bloqué par le navigateur, on retente avec la redirection classique
       if (e.code === "auth/popup-blocked" || e.code === "auth/cancelled-popup-request") {
@@ -2242,7 +2265,7 @@
       if (result && result.user) {
         if (window.allerVersEcran) window.allerVersEcran("compte");
         document.getElementById("recup-modal-overlay").classList.add("open");
-        await traiterConnexionReussie(result.user.uid);
+        await traiterConnexionReussie(result.user.uid, result.user.emailVerified);
       }
     } catch (e) {
       if (window.allerVersEcran) window.allerVersEcran("compte");
