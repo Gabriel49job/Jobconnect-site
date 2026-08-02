@@ -741,8 +741,8 @@
 <div class="screen active" id="screen-inscription">
 
   <div class="role-select">
-    <button class="role-btn selected" id="role-travailleur-btn" onclick="setRole('travailleur')" data-i18n="btn_role_travailleur">👷 Je suis Travailleur</button>
-    <button class="role-btn" id="role-patron-btn" onclick="setRole('patron')" data-i18n="btn_role_patron">🧑‍💼 Je suis Patron</button>
+    <button class="role-btn selected" id="role-travailleur-btn" onclick="setRole('travailleur')" data-i18n="btn_role_travailleur">👷 Travailleur (EMPLOYÉ)</button>
+    <button class="role-btn" id="role-patron-btn" onclick="setRole('patron')" data-i18n="btn_role_patron">🧑‍💼 Patron (EMPLOYEUR)</button>
   </div>
 
   <!-- FORMULAIRE TRAVAILLEUR -->
@@ -1342,7 +1342,7 @@
 
   window.actualiserEcranRecherche = function () {
     if (searchRole === "patron") {
-      window.lancerRecherche();
+      document.getElementById("s-results").innerHTML = '<div class="empty-state">Appuyez sur Rechercher pour voir tous les travailleurs disponibles.</div>';
     } else {
       document.getElementById("s-results").innerHTML = '<div class="empty-state">Choisissez un pays et/ou un type de travail, puis appuyez sur Rechercher.</div>';
     }
@@ -1352,21 +1352,19 @@
     searchRole = role;
     document.getElementById("search-role-patron-btn").classList.toggle("selected", role === "patron");
     document.getElementById("search-role-travailleur-btn").classList.toggle("selected", role === "travailleur");
-    document.getElementById("s-results").innerHTML = "";
     const filterRowEl = document.getElementById("filter-row-recherche");
     if (role === "patron") {
-      // Le patron voit directement la liste complète des travailleurs, sans filtres
+      // Le patron n'a pas de filtres, mais doit quand même appuyer sur Rechercher
       filterRowEl.style.display = "none";
       document.getElementById("s-pays").value = "";
       document.getElementById("btn-s-pays").textContent = "-- Choisir un pays --";
       document.getElementById("s-type").value = "";
       document.getElementById("btn-s-type").textContent = "-- Tout type de travail --";
-      window.lancerRecherche();
     } else {
       // Le travailleur choisit ses critères puis lance la recherche lui-même
       filterRowEl.style.display = "flex";
-      document.getElementById("s-results").innerHTML = '<div class="empty-state">Choisissez un pays et/ou un type de travail, puis appuyez sur Rechercher.</div>';
     }
+    window.actualiserEcranRecherche();
   };
 
   // Formatte une date/heure en français, lisible sur mobile
@@ -1694,7 +1692,7 @@
       h2_admin: "Espace administrateur", h2_inscription_patron: "Inscription Patron", h2_inscription_travailleur: "Inscription Travailleur",
       h2_retrouver_annonce: "Retrouver mon annonce", h2_retrouver_compte: "Retrouver mon compte", h2_tous_comptes: "Tous les comptes enregistrés",
       btn_enregistrer: "Enregistrer", btn_retrouver_annonce: "🔎 Retrouver mon annonce", btn_se_connecter: "Se connecter",
-      btn_role_travailleur: "👷 Je suis Travailleur", btn_role_patron: "🧑‍💼 Je suis Patron",
+      btn_role_travailleur: "👷 Travailleur (EMPLOYÉ)", btn_role_patron: "🧑‍💼 Patron (EMPLOYEUR)",
       btn_search_patron: "🧑‍💼 EMPLOYEUR", btn_search_travailleur: "👷 EMPLOYÉ",
       btn_google: "🔵 Continuer avec Google", txt_ou_email: "— ou avec votre email —",
       txt_probleme_compte: "Un problème avec votre compte ?", btn_activer_mon_compte: "🔓 Activer mon compte",
