@@ -1523,6 +1523,9 @@
       let html = "";
       trouvés.forEach(item => {
         const estProprietaire = auth.currentUser && auth.currentUser.uid === item.data.uid;
+        if (estProprietaire && auth.currentUser.emailVerified && item.data.emailVerifie !== true) {
+          updateDoc(doc(db, item.coll, item.id), { emailVerifie: true }).catch(() => {});
+        }
         const catActuelle = TYPES_TRAVAIL.find(t => t.id === item.data.typeTravail);
         const labelType = catActuelle
           ? (item.data.posteTravail ? `${catActuelle.label} — ${item.data.posteTravail}` : `${catActuelle.label} (tous les métiers)`)
