@@ -824,7 +824,7 @@
   </div>
 
   <div class="card">
-    <div class="filter-row">
+    <div class="filter-row" id="filter-row-recherche" style="display:none;">
       <div style="flex:1;">
         <button type="button" class="country-picker-btn" id="btn-s-pays" onclick="ouvrirSelecteurPays('s-pays','btn-s-pays')">-- Choisir un pays --</button>
         <input type="hidden" id="s-pays" value="">
@@ -1333,6 +1333,18 @@
     document.getElementById("search-role-patron-btn").classList.toggle("selected", role === "patron");
     document.getElementById("search-role-travailleur-btn").classList.toggle("selected", role === "travailleur");
     document.getElementById("s-results").innerHTML = "";
+    const filterRowEl = document.getElementById("filter-row-recherche");
+    if (role === "patron") {
+      // Le patron voit directement la liste complète des travailleurs, sans filtres
+      filterRowEl.style.display = "none";
+      document.getElementById("s-pays").value = "";
+      document.getElementById("btn-s-pays").textContent = "-- Choisir un pays --";
+      document.getElementById("s-type").value = "";
+      document.getElementById("btn-s-type").textContent = "-- Tout type de travail --";
+    } else {
+      // Le travailleur peut filtrer par pays et type de travail pour trouver un emploi précis
+      filterRowEl.style.display = "flex";
+    }
     window.lancerRecherche();
   };
 
