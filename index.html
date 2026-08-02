@@ -783,7 +783,7 @@
       <button type="button" class="password-toggle" onclick="togglePasswordVisibility('t-password', this)">👁️</button>
     </div>
 
-    <button class="submit-btn" onclick="inscrireTravailleur()" data-i18n="btn_enregistrer">Enregistrer</button>
+    <button class="submit-btn" id="btn-inscrire-t" onclick="inscrireTravailleur()" data-i18n="btn_enregistrer">Enregistrer</button>
     <div class="msg" id="t-msg"></div>
   </div>
 
@@ -817,7 +817,7 @@
       <button type="button" class="password-toggle" onclick="togglePasswordVisibility('p-password', this)">👁️</button>
     </div>
 
-    <button class="submit-btn" onclick="inscrirePatron()" data-i18n="btn_enregistrer">Enregistrer</button>
+    <button class="submit-btn" id="btn-inscrire-p" onclick="inscrirePatron()" data-i18n="btn_enregistrer">Enregistrer</button>
     <div class="msg" id="p-msg"></div>
   </div>
 
@@ -1121,7 +1121,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore, collection, addDoc, query, where, getDocs, getDoc, serverTimestamp, orderBy, doc, updateDoc, deleteDoc
+    getFirestore, collection, addDoc, query, where, getDocs, getDoc, serverTimestamp, orderBy, doc, updateDoc, deleteDoc, increment
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -1179,6 +1179,12 @@
   }
 
   window.inscrireTravailleur = async function () {
+    const btn = document.getElementById("btn-inscrire-t");
+    if (btn.disabled) return; // Empêche le double-clic d'envoyer deux inscriptions en même temps
+    btn.disabled = true;
+    const texteOriginal = btn.textContent;
+    btn.textContent = "Enregistrement en cours...";
+    try {
     const email = document.getElementById("t-email").value.trim();
     const password = document.getElementById("t-password").value;
     const data = {
@@ -1258,9 +1264,19 @@
         showMsg("t-msg", false, "", "Enregistrement échoué (" + (e.code || e.message || "erreur inconnue") + ").");
       }
     }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = texteOriginal;
+    }
   };
 
   window.inscrirePatron = async function () {
+    const btn = document.getElementById("btn-inscrire-p");
+    if (btn.disabled) return; // Empêche le double-clic d'envoyer deux inscriptions en même temps
+    btn.disabled = true;
+    const texteOriginal = btn.textContent;
+    btn.textContent = "Enregistrement en cours...";
+    try {
     const email = document.getElementById("p-email").value.trim();
     const password = document.getElementById("p-password").value;
     const data = {
@@ -1335,6 +1351,10 @@
       } else {
         showMsg("p-msg", false, "", "Enregistrement échoué (" + (e.code || e.message || "erreur inconnue") + ").");
       }
+    }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = texteOriginal;
     }
   };
 
@@ -1448,6 +1468,9 @@
         const newBadge = isNew ? '<span class="new-msg-badge">🆕 Nouveau message</span>' : "";
 
         const nomAffiche = `${esc(d.prenom || "")} ${esc(d.nom || "")}`.trim();
+        // Compteur de vues : on incrémente en arrière-plan sans bloquer l'affichage
+        updateDoc(doc(db, targetCollection, d.id), { vues: increment(1) }).catch(() => {});
+        const vuesTexte = `<span style="color:#888; font-size:0.78rem; font-weight:600;">👁️ Vu ${(d.vues || 0) + 1} fois</span>`;
         const badgeVerifie = d.emailVerifie === true ? '<span class="verified-badge">✅ Vérifié</span>' : "";
         if (searchRole === "patron") {
           html += `<div class="result-card">
@@ -1459,6 +1482,7 @@
             <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
             <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
             <a class="share-link-btn" href="${partageLink(nomAffiche, typeLabel(d.typeTravail) + (d.posteTravail ? " — " + d.posteTravail : ""), d.pays || "")}" target="_blank" rel="noopener">📤 Partager ce profil</a>
+            <br>${vuesTexte}
           </div>`;
         } else {
           html += `<div class="result-card">
@@ -1469,6 +1493,7 @@
             <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
             <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
             <a class="share-link-btn" href="${partageLink(nomAffiche, typeLabel(d.typeTravail) + (d.posteTravail ? " — " + d.posteTravail : ""), d.pays || "")}" target="_blank" rel="noopener">📤 Partager ce profil</a>
+            <br>${vuesTexte}
           </div>`;
         }
       });
@@ -1589,6 +1614,13 @@
         const estActif = item.data.actif !== false;
         html += `<div class="compte-card" id="carte-${item.id}">
           <h3>${esc(item.data.prenom || "")} ${esc(item.data.nom || "")}</h3>
+          <p style="color:#888; font-size:0.85rem; font-weight:600;">👁️ Vu ${item.data.vues || 0} fois dans les résultats de recherche</p>
+          ${item.data.emailVerifie === true
+            ? '<p style="color:#1565C0; font-size:0.85rem; font-weight:700;">✅ Email vérifié</p>'
+            : `<p style="color:#a15c00; background:#fff3e0; padding:8px 10px; border-radius:8px; font-size:0.85rem;">
+                 ⚠️ Email non vérifié — votre profil n'a pas encore le badge « Vérifié ».
+               </p>
+               <button type="button" class="toggle-btn activer" onclick="renvoyerEmailVerification('${item.id}')">📧 Renvoyer l'email de vérification</button>`}
           <label data-i18n="lbl_pays">Pays</label>
           <button type="button" class="country-picker-btn" id="btn-editpays-${item.id}"
             onclick="ouvrirSelecteurPays('editpays-${item.id}','btn-editpays-${item.id}')">${esc(item.data.pays || "-- Choisir un pays --")}</button>
@@ -1659,6 +1691,27 @@
   }
 
   // Permet à l'utilisateur de changer son pays et/ou son type de travail sans se réinscrire
+  window.renvoyerEmailVerification = async function (docId) {
+    if (!auth.currentUser) {
+      afficherMsgCarte(docId, false, "Vous devez être connecté pour renvoyer l'email de vérification.");
+      return;
+    }
+    if (auth.currentUser.emailVerified) {
+      afficherMsgCarte(docId, true, "✅ Votre email est déjà vérifié !");
+      return;
+    }
+    try {
+      await sendEmailVerification(auth.currentUser);
+      afficherMsgCarte(docId, true, "📧 Email de vérification envoyé ! Vérifiez votre boîte mail (et vos spams).");
+    } catch (e) {
+      if (e.code === "auth/too-many-requests") {
+        afficherMsgCarte(docId, false, "Trop de tentatives. Veuillez patienter quelques minutes avant de réessayer.");
+      } else {
+        afficherMsgCarte(docId, false, "Erreur : impossible d'envoyer l'email (" + (e.code || e.message) + ").");
+      }
+    }
+  };
+
   window.enregistrerModifProfil = async function (coll, docId) {
     try {
       const pays = document.getElementById("editpays-" + docId).value;
