@@ -2220,9 +2220,13 @@
     try {
       const result = await getRedirectResult(auth);
       if (result && result.user) {
+        if (window.allerVersEcran) window.allerVersEcran("compte");
+        document.getElementById("recup-modal-overlay").classList.add("open");
         await traiterConnexionReussie(result.user.uid);
       }
     } catch (e) {
+      if (window.allerVersEcran) window.allerVersEcran("compte");
+      document.getElementById("recup-modal-overlay").classList.add("open");
       if (document.getElementById("r-msg")) {
         showMsg("r-msg", false, "", "Connexion Google impossible (" + (e.code || e.message) + ").");
       }
