@@ -1087,7 +1087,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp, orderBy, doc, updateDoc, deleteDoc
+    getFirestore, collection, addDoc, query, where, getDocs, getDoc, serverTimestamp, orderBy, doc, updateDoc, deleteDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -1300,6 +1300,7 @@
     document.getElementById("search-role-patron-btn").classList.toggle("selected", role === "patron");
     document.getElementById("search-role-travailleur-btn").classList.toggle("selected", role === "travailleur");
     document.getElementById("s-results").innerHTML = "";
+    window.lancerRecherche();
   };
 
   // Formatte une date/heure en français, lisible sur mobile
@@ -1952,6 +1953,16 @@
       const signalements = adminSignalementsParCible[`${item.coll}_${item.id}`] || [];
       const aDesSignalements = signalements.length > 0;
 
+      const blocPaiement = item.coll === "patrons" ? (() => {
+        const expire = essaiGratuitExpire(item.data);
+        const payeJusqua = item.data.payeJusqua?.toDate ? item.data.payeJusqua.toDate() : null;
+        const statutPaiement = expire
+          ? "🔴 Essai gratuit terminé — non payé"
+          : (payeJusqua ? "🟢 Payé jusqu'au " + payeJusqua.toLocaleDateString("fr-FR") : "🟡 En essai gratuit (30 jours)");
+        return `<p style="font-size:0.85rem; font-weight:700; margin:6px 0;">${statutPaiement}</p>
+          <button class="toggle-btn activer" onclick="marquerPaye('${item.coll}', '${item.id}')">💰 Marquer comme payé (30 jours)</button>`;
+      })() : "";
+
       const blocSignalements = aDesSignalements ? `
         <span class="signal-badge">🚩 ${signalements.length} signalement(s)</span>
         <div class="signal-details">
@@ -1963,6 +1974,7 @@
       return `<div class="compte-card ${aDesSignalements ? "a-des-signalements" : ""}" id="carte-${item.id}">
         <h3>${item.data.prenom || ""} ${item.data.nom || ""} <span style="font-weight:normal; font-size:14px; color:#666;">(${roleLabel})</span></h3>
         <p>📞 ${item.data.telephone || ""} &nbsp;|&nbsp; ✉️ ${item.data.email || ""}</p>
+        ${blocPaiement}
         ${blocSignalements}
         <label data-i18n="lbl_pays">Pays</label>
         <button type="button" class="country-picker-btn" id="btn-editpays-${item.id}"
@@ -1987,6 +1999,18 @@
     }).join("");
   }
 
+  window.marquerPaye = async function (coll, docId) {
+    try {
+      const dansUnMois = new Date();
+      dansUnMois.setDate(dansUnMois.getDate() + 30);
+      await updateDoc(doc(db, coll, docId), { payeJusqua: dansUnMois, actif: true });
+      afficherMsgCarte(docId, true, "💰 Paiement enregistré, compte valide 30 jours de plus.");
+      setTimeout(() => rendreListeAdmin(adminTousComptes), 900);
+    } catch (e) {
+      afficherMsgCarte(docId, false, "Erreur : impossible d'enregistrer le paiement.");
+    }
+  };
+
   window.marquerSignalementsTraites = async function (coll, docId) {
     const cle = `${coll}_${docId}`;
     const signalements = adminSignalementsParCible[cle] || [];
@@ -2002,8 +2026,26 @@
     }
   };
 
+  // Vérifie si un compte patron a dépassé son mois d'essai gratuit sans avoir payé
+  function essaiGratuitExpire(data) {
+    const dateInscr = data.dateInscription?.toDate ? data.dateInscription.toDate() : null;
+    if (!dateInscr) return false;
+    const finEssai = new Date(dateInscr.getTime() + 30 * 24 * 60 * 60 * 1000);
+    const payeJusqua = data.payeJusqua?.toDate ? data.payeJusqua.toDate() : null;
+    const maintenant = new Date();
+    if (payeJusqua && payeJusqua > maintenant) return false;
+    return maintenant > finEssai;
+  }
+
   window.activerCompte = async function (coll, docId) {
     try {
+      if (coll === "patrons") {
+        const snap = await getDoc(doc(db, coll, docId));
+        if (snap.exists() && essaiGratuitExpire(snap.data())) {
+          afficherMsgCarte(docId, false, "⏳ Votre mois d'essai gratuit est terminé. Pour republier votre annonce, envoyez 5$ via Airtel Money au +256792994716, puis contactez-nous sur WhatsApp au même numéro pour activer votre compte.");
+          return;
+        }
+      }
       await updateDoc(doc(db, coll, docId), { actif: true });
       const statutEl = document.getElementById("statut-" + docId);
       statutEl.className = "statut-tag statut-actif";
@@ -2229,6 +2271,9 @@
     document.getElementById("screen-" + nomEcran).classList.add("active");
     if (nomEcran === "recherche" && window.marquerNotifCommeVue) {
       window.marquerNotifCommeVue();
+    }
+    if (nomEcran === "recherche" && window.lancerRecherche) {
+      window.lancerRecherche();
     }
   };
 
