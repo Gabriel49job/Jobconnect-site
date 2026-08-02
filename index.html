@@ -468,6 +468,18 @@
     margin-left: 6px;
     vertical-align: middle;
   }
+  .role-label {
+    display: inline-block;
+    background: #FAF6EF;
+    color: #6B7A72;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+    border: 1px solid #e0dcd0;
+  }
   .signal-modal-overlay {
     display: none;
     position: fixed;
@@ -819,8 +831,8 @@
 <!-- ============ ECRAN RECHERCHE ============ -->
 <div class="screen" id="screen-recherche">
   <div class="role-select">
-    <button class="role-btn selected" id="search-role-patron-btn" onclick="setSearchRole('patron')" data-i18n="btn_search_patron">🧑‍💼 Je cherche un travailleur</button>
-    <button class="role-btn" id="search-role-travailleur-btn" onclick="setSearchRole('travailleur')" data-i18n="btn_search_travailleur">👷 Je cherche un travail</button>
+    <button class="role-btn selected" id="search-role-patron-btn" onclick="setSearchRole('patron')" data-i18n="btn_search_patron">🧑‍💼 EMPLOYEUR</button>
+    <button class="role-btn" id="search-role-travailleur-btn" onclick="setSearchRole('travailleur')" data-i18n="btn_search_travailleur">👷 EMPLOYÉ</button>
   </div>
 
   <div class="card">
@@ -1328,6 +1340,14 @@
 
   let searchRole = "patron"; // "patron" cherche des "travailleurs" ; "travailleur" cherche des "patrons"
 
+  window.actualiserEcranRecherche = function () {
+    if (searchRole === "patron") {
+      window.lancerRecherche();
+    } else {
+      document.getElementById("s-results").innerHTML = '<div class="empty-state">Choisissez un pays et/ou un type de travail, puis appuyez sur Rechercher.</div>';
+    }
+  };
+
   window.setSearchRole = function (role) {
     searchRole = role;
     document.getElementById("search-role-patron-btn").classList.toggle("selected", role === "patron");
@@ -1341,11 +1361,12 @@
       document.getElementById("btn-s-pays").textContent = "-- Choisir un pays --";
       document.getElementById("s-type").value = "";
       document.getElementById("btn-s-type").textContent = "-- Tout type de travail --";
+      window.lancerRecherche();
     } else {
-      // Le travailleur peut filtrer par pays et type de travail pour trouver un emploi précis
+      // Le travailleur choisit ses critères puis lance la recherche lui-même
       filterRowEl.style.display = "flex";
+      document.getElementById("s-results").innerHTML = '<div class="empty-state">Choisissez un pays et/ou un type de travail, puis appuyez sur Rechercher.</div>';
     }
-    window.lancerRecherche();
   };
 
   // Formatte une date/heure en français, lisible sur mobile
@@ -1426,7 +1447,7 @@
         if (searchRole === "patron") {
           html += `<div class="result-card">
             ${newBadge}
-            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}${badgeVerifie}</h3>
+            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}<span class="role-label">👷 Travailleur</span>${badgeVerifie}</h3>
             <p>📍 ${esc(d.pays || "")} — ${esc(d.adresse || "")}</p>
             <p>🎓 ${esc(d.niveauEtude || "Non précisé")}</p>
             <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
@@ -1437,7 +1458,7 @@
         } else {
           html += `<div class="result-card">
             ${newBadge}
-            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}${badgeVerifie}</h3>
+            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}<span class="role-label">🧑‍💼 Patron</span>${badgeVerifie}</h3>
             <p>📍 ${esc(d.pays || "")} — ${esc(d.lieuTravail || "")}</p>
             <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
             <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
@@ -1674,7 +1695,7 @@
       h2_retrouver_annonce: "Retrouver mon annonce", h2_retrouver_compte: "Retrouver mon compte", h2_tous_comptes: "Tous les comptes enregistrés",
       btn_enregistrer: "Enregistrer", btn_retrouver_annonce: "🔎 Retrouver mon annonce", btn_se_connecter: "Se connecter",
       btn_role_travailleur: "👷 Je suis Travailleur", btn_role_patron: "🧑‍💼 Je suis Patron",
-      btn_search_patron: "🧑‍💼 Je cherche un travailleur", btn_search_travailleur: "👷 Je cherche un travail",
+      btn_search_patron: "🧑‍💼 EMPLOYEUR", btn_search_travailleur: "👷 EMPLOYÉ",
       btn_google: "🔵 Continuer avec Google", txt_ou_email: "— ou avec votre email —",
       txt_probleme_compte: "Un problème avec votre compte ?", btn_activer_mon_compte: "🔓 Activer mon compte",
       btn_retrouver_compte_supprime: "🔎 Retrouver mon compte supprimé", btn_deconnexion_admin: "🚪 Se déconnecter de l'admin",
@@ -2353,8 +2374,8 @@
     if (nomEcran === "recherche" && window.marquerNotifCommeVue) {
       window.marquerNotifCommeVue();
     }
-    if (nomEcran === "recherche" && window.lancerRecherche) {
-      window.lancerRecherche();
+    if (nomEcran === "recherche" && window.actualiserEcranRecherche) {
+      window.actualiserEcranRecherche();
     }
   };
 
