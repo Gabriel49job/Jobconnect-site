@@ -446,6 +446,17 @@
     margin-top: 4px;
   }
   .report-link-btn:active { opacity: 0.6; }
+  .share-link-btn {
+    display: inline-block;
+    background: none;
+    border: none;
+    color: #0E6E46;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 10px 0 0;
+    margin-top: 4px;
+  }
+  .share-link-btn:active { opacity: 0.6; }
   .signal-modal-overlay {
     display: none;
     position: fixed;
@@ -1355,6 +1366,12 @@
         return `https://wa.me/${clean}`;
       };
 
+      // Génère un lien de partage WhatsApp pour faire connaître un profil (et l'app)
+      const partageLink = (nom, typeLabelTxt, pays) => {
+        const texte = `Regarde ce profil sur JOB CONNECT : ${nom} — ${typeLabelTxt} (${pays}). Découvre l'app ici : https://jobconnect-site.vercel.app`;
+        return `https://wa.me/?text=${encodeURIComponent(texte)}`;
+      };
+
       // Trie les résultats du plus récent au plus ancien
       let docs = [];
       snap.forEach(docSnap => docs.push({ id: docSnap.id, ...docSnap.data() }));
@@ -1380,6 +1397,7 @@
             <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${d.telephone || ""} (WhatsApp)</a>
             <span class="${badgeClass(d.typeTravail)}">${typeLabel(d.typeTravail)}${d.posteTravail ? " — " + d.posteTravail : ""}</span><br>
             <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
+            <a class="share-link-btn" href="${partageLink(nomAffiche, typeLabel(d.typeTravail) + (d.posteTravail ? " — " + d.posteTravail : ""), d.pays || "")}" target="_blank" rel="noopener">📤 Partager ce profil</a>
           </div>`;
         } else {
           html += `<div class="result-card">
@@ -1389,6 +1407,7 @@
             <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${d.telephone || ""} (WhatsApp)</a>
             <span class="${badgeClass(d.typeTravail)}">${typeLabel(d.typeTravail)}${d.posteTravail ? " — " + d.posteTravail : ""}</span><br>
             <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
+            <a class="share-link-btn" href="${partageLink(nomAffiche, typeLabel(d.typeTravail) + (d.posteTravail ? " — " + d.posteTravail : ""), d.pays || "")}" target="_blank" rel="noopener">📤 Partager ce profil</a>
           </div>`;
         }
       });
