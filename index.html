@@ -1127,6 +1127,17 @@
   }
 
   // Normalise un numéro de téléphone pour comparaison (ignore espaces, tirets, parenthèses)
+  // Neutralise tout code HTML/JS qu'un utilisateur pourrait avoir saisi dans un champ (protection XSS)
+  function esc(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function normalizerTel(tel) {
     return (tel || "").replace(/[\s\-().]/g, "");
   }
@@ -1387,25 +1398,25 @@
         const isNew = previousSearchDate && inscritDate && inscritDate > previousSearchDate;
         const newBadge = isNew ? '<span class="new-msg-badge">🆕 Nouveau message</span>' : "";
 
-        const nomAffiche = `${d.prenom || ""} ${d.nom || ""}`.trim();
+        const nomAffiche = `${esc(d.prenom || "")} ${esc(d.nom || "")}`.trim();
         if (searchRole === "patron") {
           html += `<div class="result-card">
             ${newBadge}
-            <h3>${d.prenom || ""} ${d.nom || ""}</h3>
-            <p>📍 ${d.pays || ""} — ${d.adresse || ""}</p>
-            <p>🎓 ${d.niveauEtude || "Non précisé"}</p>
-            <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${d.telephone || ""} (WhatsApp)</a>
-            <span class="${badgeClass(d.typeTravail)}">${typeLabel(d.typeTravail)}${d.posteTravail ? " — " + d.posteTravail : ""}</span><br>
+            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}</h3>
+            <p>📍 ${esc(d.pays || "")} — ${esc(d.adresse || "")}</p>
+            <p>🎓 ${esc(d.niveauEtude || "Non précisé")}</p>
+            <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
+            <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
             <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
             <a class="share-link-btn" href="${partageLink(nomAffiche, typeLabel(d.typeTravail) + (d.posteTravail ? " — " + d.posteTravail : ""), d.pays || "")}" target="_blank" rel="noopener">📤 Partager ce profil</a>
           </div>`;
         } else {
           html += `<div class="result-card">
             ${newBadge}
-            <h3>${d.prenom || ""} ${d.nom || ""}</h3>
-            <p>📍 ${d.pays || ""} — ${d.lieuTravail || ""}</p>
-            <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${d.telephone || ""} (WhatsApp)</a>
-            <span class="${badgeClass(d.typeTravail)}">${typeLabel(d.typeTravail)}${d.posteTravail ? " — " + d.posteTravail : ""}</span><br>
+            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}</h3>
+            <p>📍 ${esc(d.pays || "")} — ${esc(d.lieuTravail || "")}</p>
+            <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
+            <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
             <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
             <a class="share-link-btn" href="${partageLink(nomAffiche, typeLabel(d.typeTravail) + (d.posteTravail ? " — " + d.posteTravail : ""), d.pays || "")}" target="_blank" rel="noopener">📤 Partager ce profil</a>
           </div>`;
@@ -1508,7 +1519,7 @@
         if (!estProprietaire) {
           // Compte trouvé mais l'identité n'est pas encore vérifiée : on ne montre aucune donnée de gestion
           html += `<div class="compte-card" id="carte-${item.id}">
-            <h3>${item.data.prenom || ""} ${item.data.nom || ""}</h3>
+            <h3>${esc(item.data.prenom || "")} ${esc(item.data.nom || "")}</h3>
             <p style="color:#a15c00; background:#fff3e0; padding:8px 10px; border-radius:8px; font-size:0.9rem;">
               🔒 Ce compte existe. Pour le modifier, l'activer/désactiver ou le supprimer, connectez-vous avec l'email et le mot de passe utilisés à l'inscription.
             </p>
@@ -1524,11 +1535,11 @@
 
         const estActif = item.data.actif !== false;
         html += `<div class="compte-card" id="carte-${item.id}">
-          <h3>${item.data.prenom || ""} ${item.data.nom || ""}</h3>
+          <h3>${esc(item.data.prenom || "")} ${esc(item.data.nom || "")}</h3>
           <label data-i18n="lbl_pays">Pays</label>
           <button type="button" class="country-picker-btn" id="btn-editpays-${item.id}"
-            onclick="ouvrirSelecteurPays('editpays-${item.id}','btn-editpays-${item.id}')">${item.data.pays || "-- Choisir un pays --"}</button>
-          <input type="hidden" id="editpays-${item.id}" value="${item.data.pays || ""}">
+            onclick="ouvrirSelecteurPays('editpays-${item.id}','btn-editpays-${item.id}')">${esc(item.data.pays || "-- Choisir un pays --")}</button>
+          <input type="hidden" id="editpays-${item.id}" value="${esc(item.data.pays || "")}">
           <label data-i18n="lbl_type_travail">Type de travail</label>
           <button type="button" class="job-picker-btn" id="btn-edittype-${item.id}"
             onclick="ouvrirSelecteurTravail('edittype-${item.id}','editposte-${item.id}','btn-edittype-${item.id}')">${labelType}</button>
@@ -1985,20 +1996,20 @@
       const blocSignalements = aDesSignalements ? `
         <span class="signal-badge">🚩 ${signalements.length} signalement(s)</span>
         <div class="signal-details">
-          ${signalements.map(s => `<p>• <strong>${s.raison}</strong>${s.details ? " — " + s.details : ""}</p>`).join("")}
+          ${signalements.map(s => `<p>• <strong>${esc(s.raison)}</strong>${s.details ? " — " + esc(s.details) : ""}</p>`).join("")}
         </div>
         <button class="toggle-btn activer" onclick="marquerSignalementsTraites('${item.coll}', '${item.id}')">✅ Marquer les signalements comme traités</button>
       ` : "";
 
       return `<div class="compte-card ${aDesSignalements ? "a-des-signalements" : ""}" id="carte-${item.id}">
-        <h3>${item.data.prenom || ""} ${item.data.nom || ""} <span style="font-weight:normal; font-size:14px; color:#666;">(${roleLabel})</span></h3>
-        <p>📞 ${item.data.telephone || ""} &nbsp;|&nbsp; ✉️ ${item.data.email || ""}</p>
+        <h3>${esc(item.data.prenom || "")} ${esc(item.data.nom || "")} <span style="font-weight:normal; font-size:14px; color:#666;">(${roleLabel})</span></h3>
+        <p>📞 ${esc(item.data.telephone || "")} &nbsp;|&nbsp; ✉️ ${esc(item.data.email || "")}</p>
         ${blocPaiement}
         ${blocSignalements}
         <label data-i18n="lbl_pays">Pays</label>
         <button type="button" class="country-picker-btn" id="btn-editpays-${item.id}"
-          onclick="ouvrirSelecteurPays('editpays-${item.id}','btn-editpays-${item.id}')">${item.data.pays || "-- Choisir un pays --"}</button>
-        <input type="hidden" id="editpays-${item.id}" value="${item.data.pays || ""}">
+          onclick="ouvrirSelecteurPays('editpays-${item.id}','btn-editpays-${item.id}')">${esc(item.data.pays || "-- Choisir un pays --")}</button>
+        <input type="hidden" id="editpays-${item.id}" value="${esc(item.data.pays || "")}">
         <label data-i18n="lbl_type_travail">Type de travail</label>
         <button type="button" class="job-picker-btn" id="btn-edittype-${item.id}"
           onclick="ouvrirSelecteurTravail('edittype-${item.id}','editposte-${item.id}','btn-edittype-${item.id}')">${labelType}</button>
@@ -2160,8 +2171,8 @@
       const estSupprime = item.data.supprime === true;
       const estActif = item.data.actif !== false;
       return `<div class="compte-card" id="carte-${item.id}">
-        <h3>${item.data.prenom || ""} ${item.data.nom || ""}</h3>
-        <p>📍 ${item.data.pays || ""}</p>
+        <h3>${esc(item.data.prenom || "")} ${esc(item.data.nom || "")}</h3>
+        <p>📍 ${esc(item.data.pays || "")}</p>
         <span class="statut-tag ${estSupprime ? "statut-inactif" : (estActif ? "statut-actif" : "statut-inactif")}">
           ${estSupprime ? "🗑️ Compte supprimé" : (estActif ? "🟢 Annonce active" : "⚪ Annonce désactivée")}
         </span><br>
