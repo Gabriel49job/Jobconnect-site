@@ -2134,6 +2134,7 @@
           <button class="toggle-btn desactiver" onclick="desactiverCompte('${item.coll}', '${item.id}')">⛔ Désactiver le compte</button>
         </div>
         <button class="toggle-btn supprimer" onclick="supprimerCompte('${item.coll}', '${item.id}')">🗑️ Supprimer le compte</button>
+        <button class="toggle-btn supprimer" style="background:#7a0000;" onclick="supprimerDefinitivement('${item.coll}', '${item.id}')">❌ Supprimer définitivement</button>
         <div class="msg" id="msg-${item.id}"></div>
       </div>`;
     }).join("");
@@ -2234,6 +2235,28 @@
       setTimeout(() => window.allerVersEcran("inscription"), 1200);
     } catch (e) {
       afficherMsgCarte(docId, false, "Erreur : impossible de supprimer le compte.");
+    }
+  };
+
+  // Suppression définitive et irréversible d'un compte (réservé à l'admin)
+  window.supprimerDefinitivement = async function (coll, docId) {
+    const etape1 = confirm("⚠️ ATTENTION : cette action est IRRÉVERSIBLE. Le compte et toutes ses données seront effacés définitivement de la base. Continuer ?");
+    if (!etape1) return;
+    const etape2 = prompt("Pour confirmer, tapez SUPPRIMER en majuscules :");
+    if (etape2 !== "SUPPRIMER") {
+      afficherMsgCarte(docId, false, "Suppression annulée : confirmation incorrecte.");
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, coll, docId));
+      const carteEl = document.getElementById("carte-" + docId);
+      if (carteEl) {
+        carteEl.innerHTML = '<div class="msg success" style="display:block;">❌ Compte supprimé définitivement.</div>';
+      }
+      adminTousComptes = adminTousComptes.filter(item => !(item.coll === coll && item.id === docId));
+      setTimeout(() => rendreListeAdmin(adminTousComptes), 900);
+    } catch (e) {
+      afficherMsgCarte(docId, false, "Erreur : impossible de supprimer définitivement.");
     }
   };
 
