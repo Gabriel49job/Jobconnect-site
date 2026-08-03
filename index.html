@@ -928,6 +928,20 @@
   </div>
 </div>
 
+<!-- ============ FENÊTRE DE RÉINITIALISATION DU MOT DE PASSE (arrivée depuis le lien reçu par email) ============ -->
+<div class="signal-modal-overlay" id="reset-modal-overlay">
+  <div class="signal-modal">
+    <h2 style="font-size:1.05rem; margin-bottom:10px; color:#073C28;">🔑 Choisir un nouveau mot de passe</h2>
+    <p style="font-size:0.85rem; color:#666; margin-bottom:14px;" id="reset-compte-email"></p>
+    <label>Nouveau mot de passe</label>
+    <input type="password" id="reset-password-1" placeholder="Au moins 6 caractères">
+    <label>Confirmer le nouveau mot de passe</label>
+    <input type="password" id="reset-password-2" placeholder="Retapez le mot de passe">
+    <button class="submit-btn" onclick="confirmerNouveauMotDePasse()">✅ Valider le nouveau mot de passe</button>
+    <div class="msg" id="reset-msg"></div>
+  </div>
+</div>
+
 <!-- ============ FENÊTRE DE RÉCUPÉRATION DE COMPTE (Google / email + mot de passe) ============ -->
 <div class="recup-modal-overlay" id="recup-modal-overlay" onclick="if(event.target===this) fermerRecuperationCompte()">
   <div class="recup-modal">
@@ -1126,7 +1140,7 @@
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
     GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendEmailVerification, signInWithPopup,
-    sendPasswordResetEmail
+    sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -2401,6 +2415,50 @@
       } else if (e.code !== "auth/popup-closed-by-user") {
         showMsg("r-msg", false, "", "Connexion Google impossible (" + (e.code || e.message) + ").");
       }
+    }
+  };
+
+  // ===== Réinitialisation du mot de passe : l'utilisateur arrive ici via le lien reçu par email =====
+  // Firebase ajoute automatiquement ?mode=resetPassword&oobCode=... à l'URL du lien envoyé par email.
+  let resetOobCode = null;
+
+  (async function traiterLienReinitialisation() {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode");
+    const oobCode = params.get("oobCode");
+    if (mode !== "resetPassword" || !oobCode) return;
+    try {
+      const emailDuCompte = await verifyPasswordResetCode(auth, oobCode);
+      resetOobCode = oobCode;
+      document.getElementById("reset-compte-email").textContent = "Compte : " + emailDuCompte;
+      document.getElementById("reset-modal-overlay").classList.add("open");
+    } catch (e) {
+      alert("Ce lien de réinitialisation est invalide ou a expiré. Merci de refaire une demande « Mot de passe oublié ? ».");
+    }
+  })();
+
+  window.confirmerNouveauMotDePasse = async function () {
+    const p1 = document.getElementById("reset-password-1").value;
+    const p2 = document.getElementById("reset-password-2").value;
+    if (!p1 || !p2) {
+      showMsg("reset-msg", false, "", "Veuillez remplir les deux champs.");
+      return;
+    }
+    if (p1.length < 6) {
+      showMsg("reset-msg", false, "", "Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+    if (p1 !== p2) {
+      showMsg("reset-msg", false, "", "Les deux mots de passe ne correspondent pas.");
+      return;
+    }
+    try {
+      await confirmPasswordReset(auth, resetOobCode, p1);
+      showMsg("reset-msg", true, "✅ Mot de passe changé avec succès ! Vous pouvez fermer ce message et vous connecter.", "");
+      document.getElementById("reset-password-1").value = "";
+      document.getElementById("reset-password-2").value = "";
+    } catch (e) {
+      showMsg("reset-msg", false, "", "Erreur : lien expiré ou déjà utilisé. Refaites une demande « Mot de passe oublié ? ».");
     }
   };
 
