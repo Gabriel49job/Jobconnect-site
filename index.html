@@ -1125,7 +1125,8 @@
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
-    GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendEmailVerification, signInWithPopup
+    GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendEmailVerification, signInWithPopup,
+    sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -1606,6 +1607,10 @@
             <label>Mot de passe</label>
             <input type="password" id="proof-password-${item.id}" placeholder="Votre mot de passe">
             <button class="toggle-btn activer" onclick="verifierProprietaireEtGerer('${item.coll}', '${item.id}')">🔐 Se connecter pour gérer ce compte</button>
+            <p style="text-align:center; margin-top:6px;">
+              <a href="#" style="color:#1565C0; font-size:0.85rem; text-decoration:underline;"
+                 onclick="event.preventDefault(); envoyerResetMotDePasse('${item.id}')">Mot de passe oublié ?</a>
+            </p>
             <div class="msg" id="msg-${item.id}"></div>
           </div>`;
           return;
@@ -1679,6 +1684,30 @@
       await retrouverCompte();
     } catch (e) {
       afficherMsgCarte(docId, false, "Email ou mot de passe incorrect.");
+    }
+  };
+
+  // Envoie un email de réinitialisation de mot de passe au vrai email Gmail (ou autre) saisi par l'utilisateur.
+  // Firebase gère l'envoi lui-même : impossible de savoir si l'email existe ou non (sécurité), le message reste donc générique.
+  window.envoyerResetMotDePasse = async function (docId) {
+    const emailField = document.getElementById("proof-email-" + docId);
+    const email = emailField ? emailField.value.trim() : "";
+    if (!email) {
+      afficherMsgCarte(docId, false, "Veuillez d'abord saisir votre adresse email ci-dessus.");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      afficherMsgCarte(docId, true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).");
+    } catch (e) {
+      if (e.code === "auth/invalid-email") {
+        afficherMsgCarte(docId, false, "Adresse email invalide.");
+      } else if (e.code === "auth/too-many-requests") {
+        afficherMsgCarte(docId, false, "Trop de tentatives. Veuillez patienter quelques minutes avant de réessayer.");
+      } else {
+        // Par sécurité on ne révèle pas si l'email existe ou non ; message générique dans les autres cas d'erreur.
+        afficherMsgCarte(docId, true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).");
+      }
     }
   };
 
