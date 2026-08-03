@@ -2060,7 +2060,8 @@
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
       showMsg("admin-msg", true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).", "");
     } catch (e) {
-      showMsg("admin-msg", true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).", "");
+      // MODE DEBUG TEMPORAIRE : affiche l'erreur réelle pour diagnostiquer pourquoi l'email n'arrive pas.
+      showMsg("admin-msg", false, "", "DEBUG - Erreur réelle : " + (e.code || "") + " / " + (e.message || ""));
     }
   };
 
