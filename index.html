@@ -876,6 +876,10 @@
       <button type="button" class="password-toggle" onclick="togglePasswordVisibility('admin-password', this)">👁️</button>
     </div>
     <button class="submit-btn" onclick="connexionAdmin()" data-i18n="btn_se_connecter">Se connecter</button>
+    <p style="text-align:center; margin-top:6px;">
+      <a href="#" style="color:#1565C0; font-size:0.85rem; text-decoration:underline;"
+         onclick="event.preventDefault(); envoyerResetAdmin()">Mot de passe oublié ?</a>
+    </p>
     <div class="msg" id="admin-msg"></div>
   </div>
   <div class="card" id="admin-panel-card" style="display:none;">
@@ -1711,7 +1715,10 @@
       return;
     }
     try {
-      await sendPasswordResetEmail(auth, email);
+      // On force le lien de réinitialisation à revenir vers notre propre site (au lieu du domaine
+      // firebaseapp.com par défaut, qui ne fonctionne pas puisque le site est hébergé sur Vercel).
+      const actionCodeSettings = { url: window.location.origin + "/", handleCodeInApp: false };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
       afficherMsgCarte(docId, true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).");
     } catch (e) {
       if (e.code === "auth/invalid-email") {
@@ -2039,6 +2046,21 @@
       await chargerPanneauAdmin();
     } catch (e) {
       showMsg("admin-msg", false, "", "Email ou mot de passe incorrect.");
+    }
+  };
+
+  window.envoyerResetAdmin = async function () {
+    const email = document.getElementById("admin-email").value.trim();
+    if (!email) {
+      showMsg("admin-msg", false, "", "Veuillez d'abord saisir votre adresse email ci-dessus.");
+      return;
+    }
+    try {
+      const actionCodeSettings = { url: window.location.origin + "/", handleCodeInApp: false };
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
+      showMsg("admin-msg", true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).", "");
+    } catch (e) {
+      showMsg("admin-msg", true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).", "");
     }
   };
 
