@@ -2257,6 +2257,10 @@
     if (payeJusqua && payeJusqua > maintenant) return false;
     return maintenant > finEssai;
   }
+ function estEnAvant(data) {
+    const jusqua = data.miseEnAvantJusqua?.toDate ? data.miseEnAvantJusqua.toDate() : null;
+    return jusqua ? jusqua > new Date() : false;
+  }
 
   window.activerCompte = async function (coll, docId) {
     try {
