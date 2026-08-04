@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.gabriel.jobconnect",
+        "sha256_cert_fingerprints": ["BE:32:93:B5:CC:8C:13:9A:C6:AA:74:FE:90:7E:82:65:D5:E6:5F:B7:8D:13:F8:C5:6B:71:DB:6E:BD:E3:76:E5"]
+      }
+    }]
