@@ -716,10 +716,6 @@
   <button class="tab-btn" data-screen="admin" data-i18n="tab_admin">Admin</button>
 </div>
 
-<p style="text-align:center; margin:14px 0 6px; font-size:0.8rem;">
-  <a href="#" style="color:#666; text-decoration:underline;" onclick="event.preventDefault(); ouvrirConfidentialite()">Politique de confidentialité</a>
-</p>
-
 <!-- ============ FENÊTRE DE SÉLECTION DE LANGUE ============ -->
 <div class="country-modal-overlay" id="lang-modal-overlay" onclick="if(event.target===this) fermerSelecteurLangue()">
   <div class="country-modal">
@@ -2605,45 +2601,7 @@
   window.allerVersMonCompte = function () {
     window.allerVersEcran("compte");
   };
-
-  window.ouvrirConfidentialite = function () {
-    document.getElementById("confidentialite-modal-overlay").classList.add("open");
-  };
-  window.fermerConfidentialite = function () {
-    document.getElementById("confidentialite-modal-overlay").classList.remove("open");
-  };
 </script>
-
-<!-- ============ FENÊTRE POLITIQUE DE CONFIDENTIALITÉ ============ -->
-<div class="signal-modal-overlay" id="confidentialite-modal-overlay" onclick="if(event.target===this) fermerConfidentialite()">
-  <div class="signal-modal" style="max-height:80vh; overflow-y:auto; text-align:left;">
-    <h2 style="font-size:1.05rem; margin-bottom:10px; color:#073C28;">🔒 Politique de confidentialité</h2>
-    <p style="font-size:0.82rem; color:#666; margin-bottom:10px;">Dernière mise à jour : août 2026</p>
-
-    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>1. Qui nous sommes</strong><br>
-    JOB CONNECT est une plateforme qui met en relation des travailleurs et des employeurs en Afrique centrale et ailleurs.</p>
-
-    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>2. Données que nous collectons</strong><br>
-    Lorsque vous vous inscrivez, nous collectons : votre nom, votre adresse email, votre numéro de téléphone, votre pays, votre niveau d'étude et les informations liées au poste ou au type de travail recherché ou proposé.</p>
-
-    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>3. Pourquoi nous les collectons</strong><br>
-    Ces données servent uniquement à créer votre profil, permettre aux employeurs et travailleurs de se contacter (via WhatsApp ou téléphone), et sécuriser votre compte (email de vérification).</p>
-
-    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>4. Partage des données</strong><br>
-    Nous ne vendons ni ne partageons vos données avec des tiers à des fins publicitaires. Votre numéro de téléphone est visible par les autres utilisateurs de la plateforme dans le cadre normal de la mise en relation professionnelle, comme vous l'acceptez en publiant votre profil.</p>
-
-    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>5. Stockage et sécurité</strong><br>
-    Vos données sont stockées sur les serveurs sécurisés de Google Firebase. Votre mot de passe est chiffré et n'est jamais visible, y compris par nous.</p>
-
-    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>6. Vos droits</strong><br>
-    Vous pouvez à tout moment consulter, modifier ou supprimer votre compte depuis l'onglet « Mon compte » de l'application.</p>
-
-    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>7. Contact</strong><br>
-    Pour toute question concernant vos données, contactez-nous à l'adresse : mushagalusag49@gmail.com</p>
-
-    <button class="country-modal-close" style="width:100%; margin-top:10px;" onclick="fermerConfidentialite()">Fermer</button>
-  </div>
-</div>
 
 </body>
 </html>
