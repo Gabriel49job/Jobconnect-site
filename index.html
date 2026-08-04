@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#073C28">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>JOB CONNECT - Trouvez un travail, trouvez un travailleur, partout dans le monde</title>
+<meta name="description" content="JOB CONNECT met en relation travailleurs et employeurs en Afrique centrale et partout dans le monde. Inscrivez-vous gratuitement pour trouver un emploi ou un travailleur qualifié.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%2312805A'/%3E%3Cstop offset='100%25' stop-color='%23073C28'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23g)'/%3E%3Ctext x='50' y='68' font-family='Georgia, serif' font-size='50' font-weight='700' fill='%23FFFFFF' text-anchor='middle'%3EJC%3C/text%3E%3Ccircle cx='78' cy='24' r='7' fill='%23E8A33D'/%3E%3C/svg%3E">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -711,6 +715,10 @@
   <button class="tab-btn" data-screen="compte" data-i18n="tab_compte">Mon compte</button>
   <button class="tab-btn" data-screen="admin" data-i18n="tab_admin">Admin</button>
 </div>
+
+<p style="text-align:center; margin:14px 0 6px; font-size:0.8rem;">
+  <a href="#" style="color:#666; text-decoration:underline;" onclick="event.preventDefault(); ouvrirConfidentialite()">Politique de confidentialité</a>
+</p>
 
 <!-- ============ FENÊTRE DE SÉLECTION DE LANGUE ============ -->
 <div class="country-modal-overlay" id="lang-modal-overlay" onclick="if(event.target===this) fermerSelecteurLangue()">
@@ -2597,7 +2605,45 @@
   window.allerVersMonCompte = function () {
     window.allerVersEcran("compte");
   };
+
+  window.ouvrirConfidentialite = function () {
+    document.getElementById("confidentialite-modal-overlay").classList.add("open");
+  };
+  window.fermerConfidentialite = function () {
+    document.getElementById("confidentialite-modal-overlay").classList.remove("open");
+  };
 </script>
+
+<!-- ============ FENÊTRE POLITIQUE DE CONFIDENTIALITÉ ============ -->
+<div class="signal-modal-overlay" id="confidentialite-modal-overlay" onclick="if(event.target===this) fermerConfidentialite()">
+  <div class="signal-modal" style="max-height:80vh; overflow-y:auto; text-align:left;">
+    <h2 style="font-size:1.05rem; margin-bottom:10px; color:#073C28;">🔒 Politique de confidentialité</h2>
+    <p style="font-size:0.82rem; color:#666; margin-bottom:10px;">Dernière mise à jour : août 2026</p>
+
+    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>1. Qui nous sommes</strong><br>
+    JOB CONNECT est une plateforme qui met en relation des travailleurs et des employeurs en Afrique centrale et ailleurs.</p>
+
+    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>2. Données que nous collectons</strong><br>
+    Lorsque vous vous inscrivez, nous collectons : votre nom, votre adresse email, votre numéro de téléphone, votre pays, votre niveau d'étude et les informations liées au poste ou au type de travail recherché ou proposé.</p>
+
+    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>3. Pourquoi nous les collectons</strong><br>
+    Ces données servent uniquement à créer votre profil, permettre aux employeurs et travailleurs de se contacter (via WhatsApp ou téléphone), et sécuriser votre compte (email de vérification).</p>
+
+    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>4. Partage des données</strong><br>
+    Nous ne vendons ni ne partageons vos données avec des tiers à des fins publicitaires. Votre numéro de téléphone est visible par les autres utilisateurs de la plateforme dans le cadre normal de la mise en relation professionnelle, comme vous l'acceptez en publiant votre profil.</p>
+
+    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>5. Stockage et sécurité</strong><br>
+    Vos données sont stockées sur les serveurs sécurisés de Google Firebase. Votre mot de passe est chiffré et n'est jamais visible, y compris par nous.</p>
+
+    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>6. Vos droits</strong><br>
+    Vous pouvez à tout moment consulter, modifier ou supprimer votre compte depuis l'onglet « Mon compte » de l'application.</p>
+
+    <p style="font-size:0.88rem; margin-bottom:10px;"><strong>7. Contact</strong><br>
+    Pour toute question concernant vos données, contactez-nous à l'adresse : mushagalusag49@gmail.com</p>
+
+    <button class="country-modal-close" style="width:100%; margin-top:10px;" onclick="fermerConfidentialite()">Fermer</button>
+  </div>
+</div>
 
 </body>
 </html>
