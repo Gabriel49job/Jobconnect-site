@@ -1484,6 +1484,15 @@
         const tb = b.dateInscription?.toMillis ? b.dateInscription.toMillis() : 0;
         return tb - ta;
       });
+     if (targetCollection === "patrons") {
+        docs = docs.filter(d => {
+          if (essaiGratuitExpire(d)) {
+            updateDoc(doc(db, "patrons", d.id), { actif: false }).catch(() => {});
+            return false;
+          }
+          return true;
+        });
+      }
 
       let html = infoBar;
       docs.forEach(d => {
