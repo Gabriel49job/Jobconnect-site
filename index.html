@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
- <meta name="google-site-verification" content="w28eDU7Rrem7ZyEVLdP4H9YPHGgzzu-mcfWCfGwqchg" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
@@ -692,9 +691,185 @@
     color: #444;
     font-weight: 700;
   }
+
+  .welcome-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #073C28, #0E6E46, #2FA870);
+    padding: 24px;
+  }
+  .welcome-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,0.5) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,0.5) 25%, transparent 25%);
+    background-size: 22px 22px;
+    background-position: 0 0, 11px 0;
+    pointer-events: none;
+  }
+  .welcome-content {
+    position: relative;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    color: white;
+  }
+  .welcome-content .brandmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 74px;
+    height: 74px;
+    margin-bottom: 12px;
+  }
+  .welcome-content h1 {
+    font-size: 1.7rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .welcome-content p {
+    font-size: 0.9rem;
+    opacity: 0.92;
+    margin-bottom: 30px;
+  }
+  .welcome-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin: 12px 0;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .welcome-btn-travailleur { background: #FFFFFF; color: #073C28; }
+  .welcome-btn-patron { background: #E8A33D; color: #073C28; }
+  .welcome-skip {
+    margin-top: 18px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.85);
+    font-size: 0.85rem;
+    text-decoration: underline;
+  }
+
+  .google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px;
+    margin: 6px 0 4px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .ou-separateur {
+    text-align: center;
+    color: #999;
+    font-size: 0.8rem;
+    margin: 14px 0 10px;
+  }
+  .dossier-note {
+    font-size: 0.85rem;
+    color: #555;
+    background: #F5F1E8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0 14px;
+  }
+  .critere-check-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #333;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .critere-check-label input[type="checkbox"] {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  #t-documents-list input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 14px;
+    border: 1px dashed #bbb;
+    border-radius: 8px;
+    background: #fafafa;
+    font-size: 0.82rem;
+  }
+  .doc-links {
+    background: #F5F1E8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-size: 0.85rem;
+  }
+  .doc-links strong { display: block; margin-bottom: 6px; color: #073C28; }
+  .doc-link-item {
+    display: inline-block;
+    background: #073C28;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin: 3px 4px 3px 0;
+    font-size: 0.78rem;
+    text-decoration: none;
+  }
+  .criteres-list-affichage {
+    background: #F5F1E8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-size: 0.85rem;
+  }
+  .criteres-list-affichage strong { display: block; margin-bottom: 4px; color: #073C28; }
+  .criteres-list-affichage ul { margin: 0; padding-left: 18px; }
+  .criteres-list-affichage li { margin: 3px 0; }
 </style>
 </head>
 <body>
+
+<!-- ============ ECRAN D'ACCUEIL (avant Inscription/Recherche) ============ -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-content">
+    <div class="brandmark">
+      <svg viewBox="0 0 100 100" width="74" height="74">
+        <circle cx="50" cy="50" r="48" fill="rgba(255,255,255,0.14)" stroke="#E8A33D" stroke-width="3"/>
+        <text x="50" y="66" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="700"
+              fill="#FFFFFF" text-anchor="middle">JC</text>
+      </svg>
+    </div>
+    <h1>JOB <span style="color:#E8A33D;">CONNECT</span></h1>
+    <p>La plateforme qui connecte patrons et travailleurs, partout dans le monde</p>
+
+    <button type="button" class="welcome-btn welcome-btn-travailleur" onclick="choisirAccueil('travailleur')">
+      👷 Je cherche un emploi
+    </button>
+    <button type="button" class="welcome-btn welcome-btn-patron" onclick="choisirAccueil('patron')">
+      🧑‍💼 Je recrute
+    </button>
+
+    <button type="button" class="welcome-skip" onclick="fermerAccueil()">Passer, aller directement à la recherche</button>
+  </div>
+</div>
 
 <header>
   <div class="brandmark">
@@ -753,77 +928,117 @@
   <!-- FORMULAIRE TRAVAILLEUR -->
   <div class="card" id="form-travailleur">
     <h2 data-i18n="h2_inscription_travailleur">Inscription Travailleur</h2>
-    <label data-i18n="lbl_nom">Nom</label>
-    <input type="text" id="t-nom" placeholder="Nom">
-    <label data-i18n="lbl_postnom">Post-nom</label>
-    <input type="text" id="t-postnom" placeholder="Post-nom">
-    <label data-i18n="lbl_prenom">Prénom</label>
-    <input type="text" id="t-prenom" placeholder="Prénom">
-    <label data-i18n="lbl_adresse">Adresse</label>
-    <input type="text" id="t-adresse" placeholder="Adresse complète">
-    <label data-i18n="lbl_date_naissance">Date de naissance</label>
-    <input type="date" id="t-naissance">
-    <label data-i18n="lbl_niveau_etude">Niveau d'étude</label>
-    <select id="t-niveau">
-      <option value="">-- Choisir --</option>
-      <option>Primaire</option>
-      <option>Secondaire</option>
-      <option>Universitaire</option>
-      <option>Aucun</option>
-    </select>
-    <label data-i18n="lbl_telephone">Numéro de téléphone</label>
-    <input type="tel" id="t-tel" placeholder="+243 ...">
-    <label data-i18n="lbl_pays_voulez">Pays où vous voulez travailler</label>
-    <button type="button" class="country-picker-btn" id="btn-t-pays" onclick="ouvrirSelecteurPays('t-pays','btn-t-pays')">-- Choisir un pays --</button>
-    <input type="hidden" id="t-pays" value="">
-    <label data-i18n="lbl_type_travail_prefere">Type de travail préféré</label>
-    <button type="button" class="job-picker-btn" id="btn-t-type" onclick="ouvrirSelecteurTravail('t-type','t-poste','btn-t-type')">-- Choisir un type de travail --</button>
-    <input type="hidden" id="t-type" value="">
-    <input type="hidden" id="t-poste" value="">
-    <label data-i18n="lbl_email">Adresse email</label>
-    <input type="email" id="t-email" placeholder="exemple@gmail.com">
-    <label data-i18n="lbl_password">Mot de passe</label>
-    <div class="password-wrapper">
-      <input type="password" id="t-password" placeholder="6 caractères minimum">
-      <button type="button" class="password-toggle" onclick="togglePasswordVisibility('t-password', this)">👁️</button>
+
+    <!-- ETAPE 1 : CONNEXION -->
+    <div id="t-step-connexion">
+      <button type="button" class="google-btn" onclick="connexionGoogleInscription('travailleur')">🔵 Continuer avec Google</button>
+      <div class="ou-separateur">— ou remplissez vos informations —</div>
+      <label data-i18n="lbl_nom">Nom</label>
+      <input type="text" id="t-nom" placeholder="Nom">
+      <label data-i18n="lbl_postnom">Post-nom</label>
+      <input type="text" id="t-postnom" placeholder="Post-nom">
+      <label data-i18n="lbl_prenom">Prénom</label>
+      <input type="text" id="t-prenom" placeholder="Prénom">
+      <label data-i18n="lbl_adresse">Adresse</label>
+      <input type="text" id="t-adresse" placeholder="Adresse complète">
+      <label data-i18n="lbl_telephone">Numéro de téléphone</label>
+      <input type="tel" id="t-tel" placeholder="+243 ...">
+      <div id="t-email-section">
+        <label data-i18n="lbl_email">Adresse email</label>
+        <input type="email" id="t-email" placeholder="exemple@gmail.com">
+        <label data-i18n="lbl_password">Mot de passe</label>
+        <div class="password-wrapper">
+          <input type="password" id="t-password" placeholder="6 caractères minimum">
+          <button type="button" class="password-toggle" onclick="togglePasswordVisibility('t-password', this)">👁️</button>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="validerConnexionTravailleur()">Continuer</button>
+      <div class="msg" id="t-connexion-msg"></div>
     </div>
 
-    <button class="submit-btn" id="btn-inscrire-t" onclick="inscrireTravailleur()" data-i18n="btn_enregistrer">Enregistrer</button>
-    <div class="msg" id="t-msg"></div>
+    <!-- ETAPE 2 : PAYS + TYPE DE TRAVAIL -->
+    <div id="t-step-travail" style="display:none;">
+      <label data-i18n="lbl_date_naissance">Date de naissance</label>
+      <input type="date" id="t-naissance">
+      <label data-i18n="lbl_niveau_etude">Niveau d'étude</label>
+      <select id="t-niveau">
+        <option value="">-- Choisir --</option>
+        <option>Primaire</option>
+        <option>Secondaire</option>
+        <option>Universitaire</option>
+        <option>Aucun</option>
+      </select>
+      <label data-i18n="lbl_pays_voulez">Pays où vous voulez travailler</label>
+      <button type="button" class="country-picker-btn" id="btn-t-pays" onclick="ouvrirSelecteurPays('t-pays','btn-t-pays')">-- Choisir un pays --</button>
+      <input type="hidden" id="t-pays" value="">
+      <label data-i18n="lbl_type_travail_prefere">Type de travail préféré</label>
+      <button type="button" class="job-picker-btn" id="btn-t-type" onclick="ouvrirSelecteurTravail('t-type','t-poste','btn-t-type')">-- Choisir un type de travail --</button>
+      <input type="hidden" id="t-type" value="">
+      <input type="hidden" id="t-poste" value="">
+    </div>
+
+    <!-- ETAPE 3 : DOSSIER DE CANDIDATURE -->
+    <div id="t-step-dossier" style="display:none;">
+      <p class="dossier-note">Déposez votre dossier de candidature pour ce poste (photo ou scan, PDF ou image) :</p>
+      <div id="t-documents-list"></div>
+      <button class="submit-btn" id="btn-inscrire-t" onclick="inscrireTravailleur()" data-i18n="btn_enregistrer">Enregistrer mon dossier</button>
+      <div class="msg" id="t-msg"></div>
+    </div>
   </div>
 
   <!-- FORMULAIRE PATRON -->
   <div class="card" id="form-patron" style="display:none;">
     <h2 data-i18n="h2_inscription_patron">Inscription Patron</h2>
-    <label data-i18n="lbl_nom">Nom</label>
-    <input type="text" id="p-nom" placeholder="Nom">
-    <label data-i18n="lbl_postnom">Post-nom</label>
-    <input type="text" id="p-postnom" placeholder="Post-nom">
-    <label data-i18n="lbl_prenom">Prénom</label>
-    <input type="text" id="p-prenom" placeholder="Prénom">
-    <label data-i18n="lbl_lieu_naissance">Lieu de naissance</label>
-    <input type="text" id="p-naissance-lieu" placeholder="Lieu de naissance">
-    <label data-i18n="lbl_travail_propose">Travail proposé</label>
-    <button type="button" class="job-picker-btn" id="btn-p-type" onclick="ouvrirSelecteurTravail('p-type','p-poste','btn-p-type')">-- Choisir un type de travail --</button>
-    <input type="hidden" id="p-type" value="">
-    <input type="hidden" id="p-poste" value="">
-    <label data-i18n="lbl_pays_travail">Pays du travail</label>
-    <button type="button" class="country-picker-btn" id="btn-p-pays" onclick="ouvrirSelecteurPays('p-pays','btn-p-pays')">-- Choisir un pays --</button>
-    <input type="hidden" id="p-pays" value="">
-    <label data-i18n="lbl_lieu_travail">Lieu du travail (ville / adresse)</label>
-    <input type="text" id="p-lieu" placeholder="Ville ou adresse précise">
-    <label data-i18n="lbl_numero_contacter">Numéro à contacter</label>
-    <input type="tel" id="p-tel" placeholder="+243 ...">
-    <label data-i18n="lbl_email">Adresse email</label>
-    <input type="email" id="p-email" placeholder="exemple@gmail.com">
-    <label data-i18n="lbl_password">Mot de passe</label>
-    <div class="password-wrapper">
-      <input type="password" id="p-password" placeholder="6 caractères minimum">
-      <button type="button" class="password-toggle" onclick="togglePasswordVisibility('p-password', this)">👁️</button>
+
+    <!-- ETAPE 1 : CONNEXION -->
+    <div id="p-step-connexion">
+      <button type="button" class="google-btn" onclick="connexionGoogleInscription('patron')">🔵 Continuer avec Google</button>
+      <div class="ou-separateur">— ou remplissez vos informations —</div>
+      <label data-i18n="lbl_nom">Nom</label>
+      <input type="text" id="p-nom" placeholder="Nom">
+      <label data-i18n="lbl_postnom">Post-nom</label>
+      <input type="text" id="p-postnom" placeholder="Post-nom">
+      <label data-i18n="lbl_prenom">Prénom</label>
+      <input type="text" id="p-prenom" placeholder="Prénom">
+      <label data-i18n="lbl_adresse">Adresse</label>
+      <input type="text" id="p-adresse" placeholder="Adresse complète">
+      <label data-i18n="lbl_numero_contacter">Numéro à contacter</label>
+      <input type="tel" id="p-tel" placeholder="+243 ...">
+      <div id="p-email-section">
+        <label data-i18n="lbl_email">Adresse email</label>
+        <input type="email" id="p-email" placeholder="exemple@gmail.com">
+        <label data-i18n="lbl_password">Mot de passe</label>
+        <div class="password-wrapper">
+          <input type="password" id="p-password" placeholder="6 caractères minimum">
+          <button type="button" class="password-toggle" onclick="togglePasswordVisibility('p-password', this)">👁️</button>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="validerConnexionPatron()">Continuer</button>
+      <div class="msg" id="p-connexion-msg"></div>
     </div>
 
-    <button class="submit-btn" id="btn-inscrire-p" onclick="inscrirePatron()" data-i18n="btn_enregistrer">Enregistrer</button>
-    <div class="msg" id="p-msg"></div>
+    <!-- ETAPE 2 : PAYS + TRAVAIL PROPOSE -->
+    <div id="p-step-travail" style="display:none;">
+      <label data-i18n="lbl_lieu_naissance">Lieu de naissance</label>
+      <input type="text" id="p-naissance-lieu" placeholder="Lieu de naissance (optionnel)">
+      <label data-i18n="lbl_travail_propose">Travail proposé</label>
+      <button type="button" class="job-picker-btn" id="btn-p-type" onclick="ouvrirSelecteurTravail('p-type','p-poste','btn-p-type')">-- Choisir un type de travail --</button>
+      <input type="hidden" id="p-type" value="">
+      <input type="hidden" id="p-poste" value="">
+      <label data-i18n="lbl_pays_travail">Pays du travail</label>
+      <button type="button" class="country-picker-btn" id="btn-p-pays" onclick="ouvrirSelecteurPays('p-pays','btn-p-pays')">-- Choisir un pays --</button>
+      <input type="hidden" id="p-pays" value="">
+      <label data-i18n="lbl_lieu_travail">Lieu du travail (ville / adresse)</label>
+      <input type="text" id="p-lieu" placeholder="Ville ou adresse précise">
+    </div>
+
+    <!-- ETAPE 3 : CRITERES DE RECRUTEMENT -->
+    <div id="p-step-criteres" style="display:none;">
+      <p class="dossier-note">Cochez les critères que vous exigez pour ce poste :</p>
+      <div id="p-criteres-list"></div>
+      <button class="submit-btn" id="btn-inscrire-p" onclick="inscrirePatron()" data-i18n="btn_enregistrer">Enregistrer mon offre</button>
+      <div class="msg" id="p-msg"></div>
+    </div>
   </div>
 
   <div class="card">
@@ -1013,13 +1228,311 @@
   ];
 
   const TYPES_TRAVAIL = [
-    { id: "domestique", label: "Domestique", jobs: ["Ménage", "Garde d'enfants", "Sécurité", "Cuisine"] },
+    { id: "domestique", label: "Domestique", jobs: ["Ménage", "Garde d'enfants", "Sécurité", "Cuisine", "Garde-malade", "Santé mentale"] },
     { id: "ventes", label: "Ventes", jobs: ["Vêtements", "Machines", "Galerie", "Restaurant"] },
     { id: "routes", label: "Routes", jobs: ["Chauffeur", "Moto-taxi", "Bateau", "Avion"] },
     { id: "finances", label: "Finances", jobs: ["Banque", "Hôpital", "École", "Frontière", "Port", "Aéroport"] },
-    { id: "soins", label: "Soins", jobs: ["Enseignant", "Garde-malade", "Santé mentale"] },
     { id: "technique", label: "Technique", jobs: ["Musiciens", "Informaticiens", "Électriciens", "Peintres", "Mécaniciens", "Réparateurs", "Arrangeur de son", "Constructions"] }
   ];
+
+  // ===== Dossiers détaillés par métier : documents à fournir (travailleur) et critères à cocher (patron) =====
+  // Une entrée dans "parMetier" (clé = nom exact du poste) a priorité sur "parCategorie" (clé = id de catégorie).
+  // Pour ajouter un nouveau métier plus tard : ajouter une entrée ici, rien d'autre à modifier.
+  const DOC_CHAUFFEUR = {
+    documents: [
+      { key: "cv", label: "CV", requis: true },
+      { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+      { key: "identite", label: "Carte d'identité ou passeport", requis: true },
+      { key: "permis", label: "Permis de conduire correspondant à la catégorie du véhicule", requis: true },
+      { key: "medical", label: "Certificat médical d'aptitude (si exigé)", requis: false },
+      { key: "experience", label: "Attestations d'expérience", requis: false },
+      { key: "casier", label: "Casier judiciaire (si demandé)", requis: false }
+    ],
+    criteres: [
+      "Pièce d'identité valide",
+      "CV",
+      "Permis de conduire correspondant à la catégorie du véhicule",
+      "Certificat médical d'aptitude",
+      "Attestations d'expérience",
+      "Casier judiciaire",
+      "Bonne conduite, ponctualité et respect",
+      "Compétences nécessaires pour le poste"
+    ]
+  };
+
+  const DOC_BATIMENT = {
+    documents: [
+      { key: "cv", label: "CV", requis: true },
+      { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+      { key: "identite", label: "Carte d'identité", requis: true },
+      { key: "certifBatiment", label: "Certificat ou diplôme dans le métier (maçonnerie, plomberie, menuiserie, peinture, etc. — si disponible)", requis: false },
+      { key: "experience", label: "Attestation d'expérience", requis: false },
+      { key: "securite", label: "Certificat de sécurité sur chantier (si exigé)", requis: false }
+    ],
+    criteres: [
+      "Pièce d'identité valide",
+      "CV",
+      "Certificat ou diplôme dans le métier (si disponible)",
+      "Attestation d'expérience",
+      "Certificat de sécurité sur chantier (si exigé)",
+      "Références",
+      "Bonne conduite, ponctualité et respect"
+    ]
+  };
+
+  const DEFAULT_DOSSIER = {
+    documents: [
+      { key: "cv", label: "CV", requis: true },
+      { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+      { key: "identite", label: "Carte d'identité", requis: true },
+      { key: "experience", label: "Attestation d'expérience (si disponible)", requis: false },
+      { key: "references", label: "Références", requis: false }
+    ],
+    criteres: [
+      "Pièce d'identité valide",
+      "CV",
+      "Lettre de motivation (si demandée)",
+      "Diplômes ou certificats (si le poste l'exige)",
+      "Attestations d'expérience (si disponibles)",
+      "Références d'anciens employeurs (si demandées)",
+      "Compétences nécessaires pour le poste",
+      "Bonne moralité, honnêteté et ponctualité"
+    ]
+  };
+
+  const DOSSIERS_METIERS = {
+    parMetier: {
+      "Chauffeur": DOC_CHAUFFEUR,
+      "Moto-taxi": DOC_CHAUFFEUR,
+      "Bateau": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "brevet", label: "Permis ou brevet de navigation", requis: true },
+          { key: "formationMaritime", label: "Certificat de formation maritime", requis: true },
+          { key: "medical", label: "Certificat médical", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide",
+          "CV",
+          "Permis ou brevet de navigation",
+          "Certificat de formation maritime",
+          "Certificat médical",
+          "Attestation d'expérience",
+          "Bonne conduite et respect"
+        ]
+      },
+      "Avion": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "identite", label: "Carte d'identité ou passeport", requis: true },
+          { key: "licence", label: "Licence de pilote valide", requis: true },
+          { key: "qualifications", label: "Qualifications pour le type d'avion", requis: true },
+          { key: "medicalAero", label: "Certificat médical aéronautique", requis: true },
+          { key: "carnetVol", label: "Carnet de vol (heures de vol)", requis: false },
+          { key: "experience", label: "Attestations d'expérience", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide ou passeport",
+          "CV",
+          "Licence de pilote valide",
+          "Qualifications pour le type d'avion",
+          "Certificat médical aéronautique",
+          "Carnet de vol (heures de vol)",
+          "Attestations d'expérience"
+        ]
+      },
+      "Informaticiens": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat en informatique", requis: false },
+          { key: "experience", label: "Attestations d'expérience", requis: false },
+          { key: "formation", label: "Certificats de formation (si disponibles)", requis: false },
+          { key: "portfolio", label: "Portfolio ou projets réalisés (si demandé)", requis: false },
+          { key: "references", label: "Références professionnelles", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Diplôme ou certificat en informatique",
+          "Attestations d'expérience", "Certificats de formation", "Portfolio ou projets réalisés",
+          "Références professionnelles", "Compétences nécessaires pour le poste"
+        ]
+      },
+      "Mécaniciens": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat en mécanique", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "formation", label: "Certificat de formation technique", requis: false },
+          { key: "references", label: "Références d'anciens employeurs", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Diplôme ou certificat en mécanique",
+          "Attestation d'expérience", "Certificat de formation technique", "Références d'anciens employeurs"
+        ]
+      },
+      "Musiciens": {
+        documents: [
+          { key: "cv", label: "CV artistique", requis: true },
+          { key: "lettre", label: "Lettre de demande", requis: false },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat de musique (si disponible)", requis: false },
+          { key: "enregistrements", label: "Enregistrements audio ou vidéo de ses prestations", requis: false },
+          { key: "experience", label: "Attestations d'expérience", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV artistique", "Diplôme ou certificat de musique",
+          "Enregistrements audio ou vidéo de prestations", "Attestations d'expérience", "Références"
+        ]
+      },
+      "Électriciens": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat en électricité", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "securite", label: "Certificat de sécurité ou de formation (si exigé)", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Diplôme ou certificat en électricité",
+          "Attestation d'expérience", "Certificat de sécurité ou de formation", "Références"
+        ]
+      },
+      "Constructions": DOC_BATIMENT,
+      "Peintres": DOC_BATIMENT,
+      "Garde d'enfants": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "formation", label: "Attestation ou certificat de formation en garde d'enfants (si disponible)", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "references", label: "Références d'anciens employeurs", requis: false },
+          { key: "casier", label: "Casier judiciaire ou certificat de bonne vie et mœurs", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Attestation ou certificat de formation en garde d'enfants",
+          "Attestation d'expérience", "Références d'anciens employeurs", "Casier judiciaire ou certificat de bonne vie et mœurs",
+          "Bonne conduite, ponctualité et respect"
+        ]
+      },
+      "Garde-malade": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat d'aide-soignant ou d'infirmier (si exigé)", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "medical", label: "Certificat médical", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Diplôme ou certificat d'aide-soignant/infirmier",
+          "Attestation d'expérience", "Certificat médical", "Références"
+        ]
+      },
+      "Cuisine": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Certificat ou diplôme en cuisine (si disponible)", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "references", label: "Références", requis: false },
+          { key: "hygiene", label: "Certificat médical ou d'hygiène (si demandé)", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Certificat ou diplôme en cuisine",
+          "Attestation d'expérience", "Certificat médical ou d'hygiène", "Références"
+        ]
+      },
+      "Ménage": {
+        documents: [
+          { key: "cv", label: "CV ou lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "experience", label: "Attestation d'expérience (si disponible)", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV ou lettre de demande d'emploi",
+          "Attestation d'expérience", "Références", "Bonne conduite et honnêteté"
+        ]
+      },
+      "Sécurité": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "formation", label: "Certificat ou formation en sécurité (si exigé)", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "casier", label: "Casier judiciaire ou certificat de bonne vie et mœurs", requis: false },
+          { key: "medical", label: "Certificat médical", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Certificat ou formation en sécurité",
+          "Attestation d'expérience", "Casier judiciaire ou certificat de bonne vie et mœurs",
+          "Certificat médical", "Références"
+        ]
+      }
+    },
+    parCategorie: {
+      finances: {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi ou de motivation", requis: true },
+          { key: "identite", label: "Copie de la carte d'identité ou du passeport", requis: true },
+          { key: "diplomes", label: "Copies des diplômes ou certificats", requis: true },
+          { key: "experience", label: "Attestations de travail ou d'expérience (si disponibles)", requis: false },
+          { key: "photo", label: "Photo d'identité (si demandée)", requis: false },
+          { key: "casier", label: "Casier judiciaire ou certificat de bonne vie et mœurs (si demandé)", requis: false },
+          { key: "autre", label: "Autre document demandé par l'employeur", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide",
+          "CV (Curriculum Vitae)",
+          "Lettre de motivation (si demandée)",
+          "Diplômes ou certificats",
+          "Attestations d'expérience (si le poste en demande)",
+          "Références d'anciens employeurs (dans certains cas)",
+          "Compétences nécessaires pour le poste",
+          "Bonne conduite, ponctualité et respect",
+          "Être en bonne santé si le travail l'exige"
+        ]
+      },
+      ventes: {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité ou passeport", requis: true },
+          { key: "diplome", label: "Diplôme ou attestation d'études (si exigé)", requis: false },
+          { key: "experience", label: "Attestation d'expérience dans la vente (si demandée)", requis: false },
+          { key: "references", label: "Références ou attestation de travail (si disponible)", requis: false },
+          { key: "casier", label: "Casier judiciaire ou certificat de bonne vie et mœurs (si demandé)", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV (Curriculum Vitae)", "Lettre de motivation (si demandée)",
+          "Niveau d'études ou diplôme (si le poste l'exige)", "Bonne présentation",
+          "Capacité à bien communiquer avec les clients", "Honnêteté et intégrité",
+          "Sens de l'accueil et du service", "Ponctualité et discipline",
+          "Expérience dans la vente (si demandée)", "Références ou attestation de travail",
+          "Capacité à utiliser une caisse ou gérer les paiements (pour certains postes)",
+          "Casier judiciaire ou certificat de bonne vie et mœurs (si demandé)"
+        ]
+      }
+    }
+  };
+
+  function getDossierConfig(catId, poste) {
+    return DOSSIERS_METIERS.parMetier[poste] || DOSSIERS_METIERS.parCategorie[catId] || DEFAULT_DOSSIER;
+  }
 
   function fillSelect(select, items, isObj) {
     select.innerHTML = '<option value="">-- Choisir --</option>' +
@@ -1096,6 +1609,103 @@
     else if (catId === "") label = "-- Tout type de travail --";
     document.getElementById(btnId).textContent = label;
     window.fermerSelecteurTravail();
+    if (catInputId === "t-type") window.updateDossierTravailleurUI();
+    if (catInputId === "p-type") window.updateDossierPatronUI();
+  };
+
+  // ===== Dossier travailleur : affichage dynamique des documents à fournir selon le métier choisi =====
+  window.updateDossierTravailleurUI = function () {
+    const catId = document.getElementById("t-type").value;
+    const poste = document.getElementById("t-poste").value;
+    if (!catId) return;
+    const config = getDossierConfig(catId, poste);
+    document.getElementById("t-documents-list").innerHTML = config.documents.map(d => `
+      <label>${esc(d.label)}${d.requis ? " *" : ""}</label>
+      <input type="file" accept="image/*,.pdf" data-doc-key="${d.key}" data-doc-requis="${d.requis}" class="t-doc-input">
+    `).join("");
+    document.getElementById("t-step-dossier").style.display = "block";
+  };
+
+  // ===== Dossier patron : affichage dynamique des critères à cocher selon le métier choisi =====
+  window.updateDossierPatronUI = function () {
+    const catId = document.getElementById("p-type").value;
+    const poste = document.getElementById("p-poste").value;
+    if (!catId) return;
+    const config = getDossierConfig(catId, poste);
+    document.getElementById("p-criteres-list").innerHTML = config.criteres.map(c => `
+      <label class="critere-check-label">
+        <input type="checkbox" class="p-critere-input" value="${esc(c)}"> ${esc(c)}
+      </label>
+    `).join("");
+    document.getElementById("p-step-criteres").style.display = "block";
+  };
+
+  // ===== Etape 1 -> Etape 2 : connexion Google ou manuelle =====
+  let tGoogleUser = null;
+  let pGoogleUser = null;
+
+  async function connexionGoogleInscription(role) {
+    const msgId = role === "travailleur" ? "t-connexion-msg" : "p-connexion-msg";
+    document.getElementById(msgId).className = "msg";
+    const provider = new GoogleAuthProvider();
+    try {
+      const cred = await signInWithPopup(auth, provider);
+      const prefixe = role === "travailleur" ? "t" : "p";
+      if (role === "travailleur") tGoogleUser = cred.user; else pGoogleUser = cred.user;
+      document.getElementById(prefixe + "-email-section").style.display = "none";
+      const nomEl = document.getElementById(prefixe + "-nom");
+      if (!nomEl.value && cred.user.displayName) nomEl.value = cred.user.displayName.split(" ")[0] || "";
+      passerEtapeTravail(role);
+    } catch (e) {
+      if (e.code === "auth/popup-blocked" || e.code === "auth/cancelled-popup-request") {
+        try { await signInWithRedirect(auth, provider); } catch (e2) {
+          showMsg(msgId, false, "", "Connexion Google impossible (" + (e2.code || e2.message) + ").");
+        }
+      } else if (e.code !== "auth/popup-closed-by-user") {
+        showMsg(msgId, false, "", "Connexion Google impossible (" + (e.code || e.message) + ").");
+      }
+    }
+  }
+  window.connexionGoogleInscription = connexionGoogleInscription;
+
+  function passerEtapeTravail(role) {
+    const prefixe = role === "travailleur" ? "t" : "p";
+    document.getElementById(prefixe + "-step-connexion").style.display = "none";
+    document.getElementById(prefixe + "-step-travail").style.display = "block";
+  }
+
+  window.validerConnexionTravailleur = function () {
+    const nom = document.getElementById("t-nom").value.trim();
+    const tel = document.getElementById("t-tel").value.trim();
+    const email = document.getElementById("t-email").value.trim();
+    const password = document.getElementById("t-password").value;
+    if (!tGoogleUser && (!nom || !tel || !email || !password)) {
+      showMsg("t-connexion-msg", false, "", "Veuillez remplir au moins : nom, téléphone, email et mot de passe (ou utilisez Google).");
+      return;
+    }
+    if (!tGoogleUser && password.length < 6) {
+      showMsg("t-connexion-msg", false, "", "Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+    document.getElementById("t-connexion-msg").className = "msg";
+    passerEtapeTravail("travailleur");
+  };
+
+  window.validerConnexionPatron = function () {
+    const nom = document.getElementById("p-nom").value.trim();
+    const tel = document.getElementById("p-tel").value.trim();
+    const email = document.getElementById("p-email").value.trim();
+    const password = document.getElementById("p-password").value;
+    if (!pGoogleUser && (!nom || !tel || !email || !password)) {
+      showMsg("p-connexion-msg", false, "", "Veuillez remplir au moins : nom, téléphone, email et mot de passe (ou utilisez Google).");
+      return;
+    }
+    if (!pGoogleUser && password.length < 6) {
+      showMsg("p-connexion-msg", false, "", "Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+    document.getElementById("p-connexion-msg").className = "msg";
+    passerEtapeTravail("patron");
   };
 
   // ===== Sélecteur de pays personnalisé avec recherche intégrée =====
@@ -1152,6 +1762,29 @@
     sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+  // Hébergement des documents (CV, pièce d'identité, diplômes, etc.) via Cloudinary,
+  // qui reste gratuit sans carte bancaire (contrairement à Firebase Storage qui exige le forfait Blaze).
+  const CLOUDINARY_CLOUD_NAME = "ulopr68i";
+  const CLOUDINARY_UPLOAD_PRESET = "Job connect";
+
+  async function uploadToCloudinary(file, folder) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    formData.append("folder", folder);
+    const resp = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`, {
+      method: "POST",
+      body: formData
+    });
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error("Upload Cloudinary échoué : " + errText);
+    }
+    const dataResp = await resp.json();
+    return dataResp.secure_url;
+  }
+  window.uploadToCloudinary = uploadToCloudinary;
+
   const firebaseConfig = {
     apiKey: "AIzaSyBn2SAqVmUez262KRcZo54MVbSS512zsIg",
     authDomain: "africa-jobs-a465c.firebaseapp.com",
@@ -1166,12 +1799,21 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
+  // Expose au script classique (non-module) qui gère l'écran d'accueil, le sélecteur de métier
+  // et la connexion Google dans le formulaire d'inscription : les modules ES ont leur propre portée,
+  // donc ces variables ne sont pas visibles ailleurs sans être attachées explicitement à window.
+  window.auth = auth;
+  window.GoogleAuthProvider = GoogleAuthProvider;
+  window.signInWithPopup = signInWithPopup;
+  window.signInWithRedirect = signInWithRedirect;
+
   function showMsg(elId, ok, textOk, textErr) {
     const el = document.getElementById(elId);
     el.style.display = "";
     el.className = "msg " + (ok ? "success" : "error");
     el.textContent = ok ? textOk : textErr;
   }
+  window.showMsg = showMsg;
 
   // Normalise un numéro de téléphone pour comparaison (ignore espaces, tirets, parenthèses)
   // Neutralise tout code HTML/JS qu'un utilisateur pourrait avoir saisi dans un champ (protection XSS)
@@ -1184,6 +1826,7 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
   }
+  window.esc = esc;
 
   function normalizerTel(tel) {
     return (tel || "").replace(/[\s\-().]/g, "");
@@ -1207,10 +1850,11 @@
     if (btn.disabled) return; // Empêche le double-clic d'envoyer deux inscriptions en même temps
     btn.disabled = true;
     const texteOriginal = btn.textContent;
-    btn.textContent = "Enregistrement en cours...";
     try {
-    const email = document.getElementById("t-email").value.trim();
+    const email = tGoogleUser ? tGoogleUser.email : document.getElementById("t-email").value.trim();
     const password = document.getElementById("t-password").value;
+    const catId = document.getElementById("t-type").value;
+    const poste = document.getElementById("t-poste").value;
     const data = {
       nom: document.getElementById("t-nom").value.trim(),
       postnom: document.getElementById("t-postnom").value.trim(),
@@ -1220,47 +1864,89 @@
       niveauEtude: document.getElementById("t-niveau").value,
       telephone: document.getElementById("t-tel").value.trim(),
       pays: document.getElementById("t-pays").value,
-      typeTravail: document.getElementById("t-type").value,
-      posteTravail: document.getElementById("t-poste").value,
+      typeTravail: catId,
+      posteTravail: poste,
       email: email,
       dateInscription: serverTimestamp(),
       actif: true,
       supprime: false
     };
 
-    if (!data.nom || !data.telephone || !data.pays || !data.typeTravail || !email || !password) {
+    if (!data.nom || !data.telephone || !data.pays || !data.typeTravail || !email || (!tGoogleUser && !password)) {
       const manquants = [];
       if (!data.nom) manquants.push("Nom");
       if (!data.telephone) manquants.push("Numéro de téléphone");
       if (!data.pays) manquants.push("Pays où vous voulez travailler");
       if (!data.typeTravail) manquants.push("Type de travail préféré");
       if (!email) manquants.push("Adresse email");
-      if (!password) manquants.push("Mot de passe");
+      if (!tGoogleUser && !password) manquants.push("Mot de passe");
       showMsg("t-msg", false, "", "Champ(s) manquant(s) : " + manquants.join(", ") + ".");
       return;
     }
-    if (password.length < 6) {
+    if (!tGoogleUser && password.length < 6) {
       showMsg("t-msg", false, "", "Le mot de passe doit contenir au moins 6 caractères.");
       return;
     }
-    if (await telephoneDejaUtiliseParAutreEmail(data.telephone, email)) {
+
+    // Vérifie que les documents obligatoires du dossier sont bien joints
+    const config = getDossierConfig(catId, poste);
+    const fileInputs = Array.from(document.querySelectorAll("#t-documents-list .t-doc-input"));
+    const manquantsDoc = fileInputs.filter(i => i.dataset.docRequis === "true" && !i.files[0]).map(i => {
+      const doc = config.documents.find(d => d.key === i.dataset.docKey);
+      return doc ? doc.label : i.dataset.docKey;
+    });
+    if (manquantsDoc.length) {
+      showMsg("t-msg", false, "", "Document(s) obligatoire(s) manquant(s) : " + manquantsDoc.join(", ") + ".");
+      return;
+    }
+
+    if (!tGoogleUser && await telephoneDejaUtiliseParAutreEmail(data.telephone, email)) {
       showMsg("t-msg", false, "", "Veuillez saisir l'email ou le mot de passe correspondant à votre numéro de téléphone.");
       return;
     }
 
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      data.uid = cred.user.uid;
-      await addDoc(collection(db, "travailleurs"), data);
-      try { await sendEmailVerification(cred.user); } catch (eVerif) {}
-      showMsg("t-msg", true, "Enregistrement réussi ! Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail.", "");
-      document.getElementById("form-travailleur").querySelectorAll("input").forEach(i => i.value = "");
+    btn.textContent = "Enregistrement en cours...";
+
+    async function uploaderDocuments(uid) {
+      const documents = {};
+      for (const input of fileInputs) {
+        const file = input.files[0];
+        if (!file) continue;
+        documents[input.dataset.docKey] = await uploadToCloudinary(file, `dossiers_travailleurs/${uid}`);
+      }
+      return documents;
+    }
+
+    function resetFormulaireTravailleur() {
+      document.getElementById("form-travailleur").querySelectorAll("input").forEach(i => { if (i.type !== "file") i.value = ""; });
       document.getElementById("t-niveau").selectedIndex = 0;
       document.getElementById("t-pays").value = "";
       document.getElementById("btn-t-pays").textContent = "-- Choisir un pays --";
       document.getElementById("t-type").value = "";
       document.getElementById("t-poste").value = "";
       document.getElementById("btn-t-type").textContent = "-- Choisir un type de travail --";
+      document.getElementById("t-documents-list").innerHTML = "";
+      document.getElementById("t-email-section").style.display = "";
+      tGoogleUser = null;
+      document.getElementById("t-step-dossier").style.display = "none";
+      document.getElementById("t-step-travail").style.display = "none";
+      document.getElementById("t-step-connexion").style.display = "block";
+    }
+
+    try {
+      let uid;
+      if (tGoogleUser) {
+        uid = tGoogleUser.uid;
+      } else {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        uid = cred.user.uid;
+        try { await sendEmailVerification(cred.user); } catch (eVerif) {}
+      }
+      data.uid = uid;
+      data.documents = await uploaderDocuments(uid);
+      await addDoc(collection(db, "travailleurs"), data);
+      showMsg("t-msg", true, "Dossier enregistré avec succès ! " + (tGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
+      resetFormulaireTravailleur();
     } catch (e) {
       if (e.code === "auth/email-already-in-use") {
         // Le compte Google/Auth existe peut-être déjà sans fiche Firestore (inscription interrompue).
@@ -1273,9 +1959,10 @@
             showMsg("t-msg", false, "", "Un compte existe déjà pour cet email. Utilisez « Retrouver mon compte » en bas de la page.");
           } else {
             data.uid = cred.user.uid;
+            data.documents = await uploaderDocuments(cred.user.uid);
             await addDoc(collection(db, "travailleurs"), data);
-            showMsg("t-msg", true, "Compte réparé et enregistré avec succès !", "");
-            document.getElementById("form-travailleur").querySelectorAll("input").forEach(i => i.value = "");
+            showMsg("t-msg", true, "Compte réparé et dossier enregistré avec succès !", "");
+            resetFormulaireTravailleur();
           }
         } catch (e2) {
           showMsg("t-msg", false, "", "Cet email est déjà utilisé avec un autre mot de passe. Utilisez « Retrouver mon compte » en bas de la page.");
@@ -1299,14 +1986,15 @@
     if (btn.disabled) return; // Empêche le double-clic d'envoyer deux inscriptions en même temps
     btn.disabled = true;
     const texteOriginal = btn.textContent;
-    btn.textContent = "Enregistrement en cours...";
     try {
-    const email = document.getElementById("p-email").value.trim();
+    const email = pGoogleUser ? pGoogleUser.email : document.getElementById("p-email").value.trim();
     const password = document.getElementById("p-password").value;
+    const criteresRequis = Array.from(document.querySelectorAll("#p-criteres-list .p-critere-input:checked")).map(i => i.value);
     const data = {
       nom: document.getElementById("p-nom").value.trim(),
       postnom: document.getElementById("p-postnom").value.trim(),
       prenom: document.getElementById("p-prenom").value.trim(),
+      adresse: document.getElementById("p-adresse").value.trim(),
       lieuNaissance: document.getElementById("p-naissance-lieu").value.trim(),
       typeTravail: document.getElementById("p-type").value,
       posteTravail: document.getElementById("p-poste").value,
@@ -1314,43 +2002,62 @@
       lieuTravail: document.getElementById("p-lieu").value.trim(),
       telephone: document.getElementById("p-tel").value.trim(),
       email: email,
+      criteresRequis: criteresRequis,
       dateInscription: serverTimestamp(),
       actif: true,
       supprime: false
     };
 
-    if (!data.nom || !data.telephone || !data.pays || !data.typeTravail || !email || !password) {
+    if (!data.nom || !data.telephone || !data.pays || !data.typeTravail || !email || (!pGoogleUser && !password)) {
       const manquants = [];
       if (!data.nom) manquants.push("Nom");
       if (!data.telephone) manquants.push("Numéro à contacter");
       if (!data.pays) manquants.push("Pays du travail");
       if (!data.typeTravail) manquants.push("Travail proposé");
       if (!email) manquants.push("Adresse email");
-      if (!password) manquants.push("Mot de passe");
+      if (!pGoogleUser && !password) manquants.push("Mot de passe");
       showMsg("p-msg", false, "", "Champ(s) manquant(s) : " + manquants.join(", ") + ".");
       return;
     }
-    if (password.length < 6) {
+    if (!pGoogleUser && password.length < 6) {
       showMsg("p-msg", false, "", "Le mot de passe doit contenir au moins 6 caractères.");
       return;
     }
-    if (await telephoneDejaUtiliseParAutreEmail(data.telephone, email)) {
+    if (!pGoogleUser && await telephoneDejaUtiliseParAutreEmail(data.telephone, email)) {
       showMsg("p-msg", false, "", "Veuillez saisir l'email ou le mot de passe correspondant à votre numéro de téléphone.");
       return;
     }
 
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      data.uid = cred.user.uid;
-      await addDoc(collection(db, "patrons"), data);
-      try { await sendEmailVerification(cred.user); } catch (eVerif) {}
-      showMsg("p-msg", true, "Enregistrement réussi ! Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail.", "");
+    btn.textContent = "Enregistrement en cours...";
+
+    function resetFormulairePatron() {
       document.getElementById("form-patron").querySelectorAll("input").forEach(i => i.value = "");
       document.getElementById("p-type").value = "";
       document.getElementById("p-poste").value = "";
       document.getElementById("btn-p-type").textContent = "-- Choisir un type de travail --";
       document.getElementById("p-pays").value = "";
       document.getElementById("btn-p-pays").textContent = "-- Choisir un pays --";
+      document.getElementById("p-criteres-list").innerHTML = "";
+      document.getElementById("p-email-section").style.display = "";
+      pGoogleUser = null;
+      document.getElementById("p-step-criteres").style.display = "none";
+      document.getElementById("p-step-travail").style.display = "none";
+      document.getElementById("p-step-connexion").style.display = "block";
+    }
+
+    try {
+      let uid;
+      if (pGoogleUser) {
+        uid = pGoogleUser.uid;
+      } else {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        uid = cred.user.uid;
+        try { await sendEmailVerification(cred.user); } catch (eVerif) {}
+      }
+      data.uid = uid;
+      await addDoc(collection(db, "patrons"), data);
+      showMsg("p-msg", true, "Offre enregistrée avec succès ! " + (pGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
+      resetFormulairePatron();
     } catch (e) {
       if (e.code === "auth/email-already-in-use") {
         try {
@@ -1362,8 +2069,8 @@
           } else {
             data.uid = cred.user.uid;
             await addDoc(collection(db, "patrons"), data);
-            showMsg("p-msg", true, "Compte réparé et enregistré avec succès !", "");
-            document.getElementById("form-patron").querySelectorAll("input").forEach(i => i.value = "");
+            showMsg("p-msg", true, "Compte réparé et offre enregistrée avec succès !", "");
+            resetFormulairePatron();
           }
         } catch (e2) {
           showMsg("p-msg", false, "", "Cet email est déjà utilisé avec un autre mot de passe. Utilisez « Retrouver mon compte » en bas de la page.");
@@ -1463,6 +2170,13 @@
       const typeLabel = (id) => (TYPES_TRAVAIL.find(t => t.id === id) || {}).label || id;
       const badgeClass = (id) => "badge badge-" + (id || "");
 
+      // Retrouve le libellé lisible d'une clé de document à partir de la config du métier
+      const labelPourDoc = (catId, poste, key) => {
+        const config = getDossierConfig(catId, poste);
+        const docItem = config.documents.find(x => x.key === key);
+        return docItem ? docItem.label : key;
+      };
+
       // Transforme un numéro de téléphone en lien WhatsApp valide (wa.me)
       const waLink = (tel) => {
         if (!tel) return "#";
@@ -1484,15 +2198,6 @@
         const tb = b.dateInscription?.toMillis ? b.dateInscription.toMillis() : 0;
         return tb - ta;
       });
-     if (targetCollection === "patrons") {
-        docs = docs.filter(d => {
-          if (essaiGratuitExpire(d)) {
-            updateDoc(doc(db, "patrons", d.id), { actif: false }).catch(() => {});
-            return false;
-          }
-          return true;
-        });
-      }
 
       let html = infoBar;
       docs.forEach(d => {
@@ -1511,6 +2216,11 @@
             <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}<span class="role-label">👷 Travailleur</span>${badgeVerifie}</h3>
             <p>📍 ${esc(d.pays || "")} — ${esc(d.adresse || "")}</p>
             <p>🎓 ${esc(d.niveauEtude || "Non précisé")}</p>
+            ${d.documents && Object.keys(d.documents).length ? `
+            <div class="doc-links">
+              <strong>📎 Dossier de candidature :</strong>
+              ${Object.entries(d.documents).map(([k, url]) => `<a href="${esc(url)}" target="_blank" rel="noopener" class="doc-link-item">📄 ${esc(labelPourDoc(d.typeTravail, d.posteTravail, k))}</a>`).join("")}
+            </div>` : ""}
             <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
             <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
             <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
@@ -1522,6 +2232,11 @@
             ${newBadge}
             <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}<span class="role-label">🧑‍💼 Patron</span>${badgeVerifie}</h3>
             <p>📍 ${esc(d.pays || "")} — ${esc(d.lieuTravail || "")}</p>
+            ${d.criteresRequis && d.criteresRequis.length ? `
+            <div class="criteres-list-affichage">
+              <strong>✅ Critères requis :</strong>
+              <ul>${d.criteresRequis.map(c => `<li>${esc(c)}</li>`).join("")}</ul>
+            </div>` : ""}
             <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
             <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
             <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
@@ -2257,10 +2972,6 @@
     if (payeJusqua && payeJusqua > maintenant) return false;
     return maintenant > finEssai;
   }
- function estEnAvant(data) {
-    const jusqua = data.miseEnAvantJusqua?.toDate ? data.miseEnAvantJusqua.toDate() : null;
-    return jusqua ? jusqua > new Date() : false;
-  }
 
   window.activerCompte = async function (coll, docId) {
     try {
@@ -2610,6 +3321,19 @@
     document.getElementById("role-patron-btn").classList.toggle("selected", role === "patron");
     document.getElementById("form-travailleur").style.display = role === "travailleur" ? "block" : "none";
     document.getElementById("form-patron").style.display = role === "patron" ? "block" : "none";
+  }
+
+  // Ecran d'accueil : redirige vers le bon formulaire d'inscription selon le choix
+  function choisirAccueil(role) {
+    document.getElementById("welcome-overlay").style.display = "none";
+    setRole(role);
+    window.allerVersEcran("inscription");
+  }
+
+  // "Passer" : va directement à la recherche
+  function fermerAccueil() {
+    document.getElementById("welcome-overlay").style.display = "none";
+    window.allerVersEcran("recherche");
   }
 
   window.allerVersMonCompte = function () {
