@@ -791,6 +791,19 @@
     padding: 10px 12px;
     margin: 10px 0 14px;
   }
+  .patron-choix-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #F5F1E8;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 0.88rem;
+    color: #333;
+    line-height: 1.5;
+  }
   .critere-check-label {
     display: flex;
     align-items: flex-start;
@@ -975,6 +988,16 @@
       <button type="button" class="job-picker-btn" id="btn-t-type" onclick="ouvrirSelecteurTravail('t-type','t-poste','btn-t-type')">-- Choisir un type de travail --</button>
       <input type="hidden" id="t-type" value="">
       <input type="hidden" id="t-poste" value="">
+    </div>
+
+    <!-- ETAPE 2.5 : CHOIX DU PATRON (optionnel, pour envoi direct par WhatsApp) -->
+    <div id="t-step-patron" style="display:none;">
+      <p class="dossier-note">Choisissez un patron à qui envoyer directement votre dossier (optionnel) :</p>
+      <div id="t-patron-list"></div>
+      <button type="button" class="submit-btn" style="background:#888;" onclick="passerChoixPatron()">Passer, garder seulement sur JOB CONNECT</button>
+      <input type="hidden" id="t-patron-id" value="">
+      <input type="hidden" id="t-patron-tel" value="">
+      <input type="hidden" id="t-patron-nom" value="">
     </div>
 
     <!-- ETAPE 3 : DOSSIER DE CANDIDATURE -->
@@ -1609,8 +1632,31 @@
     else if (catId === "") label = "-- Tout type de travail --";
     document.getElementById(btnId).textContent = label;
     window.fermerSelecteurTravail();
-    if (catInputId === "t-type") window.updateDossierTravailleurUI();
+    if (catInputId === "t-type") window.chargerPatronsCorrespondants();
     if (catInputId === "p-type") window.updateDossierPatronUI();
+  };
+
+  // Retrouve le libellé lisible d'une clé de document à partir de la config du métier (utilisé aussi pour WhatsApp)
+  window.labelPourDocumentCle = function (catId, poste, key) {
+    const config = getDossierConfig(catId, poste);
+    const docItem = config.documents.find(x => x.key === key);
+    return docItem ? docItem.label : key;
+  };
+
+  window.passerChoixPatron = function () {
+    document.getElementById("t-patron-id").value = "";
+    document.getElementById("t-patron-tel").value = "";
+    document.getElementById("t-patron-nom").value = "";
+    document.getElementById("t-step-patron").style.display = "none";
+    window.updateDossierTravailleurUI();
+  };
+
+  window.choisirPatronTravailleur = function (id, tel, nom) {
+    document.getElementById("t-patron-id").value = id;
+    document.getElementById("t-patron-tel").value = tel;
+    document.getElementById("t-patron-nom").value = nom;
+    document.getElementById("t-step-patron").style.display = "none";
+    window.updateDossierTravailleurUI();
   };
 
   // ===== Dossier travailleur : affichage dynamique des documents à fournir selon le métier choisi =====
@@ -1845,6 +1891,42 @@
     return false;
   }
 
+  // Cherche les patrons déjà inscrits pour le même métier (et pays si renseigné), pour que le travailleur
+  // puisse envoyer son dossier directement à l'un d'eux par WhatsApp, en plus de l'enregistrement dans JOB CONNECT.
+  window.chargerPatronsCorrespondants = async function () {
+    const catId = document.getElementById("t-type").value;
+    const poste = document.getElementById("t-poste").value;
+    const pays = document.getElementById("t-pays").value;
+    const listEl = document.getElementById("t-patron-list");
+    document.getElementById("t-step-patron").style.display = "block";
+    listEl.innerHTML = '<p class="dossier-note">Recherche des patrons correspondants...</p>';
+    try {
+      const q = query(collection(db, "patrons"), where("typeTravail", "==", catId));
+      const snap = await getDocs(q);
+      const matches = [];
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        if (d.supprime) return;
+        if (poste && d.posteTravail && d.posteTravail !== poste) return;
+        if (pays && d.pays && d.pays !== pays) return;
+        matches.push({ id: docSnap.id, ...d });
+      });
+      if (!matches.length) {
+        listEl.innerHTML = '<p class="dossier-note">Aucun patron inscrit pour ce métier et ce pays pour le moment. Votre dossier restera visible dans la recherche JOB CONNECT.</p>';
+        return;
+      }
+      listEl.innerHTML = matches.map(p => `
+        <button type="button" class="patron-choix-item" onclick="choisirPatronTravailleur('${esc(p.id)}','${esc(p.telephone || "")}','${esc(p.nom || "")}')">
+          <strong>${esc(p.nom || "Patron")}</strong><br>
+          📍 ${esc(p.pays || "")} — ${esc(p.lieuTravail || "")}<br>
+          💼 ${esc(p.posteTravail || "")}
+        </button>
+      `).join("");
+    } catch (e) {
+      listEl.innerHTML = '<p class="dossier-note">Impossible de charger la liste des patrons pour le moment. Votre dossier restera visible dans la recherche JOB CONNECT.</p>';
+    }
+  };
+
   window.inscrireTravailleur = async function () {
     const btn = document.getElementById("btn-inscrire-t");
     if (btn.disabled) return; // Empêche le double-clic d'envoyer deux inscriptions en même temps
@@ -1867,6 +1949,9 @@
       typeTravail: catId,
       posteTravail: poste,
       email: email,
+      patronChoisiId: document.getElementById("t-patron-id").value,
+      patronChoisiTelephone: document.getElementById("t-patron-tel").value,
+      patronChoisiNom: document.getElementById("t-patron-nom").value,
       dateInscription: serverTimestamp(),
       actif: true,
       supprime: false
@@ -1926,11 +2011,37 @@
       document.getElementById("t-poste").value = "";
       document.getElementById("btn-t-type").textContent = "-- Choisir un type de travail --";
       document.getElementById("t-documents-list").innerHTML = "";
+      document.getElementById("t-patron-list").innerHTML = "";
       document.getElementById("t-email-section").style.display = "";
       tGoogleUser = null;
       document.getElementById("t-step-dossier").style.display = "none";
+      document.getElementById("t-step-patron").style.display = "none";
       document.getElementById("t-step-travail").style.display = "none";
       document.getElementById("t-step-connexion").style.display = "block";
+    }
+
+    // Affiche un bouton qui ouvre WhatsApp avec le dossier (nom, poste, liens des documents) pré-rempli,
+    // prêt à envoyer au patron choisi. Le dossier reste de toute façon enregistré dans JOB CONNECT.
+    function afficherBoutonWhatsApp(d) {
+      const ancien = document.getElementById("t-whatsapp-btn");
+      if (ancien) ancien.remove();
+      if (!d.patronChoisiTelephone) return;
+      const numero = d.patronChoisiTelephone.replace(/[^0-9]/g, "");
+      if (!numero) return;
+      let texte = `Bonjour, je suis ${d.nom} ${d.prenom || ""}. Je postule pour le poste de ${d.posteTravail || d.typeTravail} via JOB CONNECT.\n\nMon dossier de candidature :\n`;
+      Object.entries(d.documents || {}).forEach(([k, url]) => {
+        texte += `- ${window.labelPourDocumentCle(d.typeTravail, d.posteTravail, k)} : ${url}\n`;
+      });
+      const lien = `https://wa.me/${numero}?text=${encodeURIComponent(texte)}`;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.id = "t-whatsapp-btn";
+      btn.className = "submit-btn";
+      btn.style.background = "#25D366";
+      btn.style.marginTop = "10px";
+      btn.textContent = "📲 Envoyer mon dossier via WhatsApp à " + (d.patronChoisiNom || "l'employeur");
+      btn.onclick = () => window.open(lien, "_blank");
+      document.getElementById("t-msg").insertAdjacentElement("afterend", btn);
     }
 
     try {
@@ -1946,6 +2057,7 @@
       data.documents = await uploaderDocuments(uid);
       await addDoc(collection(db, "travailleurs"), data);
       showMsg("t-msg", true, "Dossier enregistré avec succès ! " + (tGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
+      afficherBoutonWhatsApp(data);
       resetFormulaireTravailleur();
     } catch (e) {
       if (e.code === "auth/email-already-in-use") {
@@ -1962,6 +2074,7 @@
             data.documents = await uploaderDocuments(cred.user.uid);
             await addDoc(collection(db, "travailleurs"), data);
             showMsg("t-msg", true, "Compte réparé et dossier enregistré avec succès !", "");
+            afficherBoutonWhatsApp(data);
             resetFormulaireTravailleur();
           }
         } catch (e2) {
