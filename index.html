@@ -1055,6 +1055,16 @@
       <input type="text" id="p-lieu" placeholder="Ville ou adresse précise">
     </div>
 
+    <!-- ETAPE 2.5 : CHOIX DU TRAVAILLEUR (optionnel, pour envoi direct par WhatsApp) -->
+    <div id="p-step-travailleur" style="display:none;">
+      <p class="dossier-note">Choisissez un travailleur à qui envoyer directement vos critères (optionnel) :</p>
+      <div id="p-travailleur-list"></div>
+      <button type="button" class="submit-btn" style="background:#888;" onclick="passerChoixTravailleur()">Passer, garder seulement sur JOB CONNECT</button>
+      <input type="hidden" id="p-travailleur-id" value="">
+      <input type="hidden" id="p-travailleur-tel" value="">
+      <input type="hidden" id="p-travailleur-nom" value="">
+    </div>
+
     <!-- ETAPE 3 : CRITERES DE RECRUTEMENT -->
     <div id="p-step-criteres" style="display:none;">
       <p class="dossier-note">Cochez les critères que vous exigez pour ce poste :</p>
@@ -1633,7 +1643,23 @@
     document.getElementById(btnId).textContent = label;
     window.fermerSelecteurTravail();
     if (catInputId === "t-type") window.chargerPatronsCorrespondants();
-    if (catInputId === "p-type") window.updateDossierPatronUI();
+    if (catInputId === "p-type") window.chargerTravailleursCorrespondants();
+  };
+
+  window.passerChoixTravailleur = function () {
+    document.getElementById("p-travailleur-id").value = "";
+    document.getElementById("p-travailleur-tel").value = "";
+    document.getElementById("p-travailleur-nom").value = "";
+    document.getElementById("p-step-travailleur").style.display = "none";
+    window.updateDossierPatronUI();
+  };
+
+  window.choisirTravailleurPatron = function (id, tel, nom) {
+    document.getElementById("p-travailleur-id").value = id;
+    document.getElementById("p-travailleur-tel").value = tel;
+    document.getElementById("p-travailleur-nom").value = nom;
+    document.getElementById("p-step-travailleur").style.display = "none";
+    window.updateDossierPatronUI();
   };
 
   // Retrouve le libellé lisible d'une clé de document à partir de la config du métier (utilisé aussi pour WhatsApp)
@@ -1927,6 +1953,42 @@
     }
   };
 
+  // Cherche les travailleurs déjà inscrits pour le même métier (et pays si renseigné), pour que le patron
+  // puisse envoyer ses critères directement à l'un d'eux par WhatsApp, en plus de l'enregistrement dans JOB CONNECT.
+  window.chargerTravailleursCorrespondants = async function () {
+    const catId = document.getElementById("p-type").value;
+    const poste = document.getElementById("p-poste").value;
+    const pays = document.getElementById("p-pays").value;
+    const listEl = document.getElementById("p-travailleur-list");
+    document.getElementById("p-step-travailleur").style.display = "block";
+    listEl.innerHTML = '<p class="dossier-note">Recherche des travailleurs correspondants...</p>';
+    try {
+      const q = query(collection(db, "travailleurs"), where("typeTravail", "==", catId));
+      const snap = await getDocs(q);
+      const matches = [];
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        if (d.supprime) return;
+        if (poste && d.posteTravail && d.posteTravail !== poste) return;
+        if (pays && d.pays && d.pays !== pays) return;
+        matches.push({ id: docSnap.id, ...d });
+      });
+      if (!matches.length) {
+        listEl.innerHTML = '<p class="dossier-note">Aucun travailleur inscrit pour ce métier et ce pays pour le moment. Votre offre restera visible dans la recherche JOB CONNECT.</p>';
+        return;
+      }
+      listEl.innerHTML = matches.map(t => `
+        <button type="button" class="patron-choix-item" onclick="choisirTravailleurPatron('${esc(t.id)}','${esc(t.telephone || "")}','${esc(t.nom || "")}')">
+          <strong>${esc(t.nom || "Travailleur")}</strong><br>
+          📍 ${esc(t.pays || "")}<br>
+          💼 ${esc(t.posteTravail || "")}
+        </button>
+      `).join("");
+    } catch (e) {
+      listEl.innerHTML = '<p class="dossier-note">Impossible de charger la liste des travailleurs pour le moment. Votre offre restera visible dans la recherche JOB CONNECT.</p>';
+    }
+  };
+
   window.inscrireTravailleur = async function () {
     const btn = document.getElementById("btn-inscrire-t");
     if (btn.disabled) return; // Empêche le double-clic d'envoyer deux inscriptions en même temps
@@ -2116,6 +2178,9 @@
       telephone: document.getElementById("p-tel").value.trim(),
       email: email,
       criteresRequis: criteresRequis,
+      travailleurChoisiId: document.getElementById("p-travailleur-id").value,
+      travailleurChoisiTelephone: document.getElementById("p-travailleur-tel").value,
+      travailleurChoisiNom: document.getElementById("p-travailleur-nom").value,
       dateInscription: serverTimestamp(),
       actif: true,
       supprime: false
@@ -2151,11 +2216,35 @@
       document.getElementById("p-pays").value = "";
       document.getElementById("btn-p-pays").textContent = "-- Choisir un pays --";
       document.getElementById("p-criteres-list").innerHTML = "";
+      document.getElementById("p-travailleur-list").innerHTML = "";
       document.getElementById("p-email-section").style.display = "";
       pGoogleUser = null;
       document.getElementById("p-step-criteres").style.display = "none";
+      document.getElementById("p-step-travailleur").style.display = "none";
       document.getElementById("p-step-travail").style.display = "none";
       document.getElementById("p-step-connexion").style.display = "block";
+    }
+
+    // Affiche un bouton qui ouvre WhatsApp avec les critères requis pré-remplis, prêt à envoyer
+    // au travailleur choisi. L'offre reste de toute façon enregistrée dans JOB CONNECT.
+    function afficherBoutonWhatsAppPatron(d) {
+      const ancien = document.getElementById("p-whatsapp-btn");
+      if (ancien) ancien.remove();
+      if (!d.travailleurChoisiTelephone) return;
+      const numero = d.travailleurChoisiTelephone.replace(/[^0-9]/g, "");
+      if (!numero) return;
+      let texte = `Bonjour, je suis ${d.nom} ${d.prenom || ""}, je recrute pour le poste de ${d.posteTravail || d.typeTravail} via JOB CONNECT.\n\nCritères requis :\n`;
+      (d.criteresRequis || []).forEach(c => { texte += `- ${c}\n`; });
+      const lien = `https://wa.me/${numero}?text=${encodeURIComponent(texte)}`;
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.id = "p-whatsapp-btn";
+      btn.className = "submit-btn";
+      btn.style.background = "#25D366";
+      btn.style.marginTop = "10px";
+      btn.textContent = "📲 Envoyer mes critères via WhatsApp à " + (d.travailleurChoisiNom || "ce travailleur");
+      btn.onclick = () => window.open(lien, "_blank");
+      document.getElementById("p-msg").insertAdjacentElement("afterend", btn);
     }
 
     try {
@@ -2170,6 +2259,7 @@
       data.uid = uid;
       await addDoc(collection(db, "patrons"), data);
       showMsg("p-msg", true, "Offre enregistrée avec succès ! " + (pGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
+      afficherBoutonWhatsAppPatron(data);
       resetFormulairePatron();
     } catch (e) {
       if (e.code === "auth/email-already-in-use") {
@@ -2183,6 +2273,7 @@
             data.uid = cred.user.uid;
             await addDoc(collection(db, "patrons"), data);
             showMsg("p-msg", true, "Compte réparé et offre enregistrée avec succès !", "");
+            afficherBoutonWhatsAppPatron(data);
             resetFormulairePatron();
           }
         } catch (e2) {
