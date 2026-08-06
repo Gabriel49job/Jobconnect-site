@@ -803,7 +803,10 @@
     font-size: 0.88rem;
     color: #333;
     line-height: 1.5;
+    text-decoration: none;
+    cursor: pointer;
   }
+  .patron-choix-item:active { background: #E7F2E9; }
   .critere-check-label {
     display: flex;
     align-items: flex-start;
@@ -1035,22 +1038,18 @@
       <input type="hidden" id="t-poste" value="">
     </div>
 
-    <!-- ETAPE 2.5 : CHOIX DU PATRON (optionnel, pour envoi direct par WhatsApp) -->
-    <div id="t-step-patron" style="display:none;">
-      <p class="dossier-note">Choisissez un patron à qui envoyer directement votre dossier (optionnel) :</p>
-      <div id="t-patron-list"></div>
-      <button type="button" class="submit-btn" style="background:#888;" onclick="passerChoixPatron()">Passer, garder seulement sur JOB CONNECT</button>
-      <input type="hidden" id="t-patron-id" value="">
-      <input type="hidden" id="t-patron-tel" value="">
-      <input type="hidden" id="t-patron-nom" value="">
-    </div>
-
     <!-- ETAPE 3 : DOSSIER DE CANDIDATURE -->
     <div id="t-step-dossier" style="display:none;">
       <p class="dossier-note">Déposez votre dossier de candidature pour ce poste (photo ou scan, PDF ou image) :</p>
       <div id="t-documents-list"></div>
       <button class="submit-btn" id="btn-inscrire-t" onclick="inscrireTravailleur()" data-i18n="btn_enregistrer">Enregistrer mon dossier</button>
       <div class="msg" id="t-msg"></div>
+    </div>
+
+    <!-- ETAPE 4 : CHOIX DU PATRON EN BAS, une fois le dossier rempli et enregistré : cliquer sur un numéro ouvre WhatsApp directement -->
+    <div id="t-step-patron" style="display:none;">
+      <p class="dossier-note">✅ Dossier enregistré. Choisissez un patron ci-dessous pour lui envoyer directement votre dossier sur WhatsApp :</p>
+      <div id="t-patron-list"></div>
     </div>
   </div>
 
@@ -1100,22 +1099,18 @@
       <input type="text" id="p-lieu" placeholder="Ville ou adresse précise">
     </div>
 
-    <!-- ETAPE 2.5 : CHOIX DU TRAVAILLEUR (optionnel, pour envoi direct par WhatsApp) -->
-    <div id="p-step-travailleur" style="display:none;">
-      <p class="dossier-note">Choisissez un travailleur à qui envoyer directement vos critères (optionnel) :</p>
-      <div id="p-travailleur-list"></div>
-      <button type="button" class="submit-btn" style="background:#888;" onclick="passerChoixTravailleur()">Passer, garder seulement sur JOB CONNECT</button>
-      <input type="hidden" id="p-travailleur-id" value="">
-      <input type="hidden" id="p-travailleur-tel" value="">
-      <input type="hidden" id="p-travailleur-nom" value="">
-    </div>
-
     <!-- ETAPE 3 : CRITERES DE RECRUTEMENT -->
     <div id="p-step-criteres" style="display:none;">
       <p class="dossier-note">Cochez les critères que vous exigez pour ce poste :</p>
       <div id="p-criteres-list"></div>
       <button class="submit-btn" id="btn-inscrire-p" onclick="inscrirePatron()" data-i18n="btn_enregistrer">Enregistrer mon offre</button>
       <div class="msg" id="p-msg"></div>
+    </div>
+
+    <!-- ETAPE 4 : CHOIX DU TRAVAILLEUR EN BAS, une fois les critères remplis et enregistrés : cliquer sur un numéro ouvre WhatsApp directement -->
+    <div id="p-step-travailleur" style="display:none;">
+      <p class="dossier-note">✅ Offre enregistrée. Choisissez un travailleur ci-dessous pour lui envoyer directement vos critères sur WhatsApp :</p>
+      <div id="p-travailleur-list"></div>
     </div>
   </div>
 
@@ -1758,24 +1753,6 @@
     if (catInputId === "p-type") window.updateDossierPatronUI();
     if (catInputId === "depot-t-type") window.updateDossierTravailleurDepotUI();
     if (catInputId === "depot-p-type") window.updateDossierPatronDepotUI();
-    if (catInputId === "t-type") window.chargerPatronsCorrespondants();
-    if (catInputId === "p-type") window.chargerTravailleursCorrespondants();
-  };
-
-  window.passerChoixTravailleur = function () {
-    document.getElementById("p-travailleur-id").value = "";
-    document.getElementById("p-travailleur-tel").value = "";
-    document.getElementById("p-travailleur-nom").value = "";
-    document.getElementById("p-step-travailleur").style.display = "none";
-    window.updateDossierPatronUI();
-  };
-
-  window.choisirTravailleurPatron = function (id, tel, nom) {
-    document.getElementById("p-travailleur-id").value = id;
-    document.getElementById("p-travailleur-tel").value = tel;
-    document.getElementById("p-travailleur-nom").value = nom;
-    document.getElementById("p-step-travailleur").style.display = "none";
-    window.updateDossierPatronUI();
   };
 
   // Retrouve le libellé lisible d'une clé de document à partir de la config du métier (utilisé aussi pour WhatsApp)
@@ -1783,22 +1760,6 @@
     const config = getDossierConfig(catId, poste);
     const docItem = config.documents.find(x => x.key === key);
     return docItem ? docItem.label : key;
-  };
-
-  window.passerChoixPatron = function () {
-    document.getElementById("t-patron-id").value = "";
-    document.getElementById("t-patron-tel").value = "";
-    document.getElementById("t-patron-nom").value = "";
-    document.getElementById("t-step-patron").style.display = "none";
-    window.updateDossierTravailleurUI();
-  };
-
-  window.choisirPatronTravailleur = function (id, tel, nom) {
-    document.getElementById("t-patron-id").value = id;
-    document.getElementById("t-patron-tel").value = tel;
-    document.getElementById("t-patron-nom").value = nom;
-    document.getElementById("t-step-patron").style.display = "none";
-    window.updateDossierTravailleurUI();
   };
 
   // ===== Dossier travailleur : affichage dynamique des documents à fournir selon le métier choisi =====
@@ -2040,12 +2001,21 @@
     return false;
   }
 
-  // Cherche les patrons déjà inscrits pour le même métier (et pays si renseigné), pour que le travailleur
-  // puisse envoyer son dossier directement à l'un d'eux par WhatsApp, en plus de l'enregistrement dans JOB CONNECT.
-  window.chargerPatronsCorrespondants = async function () {
-    const catId = document.getElementById("t-type").value;
-    const poste = document.getElementById("t-poste").value;
-    const pays = document.getElementById("t-pays").value;
+  // Transforme un numéro de téléphone en lien WhatsApp valide (wa.me), avec message pré-rempli
+  function lienWhatsApp(tel, texte) {
+    const numero = (tel || "").replace(/[^0-9]/g, "");
+    if (!numero) return null;
+    return `https://wa.me/${numero}?text=${encodeURIComponent(texte)}`;
+  }
+  window.lienWhatsApp = lienWhatsApp;
+
+  // Affiche, EN BAS du formulaire, la liste des patrons déjà inscrits pour le même métier/pays,
+  // une fois que le travailleur a rempli et enregistré son dossier. Cliquer sur un patron ouvre
+  // directement WhatsApp avec le dossier (nom, poste, liens des documents) pré-rempli.
+  window.chargerPatronsCorrespondants = async function (data) {
+    const catId = data.typeTravail;
+    const poste = data.posteTravail;
+    const pays = data.pays;
     const listEl = document.getElementById("t-patron-list");
     document.getElementById("t-step-patron").style.display = "block";
     listEl.innerHTML = '<p class="dossier-note">Recherche des patrons correspondants...</p>';
@@ -2061,27 +2031,35 @@
         matches.push({ id: docSnap.id, ...d });
       });
       if (!matches.length) {
-        listEl.innerHTML = '<p class="dossier-note">Aucun patron inscrit pour ce métier et ce pays pour le moment. Votre dossier restera visible dans la recherche JOB CONNECT.</p>';
+        listEl.innerHTML = '<p class="dossier-note">Aucun patron inscrit pour ce métier et ce pays pour le moment. Votre dossier reste visible dans la recherche JOB CONNECT.</p>';
         return;
       }
-      listEl.innerHTML = matches.map(p => `
-        <button type="button" class="patron-choix-item" onclick="choisirPatronTravailleur('${esc(p.id)}','${esc(p.telephone || "")}','${esc(p.nom || "")}')">
+      let texte = `Bonjour, je suis ${data.nom} ${data.prenom || ""}. Je postule pour le poste de ${data.posteTravail || data.typeTravail} via JOB CONNECT.\n\nMon dossier de candidature :\n`;
+      Object.entries(data.documents || {}).forEach(([k, url]) => {
+        texte += `- ${window.labelPourDocumentCle(data.typeTravail, data.posteTravail, k)} : ${url}\n`;
+      });
+      listEl.innerHTML = matches.map(p => {
+        const lien = lienWhatsApp(p.telephone, texte);
+        return `
+        <a class="patron-choix-item" href="${lien || "#"}" target="_blank" rel="noopener" ${lien ? "" : 'onclick="return false;" style="opacity:0.5;"'}>
           <strong>${esc(p.nom || "Patron")}</strong><br>
           📍 ${esc(p.pays || "")} — ${esc(p.lieuTravail || "")}<br>
-          💼 ${esc(p.posteTravail || "")}
-        </button>
-      `).join("");
+          💼 ${esc(p.posteTravail || "")}<br>
+          📲 ${esc(p.telephone || "Numéro non renseigné")}
+        </a>`;
+      }).join("");
     } catch (e) {
-      listEl.innerHTML = '<p class="dossier-note">Impossible de charger la liste des patrons pour le moment. Votre dossier restera visible dans la recherche JOB CONNECT.</p>';
+      listEl.innerHTML = '<p class="dossier-note">Impossible de charger la liste des patrons pour le moment. Votre dossier reste visible dans la recherche JOB CONNECT.</p>';
     }
   };
 
-  // Cherche les travailleurs déjà inscrits pour le même métier (et pays si renseigné), pour que le patron
-  // puisse envoyer ses critères directement à l'un d'eux par WhatsApp, en plus de l'enregistrement dans JOB CONNECT.
-  window.chargerTravailleursCorrespondants = async function () {
-    const catId = document.getElementById("p-type").value;
-    const poste = document.getElementById("p-poste").value;
-    const pays = document.getElementById("p-pays").value;
+  // Même principe côté patron : affiche EN BAS, après l'enregistrement de l'offre, la liste des
+  // travailleurs déjà inscrits pour le même métier/pays. Cliquer sur un travailleur ouvre directement
+  // WhatsApp avec les critères requis pré-remplis.
+  window.chargerTravailleursCorrespondants = async function (data) {
+    const catId = data.typeTravail;
+    const poste = data.posteTravail;
+    const pays = data.pays;
     const listEl = document.getElementById("p-travailleur-list");
     document.getElementById("p-step-travailleur").style.display = "block";
     listEl.innerHTML = '<p class="dossier-note">Recherche des travailleurs correspondants...</p>';
@@ -2097,18 +2075,23 @@
         matches.push({ id: docSnap.id, ...d });
       });
       if (!matches.length) {
-        listEl.innerHTML = '<p class="dossier-note">Aucun travailleur inscrit pour ce métier et ce pays pour le moment. Votre offre restera visible dans la recherche JOB CONNECT.</p>';
+        listEl.innerHTML = '<p class="dossier-note">Aucun travailleur inscrit pour ce métier et ce pays pour le moment. Votre offre reste visible dans la recherche JOB CONNECT.</p>';
         return;
       }
-      listEl.innerHTML = matches.map(t => `
-        <button type="button" class="patron-choix-item" onclick="choisirTravailleurPatron('${esc(t.id)}','${esc(t.telephone || "")}','${esc(t.nom || "")}')">
+      let texte = `Bonjour, je suis ${data.nom} ${data.prenom || ""}, je recrute pour le poste de ${data.posteTravail || data.typeTravail} via JOB CONNECT.\n\nCritères requis :\n`;
+      (data.criteresRequis || []).forEach(c => { texte += `- ${c}\n`; });
+      listEl.innerHTML = matches.map(t => {
+        const lien = lienWhatsApp(t.telephone, texte);
+        return `
+        <a class="patron-choix-item" href="${lien || "#"}" target="_blank" rel="noopener" ${lien ? "" : 'onclick="return false;" style="opacity:0.5;"'}>
           <strong>${esc(t.nom || "Travailleur")}</strong><br>
           📍 ${esc(t.pays || "")}<br>
-          💼 ${esc(t.posteTravail || "")}
-        </button>
-      `).join("");
+          💼 ${esc(t.posteTravail || "")}<br>
+          📲 ${esc(t.telephone || "Numéro non renseigné")}
+        </a>`;
+      }).join("");
     } catch (e) {
-      listEl.innerHTML = '<p class="dossier-note">Impossible de charger la liste des travailleurs pour le moment. Votre offre restera visible dans la recherche JOB CONNECT.</p>';
+      listEl.innerHTML = '<p class="dossier-note">Impossible de charger la liste des travailleurs pour le moment. Votre offre reste visible dans la recherche JOB CONNECT.</p>';
     }
   };
 
@@ -2134,9 +2117,6 @@
       typeTravail: catId,
       posteTravail: poste,
       email: email,
-      patronChoisiId: document.getElementById("t-patron-id").value,
-      patronChoisiTelephone: document.getElementById("t-patron-tel").value,
-      patronChoisiNom: document.getElementById("t-patron-nom").value,
       dateInscription: serverTimestamp(),
       actif: true,
       supprime: false
@@ -2205,30 +2185,6 @@
       document.getElementById("t-step-connexion").style.display = "block";
     }
 
-    // Affiche un bouton qui ouvre WhatsApp avec le dossier (nom, poste, liens des documents) pré-rempli,
-    // prêt à envoyer au patron choisi. Le dossier reste de toute façon enregistré dans JOB CONNECT.
-    function afficherBoutonWhatsApp(d) {
-      const ancien = document.getElementById("t-whatsapp-btn");
-      if (ancien) ancien.remove();
-      if (!d.patronChoisiTelephone) return;
-      const numero = d.patronChoisiTelephone.replace(/[^0-9]/g, "");
-      if (!numero) return;
-      let texte = `Bonjour, je suis ${d.nom} ${d.prenom || ""}. Je postule pour le poste de ${d.posteTravail || d.typeTravail} via JOB CONNECT.\n\nMon dossier de candidature :\n`;
-      Object.entries(d.documents || {}).forEach(([k, url]) => {
-        texte += `- ${window.labelPourDocumentCle(d.typeTravail, d.posteTravail, k)} : ${url}\n`;
-      });
-      const lien = `https://wa.me/${numero}?text=${encodeURIComponent(texte)}`;
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.id = "t-whatsapp-btn";
-      btn.className = "submit-btn";
-      btn.style.background = "#25D366";
-      btn.style.marginTop = "10px";
-      btn.textContent = "📲 Envoyer mon dossier via WhatsApp à " + (d.patronChoisiNom || "l'employeur");
-      btn.onclick = () => window.open(lien, "_blank");
-      document.getElementById("t-msg").insertAdjacentElement("afterend", btn);
-    }
-
     try {
       let uid;
       if (tGoogleUser) {
@@ -2242,11 +2198,10 @@
       data.documents = await uploaderDocuments(uid);
       await addDoc(collection(db, "travailleurs"), data);
       showMsg("t-msg", true, "Dossier enregistré avec succès ! " + (tGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
-      afficherBoutonWhatsApp(data);
-      resetFormulaireTravailleur();
-      // Afficher l'onglet Dépôt après inscription réussie
+      document.getElementById("t-step-dossier").style.display = "none";
+      window.chargerPatronsCorrespondants(data);
+      // Afficher l'onglet Dépôt après inscription réussie (sans quitter l'écran : la liste des patrons reste visible)
       await afficherOuMasquerDepot();
-      setTimeout(() => window.allerVersEcran("depot"), 1500);
     } catch (e) {
       if (e.code === "auth/email-already-in-use") {
         // Le compte Google/Auth existe peut-être déjà sans fiche Firestore (inscription interrompue).
@@ -2262,8 +2217,8 @@
             data.documents = await uploaderDocuments(cred.user.uid);
             await addDoc(collection(db, "travailleurs"), data);
             showMsg("t-msg", true, "Compte réparé et dossier enregistré avec succès !", "");
-            afficherBoutonWhatsApp(data);
-            resetFormulaireTravailleur();
+            document.getElementById("t-step-dossier").style.display = "none";
+            window.chargerPatronsCorrespondants(data);
           }
         } catch (e2) {
           showMsg("t-msg", false, "", "Cet email est déjà utilisé avec un autre mot de passe. Utilisez « Retrouver mon compte » en bas de la page.");
@@ -2304,9 +2259,6 @@
       telephone: document.getElementById("p-tel").value.trim(),
       email: email,
       criteresRequis: criteresRequis,
-      travailleurChoisiId: document.getElementById("p-travailleur-id").value,
-      travailleurChoisiTelephone: document.getElementById("p-travailleur-tel").value,
-      travailleurChoisiNom: document.getElementById("p-travailleur-nom").value,
       dateInscription: serverTimestamp(),
       actif: true,
       supprime: false
@@ -2351,28 +2303,6 @@
       document.getElementById("p-step-connexion").style.display = "block";
     }
 
-    // Affiche un bouton qui ouvre WhatsApp avec les critères requis pré-remplis, prêt à envoyer
-    // au travailleur choisi. L'offre reste de toute façon enregistrée dans JOB CONNECT.
-    function afficherBoutonWhatsAppPatron(d) {
-      const ancien = document.getElementById("p-whatsapp-btn");
-      if (ancien) ancien.remove();
-      if (!d.travailleurChoisiTelephone) return;
-      const numero = d.travailleurChoisiTelephone.replace(/[^0-9]/g, "");
-      if (!numero) return;
-      let texte = `Bonjour, je suis ${d.nom} ${d.prenom || ""}, je recrute pour le poste de ${d.posteTravail || d.typeTravail} via JOB CONNECT.\n\nCritères requis :\n`;
-      (d.criteresRequis || []).forEach(c => { texte += `- ${c}\n`; });
-      const lien = `https://wa.me/${numero}?text=${encodeURIComponent(texte)}`;
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.id = "p-whatsapp-btn";
-      btn.className = "submit-btn";
-      btn.style.background = "#25D366";
-      btn.style.marginTop = "10px";
-      btn.textContent = "📲 Envoyer mes critères via WhatsApp à " + (d.travailleurChoisiNom || "ce travailleur");
-      btn.onclick = () => window.open(lien, "_blank");
-      document.getElementById("p-msg").insertAdjacentElement("afterend", btn);
-    }
-
     try {
       let uid;
       if (pGoogleUser) {
@@ -2385,11 +2315,10 @@
       data.uid = uid;
       await addDoc(collection(db, "patrons"), data);
       showMsg("p-msg", true, "Offre enregistrée avec succès ! " + (pGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
-      afficherBoutonWhatsAppPatron(data);
-      resetFormulairePatron();
-      // Afficher l'onglet Dépôt après inscription réussie
+      document.getElementById("p-step-criteres").style.display = "none";
+      window.chargerTravailleursCorrespondants(data);
+      // Afficher l'onglet Dépôt après inscription réussie (sans quitter l'écran : la liste des travailleurs reste visible)
       await afficherOuMasquerDepot();
-      setTimeout(() => window.allerVersEcran("depot"), 1500);
     } catch (e) {
       if (e.code === "auth/email-already-in-use") {
         try {
@@ -2402,8 +2331,8 @@
             data.uid = cred.user.uid;
             await addDoc(collection(db, "patrons"), data);
             showMsg("p-msg", true, "Compte réparé et offre enregistrée avec succès !", "");
-            afficherBoutonWhatsAppPatron(data);
-            resetFormulairePatron();
+            document.getElementById("p-step-criteres").style.display = "none";
+            window.chargerTravailleursCorrespondants(data);
           }
         } catch (e2) {
           showMsg("p-msg", false, "", "Cet email est déjà utilisé avec un autre mot de passe. Utilisez « Retrouver mon compte » en bas de la page.");
