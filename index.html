@@ -856,6 +856,50 @@
   .criteres-list-affichage strong { display: block; margin-bottom: 4px; color: #073C28; }
   .criteres-list-affichage ul { margin: 0; padding-left: 18px; }
   .criteres-list-affichage li { margin: 3px 0; }
+
+  /* ===== Styles pour les cartes Patrons/Travailleurs ===== */
+  .patron-card, .travailleur-card {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-left: 4px solid #0E6E46;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .patron-card-info, .travailleur-card-info {
+    flex: 1;
+  }
+  .patron-card-info h4, .travailleur-card-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 0.95rem;
+    color: #073C28;
+    font-weight: 700;
+  }
+  .patron-card-info p, .travailleur-card-info p {
+    margin: 3px 0;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  .patron-card-tel, .travailleur-card-tel {
+    font-weight: 700;
+    color: #0E6E46;
+    font-size: 0.9rem;
+  }
+  .patron-card-btn, .travailleur-card-btn {
+    background: #0E6E46;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-left: 10px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
 </style>
 </head>
 <body>
@@ -1103,6 +1147,12 @@
     <button type="button" class="country-picker-btn" id="btn-depot-t-pays" onclick="ouvrirSelecteurPays('depot-t-pays','btn-depot-t-pays')">-- Choisir un pays --</button>
     <input type="hidden" id="depot-t-pays" value="">
 
+    <!-- 📋 LISTE DES PATRONS DISPONIBLES -->
+    <div id="depot-t-patrons-list" style="margin-top: 16px; padding: 12px; background: #F0F9F7; border-radius: 10px; display:none;">
+      <label style="font-weight: 700; color: #0E6E46; margin-bottom: 10px; display: block;">🧑‍💼 Patrons actifs dans ce domaine:</label>
+      <div id="depot-t-patrons-items"></div>
+    </div>
+
     <label style="margin-top: 14px;">Numéro WhatsApp du patron (optionnel)</label>
     <input type="tel" id="depot-t-patron-tel" placeholder="+243 ... (laisser vide pour garder sur JOB CONNECT)">
 
@@ -1125,6 +1175,12 @@
     <label>Pays où recruter</label>
     <button type="button" class="country-picker-btn" id="btn-depot-p-pays" onclick="ouvrirSelecteurPays('depot-p-pays','btn-depot-p-pays')">-- Choisir un pays --</button>
     <input type="hidden" id="depot-p-pays" value="">
+
+    <!-- 📋 LISTE DES TRAVAILLEURS DISPONIBLES -->
+    <div id="depot-p-travailleurs-list" style="margin-top: 16px; padding: 12px; background: #F0F9F7; border-radius: 10px; display:none;">
+      <label style="font-weight: 700; color: #0E6E46; margin-bottom: 10px; display: block;">👷 Travailleurs actifs dans ce domaine:</label>
+      <div id="depot-p-travailleurs-items"></div>
+    </div>
 
     <label style="margin-top: 14px;">Numéro WhatsApp du travailleur (optionnel)</label>
     <input type="tel" id="depot-p-travailleur-tel" placeholder="+243 ... (laisser vide pour garder sur JOB CONNECT)">
@@ -1891,7 +1947,7 @@
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
     GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendEmailVerification, signInWithPopup,
-    sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset
+    sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset, onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   // Hébergement des documents (CV, pièce d'identité, diplômes, etc.) via Cloudinary,
@@ -1938,6 +1994,13 @@
   window.GoogleAuthProvider = GoogleAuthProvider;
   window.signInWithPopup = signInWithPopup;
   window.signInWithRedirect = signInWithRedirect;
+
+  // Écouter les changements de connexion et afficher/masquer les onglets en conséquence
+  onAuthStateChanged(auth, (user) => {
+    if (typeof window.afficherOuMasquerDepot === 'function') {
+      window.afficherOuMasquerDepot();
+    }
+  });
 
   function showMsg(elId, ok, textOk, textErr) {
     const el = document.getElementById(elId);
@@ -2459,6 +2522,111 @@
       </label>
       <input type="file" class="t-doc-input" data-doc-key="${d.key}" data-doc-requis="${d.requis}" accept="image/*,.pdf" style="margin-bottom: 14px;">
     `).join("");
+    
+    // Charger les patrons après documents
+    window.chargerPatronsDepot();
+  };
+
+  // ===== Charger les patrons disponibles pour les travailleurs =====
+  window.chargerPatronsDepot = async function() {
+    const typeTravail = document.getElementById("depot-t-type").value;
+    const pays = document.getElementById("depot-t-pays").value;
+    
+    if (!typeTravail || !pays) {
+      document.getElementById("depot-t-patrons-list").style.display = "none";
+      return;
+    }
+
+    try {
+      const q = query(collection(db, "patrons"), 
+        where("typeTravail", "==", typeTravail),
+        where("pays", "==", pays)
+      );
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        document.getElementById("depot-t-patrons-list").style.display = "none";
+        return;
+      }
+
+      const patrons = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      document.getElementById("depot-t-patrons-items").innerHTML = patrons.map(p => `
+        <div class="patron-card">
+          <div class="patron-card-info">
+            <h4>🧑‍💼 ${esc(p.nom || "Patron")}</h4>
+            <p>${esc(p.posteTravail || p.typeTravail || "")}</p>
+            <p class="patron-card-tel">📱 ${esc(p.telephone || "Sans numéro")}</p>
+          </div>
+          <button class="patron-card-btn" onclick="window.selectionnerPatron('${esc(p.telephone)}')">✅ Choisir</button>
+        </div>
+      `).join("");
+      
+      document.getElementById("depot-t-patrons-list").style.display = "block";
+      
+    } catch (e) {
+      console.error("Erreur chargement patrons:", e);
+      document.getElementById("depot-t-patrons-list").style.display = "none";
+    }
+  };
+
+  window.selectionnerPatron = function(tel) {
+    document.getElementById("depot-t-patron-tel").value = tel;
+    // Scroll vers le bas du formulaire pour voir le bouton déposer
+    setTimeout(() => {
+      document.querySelector("#depot-travailleur .submit-btn").scrollIntoView({ behavior: "smooth" });
+    }, 300);
+  };
+
+  // ===== Charger les travailleurs disponibles pour les patrons =====
+  window.chargerTravailleursDepot = async function() {
+    const typeTravail = document.getElementById("depot-p-type").value;
+    const pays = document.getElementById("depot-p-pays").value;
+    
+    if (!typeTravail || !pays) {
+      document.getElementById("depot-p-travailleurs-list").style.display = "none";
+      return;
+    }
+
+    try {
+      const q = query(collection(db, "travailleurs"), 
+        where("typeTravail", "==", typeTravail),
+        where("pays", "==", pays)
+      );
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        document.getElementById("depot-p-travailleurs-list").style.display = "none";
+        return;
+      }
+
+      const travailleurs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      document.getElementById("depot-p-travailleurs-items").innerHTML = travailleurs.map(t => `
+        <div class="travailleur-card">
+          <div class="travailleur-card-info">
+            <h4>👷 ${esc(t.nom || "Travailleur")}</h4>
+            <p>${esc(t.posteTravail || t.typeTravail || "")}</p>
+            <p class="travailleur-card-tel">📱 ${esc(t.telephone || "Sans numéro")}</p>
+          </div>
+          <button class="travailleur-card-btn" onclick="window.selectionnerTravailleur('${esc(t.telephone)}')">✅ Choisir</button>
+        </div>
+      `).join("");
+      
+      document.getElementById("depot-p-travailleurs-list").style.display = "block";
+      
+    } catch (e) {
+      console.error("Erreur chargement travailleurs:", e);
+      document.getElementById("depot-p-travailleurs-list").style.display = "none";
+    }
+  };
+
+  window.selectionnerTravailleur = function(tel) {
+    document.getElementById("depot-p-travailleur-tel").value = tel;
+    // Scroll vers le bas du formulaire pour voir le bouton publier
+    setTimeout(() => {
+      document.querySelector("#depot-patron .submit-btn").scrollIntoView({ behavior: "smooth" });
+    }, 300);
   };
 
   // ===== Dépôt Patron : affichage dynamique des critères selon le type de poste choisi =====
@@ -2473,6 +2641,9 @@
         <span>${esc(c)}</span>
       </label>
     `).join("");
+    
+    // Charger les travailleurs après critères
+    window.chargerTravailleursDepot();
   };
 
   // ===== CHARGEMENT ET AFFICHAGE DES DÉPÔTS PRÉCÉDENTS =====
