@@ -692,6 +692,160 @@
     font-weight: 700;
   }
 
+  /* ===== STYLES POUR LE NOUVEAU DÉPÔT ===== */
+  .depot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .depot-cat-btn {
+    padding: 16px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+    color: #1C2620;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .depot-cat-btn:active {
+    background: #0E6E46;
+    color: white;
+    border-color: #0E6E46;
+  }
+  .depot-cat-btn.selected {
+    background: #0E6E46;
+    color: white;
+    border-color: #0E6E46;
+  }
+  .depot-metiers-list {
+    margin-bottom: 16px;
+    display: none;
+  }
+  .depot-metiers-list.active {
+    display: block;
+  }
+  .depot-metier-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #F5F1E8;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .depot-metier-item:active {
+    background: #E7F2E9;
+    border-color: #0E6E46;
+  }
+  .depot-metier-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #0E6E46;
+    border-radius: 4px;
+    background: white;
+    flex-shrink: 0;
+  }
+  .depot-metier-checkbox.checked {
+    background: #0E6E46;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+  .depot-metier-name {
+    flex: 1;
+    font-weight: 600;
+    color: #333;
+  }
+  .depot-documents-section {
+    background: #E7F2E9;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .depot-documents-section h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0E6E46;
+    margin-bottom: 10px;
+  }
+  .depot-doc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    color: #333;
+  }
+  .depot-doc-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #0E6E46;
+    cursor: pointer;
+  }
+  .depot-confirmation-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .depot-confirmation-modal.show {
+    display: flex;
+  }
+  .depot-confirmation-content {
+    background: white;
+    border-radius: 16px;
+    padding: 32px 20px;
+    text-align: center;
+    max-width: 380px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  .depot-confirmation-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+  .depot-confirmation-content h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #0E6E46;
+    margin-bottom: 8px;
+  }
+  .depot-confirmation-content p {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+  .depot-confirmation-btn {
+    background: #0E6E46;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
   .welcome-overlay {
     position: fixed;
     inset: 0;
@@ -1121,70 +1275,54 @@
   </div>
 </div>
 
-<!-- ============ ECRAN DÉPÔT (pour users connectés) ============ -->
+<!-- ============ ECRAN DÉPÔT AMÉLIORÉ ============ -->
 <div class="screen" id="screen-depot">
 
-  <div class="role-select">
-    <button class="role-btn selected" id="depot-role-travailleur-btn" onclick="setDepotRole('travailleur')" data-i18n="btn_role_travailleur">👷 Travailleur</button>
-    <button class="role-btn" id="depot-role-patron-btn" onclick="setDepotRole('patron')" data-i18n="btn_role_patron">🧑‍💼 Patron</button>
-  </div>
-
-  <!-- DÉPÔT TRAVAILLEUR -->
-  <div class="card" id="depot-travailleur">
-    <h2>📦 Déposer mon dossier</h2>
+  <div class="card">
+    <h2>📦 Déposer votre dossier</h2>
     
-    <label>Type de travail recherché</label>
-    <button type="button" class="job-picker-btn" id="btn-depot-t-type" onclick="ouvrirSelecteurTravail('depot-t-type','depot-t-poste','btn-depot-t-type')">-- Choisir un type de travail --</button>
-    <input type="hidden" id="depot-t-type" value="">
-    <input type="hidden" id="depot-t-poste" value="">
+    <!-- ÉTAPE 1: CATÉGORIES DE MÉTIERS -->
+    <label style="font-weight: 700; color: #073C28; margin-bottom: 12px; display: block;">1️⃣ Choisissez votre domaine :</label>
+    <div class="depot-grid" id="depot-categories"></div>
 
-    <label>Pays recherché</label>
-    <button type="button" class="country-picker-btn" id="btn-depot-t-pays" onclick="ouvrirSelecteurPays('depot-t-pays','btn-depot-t-pays')">-- Choisir un pays --</button>
-    <input type="hidden" id="depot-t-pays" value="">
+    <!-- ÉTAPE 2: MÉTIERS -->
+    <div id="depot-metiers-sections"></div>
 
-    <p class="dossier-note">Uploadez votre dossier de candidature (PDF ou image) :</p>
-    <div id="depot-t-documents-list"></div>
+    <!-- ÉTAPE 3: SÉLECTION DU MÉTIER ET AFFICHAGE DES DOCUMENTS -->
+    <div id="depot-selected-metier-section" style="display: none; margin-top: 16px;">
+      <label style="font-weight: 700; color: #073C28; margin-bottom: 8px; display: block;">3️⃣ Métier sélectionné :</label>
+      <div style="background: #E7F2E9; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-weight: 600; color: #0E6E46;" id="depot-metier-display"></div>
 
-    <!-- 📋 LISTE DES PATRONS DISPONIBLES (en bas : apparaît dès que type + pays sont choisis) -->
-    <div id="depot-t-patrons-list" style="margin-top: 16px; padding: 12px; background: #F0F9F7; border-radius: 10px; display:none;">
-      <label style="font-weight: 700; color: #0E6E46; margin-bottom: 10px; display: block;">🧑‍💼 Patrons actifs dans ce domaine — cliquez sur un numéro pour lui envoyer votre dossier directement sur WhatsApp :</label>
-      <div id="depot-t-patrons-items"></div>
+      <!-- Pays -->
+      <label style="font-weight: 700; margin-top: 16px;">Pays de travail :</label>
+      <select id="depot-pays" style="margin-bottom: 16px;">
+        <option value="">-- Choisir un pays --</option>
+      </select>
+
+      <!-- Numéro à contacter -->
+      <label style="font-weight: 700;">Votre numéro de téléphone :</label>
+      <input type="tel" id="depot-numero" placeholder="+243 975 123 456" style="margin-bottom: 16px;">
+
+      <!-- Documents requis -->
+      <div id="depot-documents-required" class="depot-documents-section">
+        <h4>📄 Documents requis :</h4>
+        <div id="depot-docs-list"></div>
+      </div>
+
+      <!-- Bouton WhatsApp -->
+      <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossierWhatsApp()">💬 Déposer via WhatsApp</button>
+      <div class="msg" id="depot-msg"></div>
     </div>
-
-    <label style="margin-top: 14px;">Ou saisissez un numéro WhatsApp (optionnel)</label>
-    <input type="tel" id="depot-t-patron-tel" placeholder="+243 ... (laisser vide pour garder sur JOB CONNECT)">
-
-    <button type="button" class="submit-btn" onclick="window.deposerTravailleur()">✅ Déposer mon dossier</button>
-    <div class="msg" id="depot-t-msg"></div>
   </div>
+</div>
 
-  <!-- DÉPÔT PATRON -->
-  <div class="card" id="depot-patron" style="display:none;">
-    <h2>📦 Publier une offre</h2>
-    
-    <label>Type de poste</label>
-    <button type="button" class="job-picker-btn" id="btn-depot-p-type" onclick="ouvrirSelecteurTravail('depot-p-type','depot-p-poste','btn-depot-p-type')">-- Choisir un type de travail --</button>
-    <input type="hidden" id="depot-p-type" value="">
-    <input type="hidden" id="depot-p-poste" value="">
-
-    <label>Pays où recruter</label>
-    <button type="button" class="country-picker-btn" id="btn-depot-p-pays" onclick="ouvrirSelecteurPays('depot-p-pays','btn-depot-p-pays')">-- Choisir un pays --</button>
-    <input type="hidden" id="depot-p-pays" value="">
-
-    <p class="dossier-note">Cochez les critères que vous exigez :</p>
-    <div id="depot-p-criteres-list"></div>
-
-    <!-- 📋 LISTE DES TRAVAILLEURS DISPONIBLES (en bas : apparaît dès que type + pays sont choisis) -->
-    <div id="depot-p-travailleurs-list" style="margin-top: 16px; padding: 12px; background: #F0F9F7; border-radius: 10px; display:none;">
-      <label style="font-weight: 700; color: #0E6E46; margin-bottom: 10px; display: block;">👷 Travailleurs actifs dans ce domaine — cliquez sur un numéro pour lui envoyer vos critères directement sur WhatsApp :</label>
-      <div id="depot-p-travailleurs-items"></div>
-    </div>
-
-    <label style="margin-top: 14px;">Ou saisissez un numéro WhatsApp (optionnel)</label>
-    <input type="tel" id="depot-p-travailleur-tel" placeholder="+243 ... (laisser vide pour garder sur JOB CONNECT)">
-
-    <button type="button" class="submit-btn" onclick="window.deposerPatron()">✅ Publier l'offre</button>
-    <div class="msg" id="depot-p-msg"></div>
+<!-- Modal de confirmation -->
+<div class="depot-confirmation-modal" id="depot-confirmation-modal">
+  <div class="depot-confirmation-content">
+    <div class="depot-confirmation-icon">✅</div>
+    <h3>Dépôt Confirmé!</h3>
+    <p>Votre dossier a été envoyé avec succès via WhatsApp.<br>Vous serez contacté(e) bientôt.</p>
+    <button class="depot-confirmation-btn" onclick="document.getElementById('depot-confirmation-modal').classList.remove('show')">Fermer</button>
   </div>
 </div>
 
@@ -4263,6 +4401,180 @@
   (async function initializerDepot() {
     await afficherOuMasquerDepot();
   })();
+
+  // ===== CONFIGURATION DES MÉTIERS POUR LE NOUVEAU DÉPÔT =====
+  const DEPOT_METIERS_CONFIG = {
+    'INFORMATIQUE & TECHNOLOGIE': ['💻 Développeur logiciel', '🌐 Développeur web', '📱 Développeur mobile', '⚙️ Ingénieur informatique', '🛠️ Technicien informatique', '🔒 Cybersécurité', '🖧 Administrateur réseau', '🤖 Intelligence artificielle', '🎨 Graphiste numérique', '✨ Designer UI/UX'],
+    'SANTÉ & MÉDECINE': ['👨‍⚕️ Médecin', '👩‍⚕️ Infirmier', '🤝 Aide-soignant', '💊 Pharmacien', '🔪 Chirurgien', '🦷 Dentiste', '👶 Sage-femme', '💪 Kinésithérapeute', '🧬 Laborantin', '📋 Assistant médical'],
+    'CONSTRUCTION & BÂTIMENT': ['🧱 Maçon', '🏗️ Architecte', '⚡ Électricien bâtiment', '🚰 Plombier', '🎨 Peintre', '🪟 Carreleur', '🪵 Charpentier', '🔥 Soudeur', '🪟 Vitrier', '🚜 Conducteur d\'engins'],
+    'TRANSPORT & AUTOMOBILE': ['🚚 Chauffeur camion', '🚕 Chauffeur taxi', '🚌 Conducteur bus', '📦 Livreur', '🔧 Mécanicien automobile', '🏍️ Réparateur moto', '⚙️ Technicien automobile', '✈️ Pilote'],
+    'COMMERCE & VENTE': ['🛍️ Vendeur', '💼 Commercial', '💳 Caissier', '📢 Agent marketing', '🏪 Responsable magasin', '📦 Importateur', '🌍 Exportateur', '🤝 Entrepreneur'],
+    'MAISON & SERVICES': ['👶 Baby-sitter', '🏥 Garde malade', '👨‍🍳 Cuisinier', '🧹 Nettoyeur', '🌿 Jardinier', '👔 Blanchisseur', '🚨 Agent de sécurité', '🚗 Chauffeur privé'],
+    'ÉDUCATION': ['🎓 Enseignant', '👨‍🏫 Professeur', '📚 Tuteur privé', '👥 Formateur', '🧒 Éducateur'],
+    'AGRICULTURE & ÉLEVAGE': ['🌾 Agriculteur', '🐄 Éleveur', '🎣 Pêcheur', '🌱 Technicien agricole', '🐾 Vétérinaire'],
+    'MÉDIA & CRÉATION': ['📰 Journaliste', '📸 Photographe', '🎬 Vidéaste', '🎵 Musicien', '🎤 Chanteur', '🎛️ Producteur', '📻 Animateur radio', '✍️ Créateur de contenu'],
+    'FINANCE & ADMINISTRATION': ['💰 Comptable', '🏦 Banquier', '📝 Secrétaire', '📊 Assistant administratif', '💼 Gestionnaire', '⚖️ Avocat'],
+    'INDUSTRIE & FABRICATION': ['⚙️ Opérateur machine', '🔩 Technicien industriel', '🔥 Soudeur industriel', '✅ Contrôleur qualité', '👨‍💼 Chef d\'équipe'],
+    'BEAUTÉ & MODE': ['✂️ Coiffeur', '💅 Esthéticien', '💄 Maquilleur', '👗 Couturier', '👠 Styliste']
+  };
+
+  const DEPOT_DOCUMENTS_REQUIS = {
+    'Développeur logiciel': ['CV', 'Portfolio', 'Certificats de formation', 'Tests de compétences'],
+    'Développeur web': ['CV', 'Portfolio GitHub', 'Certificats', 'Références clients'],
+    'Développeur mobile': ['CV', 'Portfolio d\'apps', 'Certificats', 'Tests techniques'],
+    'Ingénieur informatique': ['Diplôme', 'CV', 'Certificats', 'Lettres de recommandation'],
+    'Technicien informatique': ['Certificats de formation', 'CV', 'Références', 'Tests de diagnostic'],
+    'Cybersécurité': ['Certificats spécialisés', 'CV', 'Portfolio de projets', 'Recommandations'],
+    'Administrateur réseau': ['Certificats (CompTIA, Cisco)', 'CV', 'Expérience documentée', 'Tests'],
+    'Intelligence artificielle': ['Diplôme/Formation', 'Portfolio', 'Projets GitHub', 'Certificats ML'],
+    'Graphiste numérique': ['Portfolio', 'CV', 'Fichiers de travaux', 'Références clients'],
+    'Designer UI/UX': ['Portfolio Figma/Behance', 'CV', 'Cas d\'études', 'Références'],
+    'Médecin': ['Diplôme reconnu', 'Licence de pratique', 'Certificat d\'assurance', 'CV'],
+    'Infirmier': ['Diplôme agréé', 'Licence', 'Certificats de formation continue', 'Expérience'],
+    'Aide-soignant': ['Certificat de formation', 'CV', 'Références', 'Tests d\'aptitude'],
+    'Pharmacien': ['Diplôme', 'Licence', 'Certificat d\'assurance', 'CV'],
+    'Chirurgien': ['Diplôme spécialisé', 'Licence', 'Certificats', 'Recommandations médicales'],
+    'Dentiste': ['Diplôme d\'odontologie', 'Licence', 'Assurance', 'CV'],
+    'Sage-femme': ['Diplôme reconnu', 'Licence', 'Certificats', 'Expérience documentée'],
+    'Kinésithérapeute': ['Diplôme', 'Licence', 'Certificats de formation', 'Références'],
+    'Laborantin': ['Certificat de formation', 'CV', 'Références', 'Tests techniques'],
+    'Assistant médical': ['Certificat de formation', 'CV', 'Références', 'Expérience']
+  };
+
+  const DEPOT_PAYS = ['Congo (RDC)', 'Congo (RC)', 'Cameroun', 'Côte d\'Ivoire', 'Sénégal', 'Mali', 'Burkina Faso', 'Bénin', 'Togo', 'Niger', 'Tchad', 'Gabon', 'Guinée', 'Liberia', 'Sierra Leone', 'Zambie', 'Zimbabwe', 'Mozambique', 'Ouganda', 'Tanzanie', 'Kenya', 'Rwanda', 'Burundi', 'Éthiopie', 'Somalie', 'Djibouti', 'Égypte', 'Soudan', 'Autres'];
+
+  let depotState = {
+    categorie: null,
+    metier: null
+  };
+
+  // Initialiser les catégories
+  function initierDepot() {
+    const container = document.getElementById('depot-categories');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    Object.keys(DEPOT_METIERS_CONFIG).forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'depot-cat-btn';
+      btn.textContent = cat;
+      btn.onclick = () => selectionnerCategorie(cat);
+      container.appendChild(btn);
+    });
+
+    // Remplir les pays
+    const selectPays = document.getElementById('depot-pays');
+    if (selectPays) {
+      selectPays.innerHTML = '<option value="">-- Choisir un pays --</option>';
+      DEPOT_PAYS.forEach(pays => {
+        const option = document.createElement('option');
+        option.value = pays;
+        option.textContent = pays;
+        selectPays.appendChild(option);
+      });
+    }
+  }
+
+  window.selectionnerCategorie = function(categorie) {
+    depotState.categorie = categorie;
+    depotState.metier = null;
+
+    // Mettre à jour les styles
+    document.querySelectorAll('.depot-cat-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.textContent === categorie);
+    });
+
+    // Afficher les métiers
+    const container = document.getElementById('depot-metiers-sections');
+    container.innerHTML = '';
+
+    const label = document.createElement('label');
+    label.style.fontWeight = '700';
+    label.style.color = '#073C28';
+    label.style.marginTop = '16px';
+    label.style.marginBottom = '12px';
+    label.style.display = 'block';
+    label.textContent = '2️⃣ Sélectionnez votre métier :';
+    container.appendChild(label);
+
+    const metiers = DEPOT_METIERS_CONFIG[categorie];
+    const list = document.createElement('div');
+    list.className = 'depot-metiers-list active';
+
+    metiers.forEach(metier => {
+      const item = document.createElement('div');
+      item.className = 'depot-metier-item';
+      item.innerHTML = `
+        <div class="depot-metier-checkbox"></div>
+        <div class="depot-metier-name">${metier}</div>
+      `;
+      item.onclick = () => selectionnerMetier(metier);
+      list.appendChild(item);
+    });
+
+    container.appendChild(list);
+  };
+
+  window.selectionnerMetier = function(metier) {
+    depotState.metier = metier;
+
+    // Mettre à jour l'affichage du métier sélectionné
+    document.getElementById('depot-metier-display').textContent = '✅ ' + metier;
+    document.getElementById('depot-selected-metier-section').style.display = 'block';
+
+    // Afficher les documents requis
+    const metierSansIcon = metier.split(' ').slice(1).join(' ');
+    const docs = DEPOT_DOCUMENTS_REQUIS[metierSansIcon] || [];
+    const docsList = document.getElementById('depot-docs-list');
+    docsList.innerHTML = '';
+    
+    docs.forEach((doc, idx) => {
+      const item = document.createElement('div');
+      item.className = 'depot-doc-item';
+      item.innerHTML = `<input type="checkbox" id="doc-${idx}"> <label for="doc-${idx}">${doc}</label>`;
+      docsList.appendChild(item);
+    });
+
+    // Scroll vers la section
+    setTimeout(() => {
+      document.getElementById('depot-selected-metier-section').scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
+
+  window.deposerDossierWhatsApp = function() {
+    const metier = depotState.metier;
+    const pays = document.getElementById('depot-pays').value;
+    const numero = document.getElementById('depot-numero').value;
+
+    if (!metier || !pays || !numero) {
+      showMsg('depot-msg', false, '', 'Veuillez remplir tous les champs.');
+      return;
+    }
+
+    // Vérifier que le numéro a le format international
+    if (!numero.startsWith('+')) {
+      showMsg('depot-msg', false, '', 'Le numéro doit commencer par +');
+      return;
+    }
+
+    const message = `🎯 *Nouveau Dépôt de Dossier JOB CONNECT*\n\n📋 *Métier:* ${metier}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+
+    // Montrer la confirmation
+    document.getElementById('depot-confirmation-modal').classList.add('show');
+    setTimeout(() => {
+      document.getElementById('depot-confirmation-modal').classList.remove('show');
+      location.reload();
+    }, 3000);
+  };
+
+  // Initialiser le Dépôt au chargement
+  window.addEventListener('load', () => {
+    if (document.getElementById('depot-categories')) {
+      initierDepot();
+    }
+  });
 </script>
 
 </body>
