@@ -1400,6 +1400,7 @@
 
         <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossier('travailleur')">💬 Déposer via WhatsApp</button>
         <div class="msg" id="depot-msg-travailleur"></div>
+        <div id="depot-matches-travailleur"></div>
       </div>
 
       <!-- PATRON: CRITÈRES À EXIGER -->
@@ -1421,6 +1422,7 @@
 
         <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossier('patron')">💬 Publier l'offre via WhatsApp</button>
         <div class="msg" id="depot-msg-patron"></div>
+        <div id="depot-matches-patron"></div>
       </div>
     </div>
   </div>
@@ -4448,6 +4450,16 @@
       showMsg("signal-msg", false, "", "Erreur : impossible d'envoyer le signalement (" + (e.code || e.message || "inconnue") + ").");
     }
   };
+
+  // Expose Firestore (module scope) au script classique plus bas, utilisé par l'écran "Dépôt de dossier"
+  // pour enregistrer chaque numéro déposé et retrouver les correspondances (patrons <-> travailleurs).
+  window.db = db;
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.query = query;
+  window.where = where;
+  window.getDocs = getDocs;
+  window.serverTimestamp = serverTimestamp;
 </script>
 
 <script>
@@ -4798,14 +4810,16 @@
     };
   };
 
-  window.deposerDossier = function(role) {
+  window.deposerDossier = async function(role) {
     const categorie = depotState.categorie;
     const paysId = role === 'travailleur' ? 'depot-pays-travailleur' : 'depot-pays-patron';
     const numeroId = role === 'travailleur' ? 'depot-numero-travailleur' : 'depot-numero-patron';
     const msgId = role === 'travailleur' ? 'depot-msg-travailleur' : 'depot-msg-patron';
+    const matchesId = role === 'travailleur' ? 'depot-matches-travailleur' : 'depot-matches-patron';
+    const btn = document.querySelector(`#depot-${role}-content .submit-btn`);
 
     const pays = document.getElementById(paysId).value;
-    const numero = document.getElementById(numeroId).value;
+    const numero = document.getElementById(numeroId).value.trim();
 
     if (!categorie || !pays || !numero) {
       showMsg(msgId, false, '', 'Veuillez remplir tous les champs.');
@@ -4817,17 +4831,75 @@
       return;
     }
 
-    const typeDossier = role === 'travailleur' ? '👷 DOSSIER TRAVAILLEUR' : '🏢 OFFRE PATRON';
-    const ligneMetier = depotState.metier ? `\n👤 *Métier:* ${depotState.metier}` : '';
-    const message = `🎯 *Nouveau ${typeDossier} - JOB CONNECT*\n\n📋 *Domaine:* ${categorie}${ligneMetier}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    const matchesEl = document.getElementById(matchesId);
+    const texteOriginal = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Enregistrement...'; }
+    if (matchesEl) matchesEl.innerHTML = '';
 
-    // Montrer la confirmation
-    document.getElementById('depot-confirmation-modal').classList.add('show');
-    setTimeout(() => {
-      document.getElementById('depot-confirmation-modal').classList.remove('show');
-    }, 3000);
+    try {
+      // 1) Enregistrer ce numéro dans l'annuaire JOB CONNECT (visible pour le rôle opposé)
+      await window.addDoc(window.collection(window.db, 'depot_annonces'), {
+        role: role,
+        categorie: categorie,
+        metier: depotState.metier || null,
+        pays: pays,
+        telephone: numero,
+        date: window.serverTimestamp()
+      });
+
+      const typeDossier = role === 'travailleur' ? '👷 DOSSIER TRAVAILLEUR' : '🏢 OFFRE PATRON';
+      const ligneMetier = depotState.metier ? `\n👤 *Métier:* ${depotState.metier}` : '';
+      const message = `🎯 *Nouveau ${typeDossier} - JOB CONNECT*\n\n📋 *Domaine:* ${categorie}${ligneMetier}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}`;
+
+      // 2) Chercher, dans l'annuaire, tous les numéros du rôle opposé déjà enregistrés pour ce domaine
+      const roleOppose = role === 'travailleur' ? 'patron' : 'travailleur';
+      const q = window.query(
+        window.collection(window.db, 'depot_annonces'),
+        window.where('categorie', '==', categorie),
+        window.where('role', '==', roleOppose)
+      );
+      const snap = await window.getDocs(q);
+      let correspondances = [];
+      snap.forEach(docSnap => {
+        const d = docSnap.data();
+        if (depotState.metier && d.metier && d.metier !== depotState.metier) return;
+        correspondances.push(d);
+      });
+      // Les plus récents en premier, max 20 affichés
+      correspondances = correspondances.reverse().slice(0, 20);
+
+      if (matchesEl) {
+        if (correspondances.length === 0) {
+          matchesEl.innerHTML = `<p class="dossier-note">Aucun ${roleOppose === 'patron' ? 'patron' : 'travailleur'} enregistré pour ce domaine pour le moment. Votre numéro est maintenant visible : dès qu'un ${roleOppose} correspondant se dépose, il pourra vous contacter.</p>`;
+        } else {
+          matchesEl.innerHTML =
+            `<p class="dossier-note">✅ Numéro enregistré ! Contactez directement les ${roleOppose === 'patron' ? 'patrons' : 'travailleurs'} déjà inscrits pour ce domaine :</p>` +
+            correspondances.map(c => {
+              const lien = window.lienWhatsApp ? window.lienWhatsApp(c.telephone, message) : `https://wa.me/${(c.telephone || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+              return `
+              <a class="patron-choix-item" href="${lien}" target="_blank" rel="noopener">
+                💼 ${c.metier || c.categorie}<br>
+                🌍 ${c.pays || ''}<br>
+                📲 ${c.telephone || 'Numéro non renseigné'}
+              </a>`;
+            }).join('');
+        }
+      }
+
+      showMsg(msgId, true, 'Votre numéro a été enregistré dans JOB CONNECT.', '');
+
+      // Montrer la confirmation
+      document.getElementById('depot-confirmation-modal').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('depot-confirmation-modal').classList.remove('show');
+      }, 3000);
+
+      if (matchesEl) setTimeout(() => matchesEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
+    } catch (e) {
+      showMsg(msgId, false, '', "Erreur : impossible d'enregistrer votre dossier (" + (e.code || e.message || 'inconnue') + ").");
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = texteOriginal; }
+    }
   };;
 
   // Initialiser le Dépôt au chargement
