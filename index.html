@@ -900,6 +900,7 @@
 
 <div class="tabs">
   <button class="tab-btn active" data-screen="inscription" data-i18n="tab_inscription">Inscription</button>
+  <button class="tab-btn" id="tab-depot" data-screen="depot" data-i18n="tab_depot" style="display:none;">📦 Dépôt</button>
   <button class="tab-btn" data-screen="recherche" data-i18n="tab_recherche">Recherche<span class="tab-notif-badge" id="tab-notif-badge">0</span></button>
   <button class="tab-btn" data-screen="compte" data-i18n="tab_compte">Mon compte</button>
   <button class="tab-btn" data-screen="admin" data-i18n="tab_admin">Admin</button>
@@ -1078,6 +1079,61 @@
     <p style="text-align:center; color:#555; font-size:0.88rem; margin-bottom:10px;" data-i18n="txt_probleme_compte">Un problème avec votre compte ?</p>
     <button type="button" class="toggle-btn activer" onclick="allerVersMonCompte()" data-i18n="btn_activer_mon_compte">🔓 Activer mon compte</button>
     <button type="button" class="toggle-btn desactiver" onclick="ouvrirRecuperationCompte()" data-i18n="btn_retrouver_compte_supprime">🔎 Retrouver mon compte supprimé</button>
+  </div>
+</div>
+
+<!-- ============ ECRAN DÉPÔT (pour users connectés) ============ -->
+<div class="screen" id="screen-depot">
+
+  <div class="role-select">
+    <button class="role-btn selected" id="depot-role-travailleur-btn" onclick="setDepotRole('travailleur')" data-i18n="btn_role_travailleur">👷 Travailleur</button>
+    <button class="role-btn" id="depot-role-patron-btn" onclick="setDepotRole('patron')" data-i18n="btn_role_patron">🧑‍💼 Patron</button>
+  </div>
+
+  <!-- DÉPÔT TRAVAILLEUR -->
+  <div class="card" id="depot-travailleur">
+    <h2>📦 Déposer mon dossier</h2>
+    
+    <label>Type de travail recherché</label>
+    <button type="button" class="job-picker-btn" id="btn-depot-t-type" onclick="ouvrirSelecteurTravail('depot-t-type','depot-t-poste','btn-depot-t-type')">-- Choisir un type de travail --</button>
+    <input type="hidden" id="depot-t-type" value="">
+    <input type="hidden" id="depot-t-poste" value="">
+
+    <label>Pays recherché</label>
+    <button type="button" class="country-picker-btn" id="btn-depot-t-pays" onclick="ouvrirSelecteurPays('depot-t-pays','btn-depot-t-pays')">-- Choisir un pays --</button>
+    <input type="hidden" id="depot-t-pays" value="">
+
+    <label style="margin-top: 14px;">Numéro WhatsApp du patron (optionnel)</label>
+    <input type="tel" id="depot-t-patron-tel" placeholder="+243 ... (laisser vide pour garder sur JOB CONNECT)">
+
+    <p class="dossier-note">Uploadez votre dossier de candidature (PDF ou image) :</p>
+    <div id="depot-t-documents-list"></div>
+
+    <button type="button" class="submit-btn" onclick="window.deposerTravailleur()">✅ Déposer mon dossier</button>
+    <div class="msg" id="depot-t-msg"></div>
+  </div>
+
+  <!-- DÉPÔT PATRON -->
+  <div class="card" id="depot-patron" style="display:none;">
+    <h2>📦 Publier une offre</h2>
+    
+    <label>Type de poste</label>
+    <button type="button" class="job-picker-btn" id="btn-depot-p-type" onclick="ouvrirSelecteurTravail('depot-p-type','depot-p-poste','btn-depot-p-type')">-- Choisir un type de travail --</button>
+    <input type="hidden" id="depot-p-type" value="">
+    <input type="hidden" id="depot-p-poste" value="">
+
+    <label>Pays où recruter</label>
+    <button type="button" class="country-picker-btn" id="btn-depot-p-pays" onclick="ouvrirSelecteurPays('depot-p-pays','btn-depot-p-pays')">-- Choisir un pays --</button>
+    <input type="hidden" id="depot-p-pays" value="">
+
+    <label style="margin-top: 14px;">Numéro WhatsApp du travailleur (optionnel)</label>
+    <input type="tel" id="depot-p-travailleur-tel" placeholder="+243 ... (laisser vide pour garder sur JOB CONNECT)">
+
+    <p class="dossier-note">Cochez les critères que vous exigez :</p>
+    <div id="depot-p-criteres-list"></div>
+
+    <button type="button" class="submit-btn" onclick="window.deposerPatron()">✅ Publier l'offre</button>
+    <div class="msg" id="depot-p-msg"></div>
   </div>
 </div>
 
@@ -1642,6 +1698,10 @@
     else if (catId === "") label = "-- Tout type de travail --";
     document.getElementById(btnId).textContent = label;
     window.fermerSelecteurTravail();
+    if (catInputId === "t-type") window.updateDossierTravailleurUI();
+    if (catInputId === "p-type") window.updateDossierPatronUI();
+    if (catInputId === "depot-t-type") window.updateDossierTravailleurDepotUI();
+    if (catInputId === "depot-p-type") window.updateDossierPatronDepotUI();
     if (catInputId === "t-type") window.chargerPatronsCorrespondants();
     if (catInputId === "p-type") window.chargerTravailleursCorrespondants();
   };
@@ -2121,6 +2181,9 @@
       showMsg("t-msg", true, "Dossier enregistré avec succès ! " + (tGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
       afficherBoutonWhatsApp(data);
       resetFormulaireTravailleur();
+      // Afficher l'onglet Dépôt après inscription réussie
+      await afficherOuMasquerDepot();
+      setTimeout(() => window.allerVersEcran("depot"), 1500);
     } catch (e) {
       if (e.code === "auth/email-already-in-use") {
         // Le compte Google/Auth existe peut-être déjà sans fiche Firestore (inscription interrompue).
@@ -2261,6 +2324,9 @@
       showMsg("p-msg", true, "Offre enregistrée avec succès ! " + (pGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
       afficherBoutonWhatsAppPatron(data);
       resetFormulairePatron();
+      // Afficher l'onglet Dépôt après inscription réussie
+      await afficherOuMasquerDepot();
+      setTimeout(() => window.allerVersEcran("depot"), 1500);
     } catch (e) {
       if (e.code === "auth/email-already-in-use") {
         try {
@@ -2287,6 +2353,245 @@
         showMsg("p-msg", false, "", "Enregistrement échoué (" + (e.code || e.message || "erreur inconnue") + ").");
       }
     }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = texteOriginal;
+    }
+  };
+
+  // ===== GESTION DU DÉPÔT (soumission réutilisable pour utilisateurs connectés) =====
+  
+  // Affiche ou masque l'onglet Dépôt selon la connexion
+  window.afficherOuMasquerDepot = async function() {
+    const tabDepot = document.getElementById("tab-depot");
+    const user = auth.currentUser;
+    
+    if (user) {
+      tabDepot.style.display = "block";
+      // Initialiser les formulaires Dépôt avec les données de l'utilisateur
+      try {
+        let userData = null;
+        for (const coll of ["travailleurs", "patrons"]) {
+          const q = query(collection(db, coll), where("uid", "==", user.uid));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            userData = { role: coll === "travailleurs" ? "travailleur" : "patron", data: snap.docs[0].data() };
+            break;
+          }
+        }
+        
+        if (userData) {
+          // Initialiser le rôle du Dépôt
+          setDepotRole(userData.role);
+          
+          // Pré-remplir les champs si disponibles
+          if (userData.role === "travailleur") {
+            if (userData.data.typeTravail) {
+              document.getElementById("depot-t-type").value = userData.data.typeTravail;
+              const btn = document.getElementById("btn-depot-t-type");
+              const typeObj = TYPES_TRAVAIL.find(t => t.id === userData.data.typeTravail);
+              if (btn && typeObj) btn.textContent = typeObj.label;
+              // Remplir les documents
+              if (userData.data.posteTravail) {
+                document.getElementById("depot-t-poste").value = userData.data.posteTravail;
+              }
+              setTimeout(() => window.updateDossierTravailleurDepotUI(), 100);
+            }
+            if (userData.data.pays) {
+              document.getElementById("depot-t-pays").value = userData.data.pays;
+              const btn = document.getElementById("btn-depot-t-pays");
+              if (btn) btn.textContent = userData.data.pays;
+            }
+          } else if (userData.role === "patron") {
+            if (userData.data.typeTravail) {
+              document.getElementById("depot-p-type").value = userData.data.typeTravail;
+              const btn = document.getElementById("btn-depot-p-type");
+              const typeObj = TYPES_TRAVAIL.find(t => t.id === userData.data.typeTravail);
+              if (btn && typeObj) btn.textContent = typeObj.label;
+              // Remplir les critères
+              if (userData.data.posteTravail) {
+                document.getElementById("depot-p-poste").value = userData.data.posteTravail;
+              }
+              setTimeout(() => window.updateDossierPatronDepotUI(), 100);
+            }
+            if (userData.data.pays) {
+              document.getElementById("depot-p-pays").value = userData.data.pays;
+              const btn = document.getElementById("btn-depot-p-pays");
+              if (btn) btn.textContent = userData.data.pays;
+            }
+          }
+        }
+      } catch (e) {
+        console.error("Erreur initialisation Dépôt:", e);
+      }
+    } else {
+      tabDepot.style.display = "none";
+    }
+  };
+
+  window.setDepotRole = function(role) {
+    document.getElementById("depot-role-travailleur-btn").classList.toggle("selected", role === "travailleur");
+    document.getElementById("depot-role-patron-btn").classList.toggle("selected", role === "patron");
+    document.getElementById("depot-travailleur").style.display = role === "travailleur" ? "block" : "none";
+    document.getElementById("depot-patron").style.display = role === "patron" ? "block" : "none";
+  };
+
+  // ===== Dépôt Travailleur : affichage dynamique des documents selon le métier choisi =====
+  window.updateDossierTravailleurDepotUI = function () {
+    const catId = document.getElementById("depot-t-type").value;
+    const poste = document.getElementById("depot-t-poste").value;
+    if (!catId) return;
+    const config = getDossierConfig(catId, poste);
+    document.getElementById("depot-t-documents-list").innerHTML = config.documents.map(d => `
+      <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: normal;">
+        <span style="font-weight: 600; flex: 1;">${esc(d.label)}${d.requis ? " *" : ""}</span>
+      </label>
+      <input type="file" class="t-doc-input" data-doc-key="${d.key}" data-doc-requis="${d.requis}" accept="image/*,.pdf" style="margin-bottom: 14px;">
+    `).join("");
+  };
+
+  // ===== Dépôt Patron : affichage dynamique des critères selon le type de poste choisi =====
+  window.updateDossierPatronDepotUI = function () {
+    const catId = document.getElementById("depot-p-type").value;
+    const poste = document.getElementById("depot-p-poste").value;
+    if (!catId) return;
+    const config = getDossierConfig(catId, poste);
+    document.getElementById("depot-p-criteres-list").innerHTML = config.criteres.map(c => `
+      <label class="critere-check-label">
+        <input type="checkbox" value="${esc(c)}">
+        <span>${esc(c)}</span>
+      </label>
+    `).join("");
+  };
+
+  window.deposerTravailleur = async function() {
+    const btn = document.querySelector("#depot-travailleur .submit-btn");
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    const texteOriginal = btn.textContent;
+    
+    try {
+      const typeTravail = document.getElementById("depot-t-type").value;
+      const pays = document.getElementById("depot-t-pays").value;
+      const patronTel = document.getElementById("depot-t-patron-tel").value.trim();
+      
+      if (!typeTravail || !pays) {
+        showMsg("depot-t-msg", false, "", "Veuillez sélectionner un type de travail et un pays.");
+        btn.disabled = false;
+        btn.textContent = texteOriginal;
+        return;
+      }
+      
+      const user = auth.currentUser;
+      if (!user) {
+        showMsg("depot-t-msg", false, "", "Vous devez être connecté pour déposer un dossier.");
+        btn.disabled = false;
+        btn.textContent = texteOriginal;
+        return;
+      }
+      
+      btn.textContent = "Envoi en cours...";
+      
+      // Télécharger les documents
+      const fileInputs = Array.from(document.querySelectorAll("#depot-t-documents-list input[type='file']"));
+      const documents = {};
+      for (const input of fileInputs) {
+        const file = input.files[0];
+        if (file) {
+          documents[input.dataset.docKey] = await uploadToCloudinary(file, `dossiers_travailleurs/${user.uid}`);
+        }
+      }
+      
+      // Créer le dépôt dans Firestore
+      const depot = {
+        uid: user.uid,
+        typeTravail: typeTravail,
+        posteTravail: document.getElementById("depot-t-poste").value,
+        pays: pays,
+        patronTelephoneDirectWhatsApp: patronTel || null,
+        documents: documents,
+        dateDepot: serverTimestamp(),
+        type: "travailleur"
+      };
+      
+      await addDoc(collection(db, "depots"), depot);
+      
+      showMsg("depot-t-msg", true, "✅ Dossier déposé avec succès !", "");
+      
+      // Réinitialiser le formulaire
+      document.getElementById("depot-t-patron-tel").value = "";
+      fileInputs.forEach(i => i.value = "");
+      
+      setTimeout(() => {
+        document.getElementById("depot-t-msg").style.display = "none";
+      }, 3000);
+      
+    } catch (e) {
+      showMsg("depot-t-msg", false, "", "Erreur lors du dépôt (" + (e.message || "inconnue") + ").");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = texteOriginal;
+    }
+  };
+
+  window.deposerPatron = async function() {
+    const btn = document.querySelector("#depot-patron .submit-btn");
+    if (!btn || btn.disabled) return;
+    btn.disabled = true;
+    const texteOriginal = btn.textContent;
+    
+    try {
+      const typeTravail = document.getElementById("depot-p-type").value;
+      const pays = document.getElementById("depot-p-pays").value;
+      const travailleurTel = document.getElementById("depot-p-travailleur-tel").value.trim();
+      
+      if (!typeTravail || !pays) {
+        showMsg("depot-p-msg", false, "", "Veuillez sélectionner un type de travail et un pays.");
+        btn.disabled = false;
+        btn.textContent = texteOriginal;
+        return;
+      }
+      
+      const user = auth.currentUser;
+      if (!user) {
+        showMsg("depot-p-msg", false, "", "Vous devez être connecté pour publier une offre.");
+        btn.disabled = false;
+        btn.textContent = texteOriginal;
+        return;
+      }
+      
+      btn.textContent = "Envoi en cours...";
+      
+      // Récupérer les critères sélectionnés
+      const criteresCheckboxes = document.querySelectorAll("#depot-p-criteres-list input[type='checkbox']:checked");
+      const criteres = Array.from(criteresCheckboxes).map(cb => cb.value);
+      
+      // Créer le dépôt dans Firestore
+      const depot = {
+        uid: user.uid,
+        typeTravail: typeTravail,
+        posteTravail: document.getElementById("depot-p-poste").value,
+        pays: pays,
+        travailleurTelephoneDirectWhatsApp: travailleurTel || null,
+        criteres: criteres,
+        dateDepot: serverTimestamp(),
+        type: "patron"
+      };
+      
+      await addDoc(collection(db, "depots"), depot);
+      
+      showMsg("depot-p-msg", true, "✅ Offre publiée avec succès !", "");
+      
+      // Réinitialiser le formulaire
+      document.getElementById("depot-p-travailleur-tel").value = "";
+      criteresCheckboxes.forEach(cb => cb.checked = false);
+      
+      setTimeout(() => {
+        document.getElementById("depot-p-msg").style.display = "none";
+      }, 3000);
+      
+    } catch (e) {
+      showMsg("depot-p-msg", false, "", "Erreur lors de la publication (" + (e.message || "inconnue") + ").");
     } finally {
       btn.disabled = false;
       btn.textContent = texteOriginal;
@@ -2724,7 +3029,7 @@
   const TRANSLATIONS = {
     fr: {
       tagline: "La plateforme qui connecte patrons et travailleurs, partout dans le monde",
-      tab_inscription: "Inscription", tab_recherche: "Recherche", tab_compte: "Mon compte", tab_admin: "Admin",
+      tab_inscription: "Inscription", tab_depot: "Dépôt", tab_recherche: "Recherche", tab_compte: "Mon compte", tab_admin: "Admin",
       lbl_adresse: "Adresse", lbl_email: "Adresse email", lbl_date_naissance: "Date de naissance",
       lbl_lieu_naissance: "Lieu de naissance", lbl_lieu_travail: "Lieu du travail (ville / adresse)",
       lbl_password: "Mot de passe", lbl_niveau_etude: "Niveau d'étude", lbl_nom: "Nom",
@@ -3543,6 +3848,11 @@
   window.allerVersMonCompte = function () {
     window.allerVersEcran("compte");
   };
+
+  // Initialiser le Dépôt au chargement de la page
+  (async function initializerDepot() {
+    await afficherOuMasquerDepot();
+  })();
 </script>
 
 </body>
