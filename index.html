@@ -799,6 +799,64 @@
     accent-color: #0E6E46;
     cursor: pointer;
   }
+
+  /* ===== STYLES POUR TRAVAILLEUR AVEC UPLOAD ===== */
+  .depot-doc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .depot-doc-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .depot-doc-left input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #0E6E46;
+    cursor: pointer;
+  }
+  .depot-doc-left label {
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    margin: 0;
+  }
+  .depot-doc-upload-btn {
+    background: #E7F2E9;
+    border: 2px solid #0E6E46;
+    color: #0E6E46;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    min-height: 44px;
+  }
+  .depot-doc-upload-btn:active {
+    background: #0E6E46;
+    color: white;
+  }
+  .depot-file-input {
+    display: none;
+  }
+  .depot-file-name {
+    font-size: 0.75rem;
+    color: #0E6E46;
+    font-weight: 600;
+    margin-top: 2px;
+  }
   .depot-confirmation-modal {
     display: none;
     position: fixed;
@@ -4571,12 +4629,35 @@
     if (!container) return;
 
     container.innerHTML = '';
-    items.forEach((item, idx) => {
-      const div = document.createElement('div');
-      div.className = 'depot-doc-item';
-      div.innerHTML = `<input type="checkbox" id="${role}-item-${idx}"> <label for="${role}-item-${idx}">${item}</label>`;
-      container.appendChild(div);
-    });
+    
+    if (role === 'travailleur') {
+      // TRAVAILLEUR: Avec upload de fichiers
+      items.forEach((item, idx) => {
+        const docId = `trav-doc-${idx}`;
+        const div = document.createElement('div');
+        div.className = 'depot-doc-row';
+        div.innerHTML = `
+          <div class="depot-doc-left">
+            <input type="checkbox" id="${docId}">
+            <label for="${docId}">${item}</label>
+          </div>
+          <button type="button" class="depot-doc-upload-btn" onclick="window.declencherUpload('${docId}')">
+            📄 Sélectionner
+          </button>
+          <input type="file" id="file-${docId}" class="depot-file-input" accept="application/pdf,image/*,.doc,.docx">
+        `;
+        container.appendChild(div);
+      });
+    } else {
+      // PATRON: Simple checkboxes
+      items.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'depot-doc-item';
+        div.innerHTML = `<input type="checkbox" id="patron-item-${idx}"> <label for="patron-item-${idx}">${item}</label>`;
+        div.style.cssText = 'padding: 12px; background: white; margin-bottom: 8px; border-radius: 8px; display: flex; align-items: center; gap: 10px;';
+        container.appendChild(div);
+      });
+    }
   }
 
   window.selectionnerDepotRole = function(role) {
@@ -4596,6 +4677,57 @@
     // Afficher/masquer les contenus
     document.getElementById('depot-travailleur-content').style.display = role === 'travailleur' ? 'block' : 'none';
     document.getElementById('depot-patron-content').style.display = role === 'patron' ? 'block' : 'none';
+  };
+
+  window.declencherUpload = function(docId) {
+    const fileInput = document.getElementById(`file-${docId}`);
+    fileInput.click();
+    
+    // Gérer l'upload quand le fichier est sélectionné
+    fileInput.onchange = async function() {
+      if (this.files.length === 0) return;
+      
+      const file = this.files[0];
+      const checkbox = document.getElementById(docId);
+      const button = checkbox.closest('.depot-doc-row').querySelector('.depot-doc-upload-btn');
+      
+      button.textContent = '⏳ Upload...';
+      button.disabled = true;
+      
+      try {
+        // Upload vers Cloudinary
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', 'Job connect'); // Le preset de Gabriel
+        formData.append('cloud_name', 'ulopr68i'); // Le cloud de Gabriel
+        
+        const response = await fetch('https://api.cloudinary.com/v1_1/ulopr68i/auto/upload', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          // Cocher automatiquement
+          checkbox.checked = true;
+          // Afficher le nom du fichier
+          button.innerHTML = `✅ ${file.name.substring(0, 15)}...`;
+          button.style.background = '#E7F2E9';
+          button.style.color = '#0E6E46';
+          // Stocker l'URL pour l'envoi
+          fileInput.dataset.uploadUrl = result.secure_url;
+        } else {
+          button.textContent = '❌ Erreur';
+          button.style.color = '#B33F2E';
+        }
+      } catch (err) {
+        console.error('Erreur upload:', err);
+        button.textContent = '❌ Erreur réseau';
+        button.style.color = '#B33F2E';
+      } finally {
+        button.disabled = false;
+      }
+    };
   };
 
   window.deposerDossier = function(role) {
@@ -4627,7 +4759,7 @@
     setTimeout(() => {
       document.getElementById('depot-confirmation-modal').classList.remove('show');
     }, 3000);
-  };
+  };;
 
   // Initialiser le Dépôt au chargement
   window.addEventListener('load', () => {
