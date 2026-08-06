@@ -1275,43 +1275,64 @@
   </div>
 </div>
 
-<!-- ============ ECRAN DÉPÔT AMÉLIORÉ ============ -->
+<!-- ============ ECRAN DÉPÔT AVEC TRAVAILLEUR & PATRON ============ -->
 <div class="screen" id="screen-depot">
 
   <div class="card">
-    <h2>📦 Déposer votre dossier</h2>
+    <h2 style="text-align: center; font-size: 1.3rem;">📦 DÉPÔT DE DOSSIER</h2>
     
     <!-- ÉTAPE 1: CATÉGORIES DE MÉTIERS -->
-    <label style="font-weight: 700; color: #073C28; margin-bottom: 12px; display: block;">1️⃣ Choisissez votre domaine :</label>
+    <label style="font-weight: 700; color: #073C28; margin: 16px 0 12px; display: block; text-align: center;">Choisissez votre domaine :</label>
     <div class="depot-grid" id="depot-categories"></div>
 
-    <!-- ÉTAPE 2: MÉTIERS -->
-    <div id="depot-metiers-sections"></div>
-
-    <!-- ÉTAPE 3: SÉLECTION DU MÉTIER ET AFFICHAGE DES DOCUMENTS -->
-    <div id="depot-selected-metier-section" style="display: none; margin-top: 16px;">
-      <label style="font-weight: 700; color: #073C28; margin-bottom: 8px; display: block;">3️⃣ Métier sélectionné :</label>
-      <div style="background: #E7F2E9; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-weight: 600; color: #0E6E46;" id="depot-metier-display"></div>
-
-      <!-- Pays -->
-      <label style="font-weight: 700; margin-top: 16px;">Pays de travail :</label>
-      <select id="depot-pays" style="margin-bottom: 16px;">
-        <option value="">-- Choisir un pays --</option>
-      </select>
-
-      <!-- Numéro à contacter -->
-      <label style="font-weight: 700;">Votre numéro de téléphone :</label>
-      <input type="tel" id="depot-numero" placeholder="+243 975 123 456" style="margin-bottom: 16px;">
-
-      <!-- Documents requis -->
-      <div id="depot-documents-required" class="depot-documents-section">
-        <h4>📄 Documents requis :</h4>
-        <div id="depot-docs-list"></div>
+    <!-- ÉTAPE 2: SÉLECTION TRAVAILLEUR vs PATRON -->
+    <div id="depot-role-section" style="display: none; margin-top: 20px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+        <button type="button" class="role-btn selected" id="depot-role-travailleur" onclick="window.selectionnerDepotRole('travailleur')" style="background: #E7F2E9; border-color: #0E6E46; color: #0E6E46;">👷 TRAVAILLEUR</button>
+        <button type="button" class="role-btn" id="depot-role-patron" onclick="window.selectionnerDepotRole('patron')" style="border-color: #ddd;">🏢 PATRON</button>
       </div>
 
-      <!-- Bouton WhatsApp -->
-      <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossierWhatsApp()">💬 Déposer via WhatsApp</button>
-      <div class="msg" id="depot-msg"></div>
+      <!-- TRAVAILLEUR: DOSSIER À DÉPOSER -->
+      <div id="depot-travailleur-content" style="display: block;">
+        <label style="font-weight: 700; color: #073C28; margin-bottom: 8px; display: block;">📋 Dossier à déposer :</label>
+        
+        <label style="font-weight: 700; margin-top: 12px;">Pays de travail :</label>
+        <select id="depot-pays-travailleur" style="margin-bottom: 12px;">
+          <option value="">-- Choisir un pays --</option>
+        </select>
+
+        <label style="font-weight: 700;">Votre numéro de téléphone :</label>
+        <input type="tel" id="depot-numero-travailleur" placeholder="+243 975 123 456" style="margin-bottom: 16px;">
+
+        <div id="depot-docs-travailleur" class="depot-documents-section">
+          <h4>📄 Documents à fournir :</h4>
+          <div id="depot-docs-list-travailleur"></div>
+        </div>
+
+        <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossier('travailleur')">💬 Déposer via WhatsApp</button>
+        <div class="msg" id="depot-msg-travailleur"></div>
+      </div>
+
+      <!-- PATRON: CRITÈRES À EXIGER -->
+      <div id="depot-patron-content" style="display: none;">
+        <label style="font-weight: 700; color: #073C28; margin-bottom: 8px; display: block;">📋 Critères à exiger :</label>
+        
+        <label style="font-weight: 700; margin-top: 12px;">Pays de recrutement :</label>
+        <select id="depot-pays-patron" style="margin-bottom: 12px;">
+          <option value="">-- Choisir un pays --</option>
+        </select>
+
+        <label style="font-weight: 700;">Votre numéro de téléphone :</label>
+        <input type="tel" id="depot-numero-patron" placeholder="+243 975 123 456" style="margin-bottom: 16px;">
+
+        <div id="depot-criteria-patron" class="depot-documents-section">
+          <h4>✅ Critères demandés :</h4>
+          <div id="depot-criteria-list-patron"></div>
+        </div>
+
+        <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossier('patron')">💬 Publier l'offre via WhatsApp</button>
+        <div class="msg" id="depot-msg-patron"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -4418,34 +4439,63 @@
     'BEAUTÉ & MODE': ['✂️ Coiffeur', '💅 Esthéticien', '💄 Maquilleur', '👗 Couturier', '👠 Styliste']
   };
 
-  const DEPOT_DOCUMENTS_REQUIS = {
-    'Développeur logiciel': ['CV', 'Portfolio', 'Certificats de formation', 'Tests de compétences'],
-    'Développeur web': ['CV', 'Portfolio GitHub', 'Certificats', 'Références clients'],
-    'Développeur mobile': ['CV', 'Portfolio d\'apps', 'Certificats', 'Tests techniques'],
-    'Ingénieur informatique': ['Diplôme', 'CV', 'Certificats', 'Lettres de recommandation'],
-    'Technicien informatique': ['Certificats de formation', 'CV', 'Références', 'Tests de diagnostic'],
-    'Cybersécurité': ['Certificats spécialisés', 'CV', 'Portfolio de projets', 'Recommandations'],
-    'Administrateur réseau': ['Certificats (CompTIA, Cisco)', 'CV', 'Expérience documentée', 'Tests'],
-    'Intelligence artificielle': ['Diplôme/Formation', 'Portfolio', 'Projets GitHub', 'Certificats ML'],
-    'Graphiste numérique': ['Portfolio', 'CV', 'Fichiers de travaux', 'Références clients'],
-    'Designer UI/UX': ['Portfolio Figma/Behance', 'CV', 'Cas d\'études', 'Références'],
-    'Médecin': ['Diplôme reconnu', 'Licence de pratique', 'Certificat d\'assurance', 'CV'],
-    'Infirmier': ['Diplôme agréé', 'Licence', 'Certificats de formation continue', 'Expérience'],
-    'Aide-soignant': ['Certificat de formation', 'CV', 'Références', 'Tests d\'aptitude'],
-    'Pharmacien': ['Diplôme', 'Licence', 'Certificat d\'assurance', 'CV'],
-    'Chirurgien': ['Diplôme spécialisé', 'Licence', 'Certificats', 'Recommandations médicales'],
-    'Dentiste': ['Diplôme d\'odontologie', 'Licence', 'Assurance', 'CV'],
-    'Sage-femme': ['Diplôme reconnu', 'Licence', 'Certificats', 'Expérience documentée'],
-    'Kinésithérapeute': ['Diplôme', 'Licence', 'Certificats de formation', 'Références'],
-    'Laborantin': ['Certificat de formation', 'CV', 'Références', 'Tests techniques'],
-    'Assistant médical': ['Certificat de formation', 'CV', 'Références', 'Expérience']
+  // Documents pour TRAVAILLEUR et Critères pour PATRON par domaine
+  const DEPOT_DOMAINES_REQUIREMENTS = {
+    'INFORMATIQUE & TECHNOLOGIE': {
+      travailleur: ['CV informatique', 'Diplômes ou certificats', 'Portfolio des projets réalisés', 'Expérience professionnelle', 'Compétences (programmation, réseaux, logiciels...)', 'Photo d\'identité', 'Pièce d\'identité', 'Numéro de téléphone', 'Disponibilité', 'Prétention salariale'],
+      patron: ['Niveau d\'étude demandé', 'Langages informatiques maîtrisés', 'Années d\'expérience', 'Projets déjà réalisés', 'Type de contrat', 'Salaire proposé', 'Lieu de travail', 'Horaires de travail', 'Compétences obligatoires']
+    },
+    'SANTÉ & MÉDECINE': {
+      travailleur: ['Diplôme médical', 'Licence professionnelle', 'Certificat d\'exercice', 'Expérience en hôpital/clinique', 'Spécialité médicale', 'Pièce d\'identité', 'Références professionnelles', 'Disponibilité'],
+      patron: ['Qualification médicale obligatoire', 'Spécialité recherchée', 'Expérience minimum', 'Autorisation d\'exercer', 'Horaires', 'Salaire', 'Type de service']
+    },
+    'CONSTRUCTION & BÂTIMENT': {
+      travailleur: ['CV', 'Photos des travaux réalisés', 'Expérience chantier', 'Certificat de formation', 'Compétences (maçon, peintre, électricien...)', 'Références des anciens patrons', 'Pièce d\'identité'],
+      patron: ['Métier recherché', 'Expérience demandée', 'Niveau de compétence', 'Outils maîtrisés', 'Disponibilité', 'Salaire', 'Durée du chantier']
+    },
+    'TRANSPORT & AUTOMOBILE': {
+      travailleur: ['Permis de conduire', 'Carte d\'identité', 'Expérience conduite', 'Catégorie de permis', 'Casier de conduite', 'Références', 'Disponibilité'],
+      patron: ['Type de véhicule', 'Permis obligatoire', 'Années d\'expérience', 'Zone de travail', 'Horaires', 'Salaire']
+    },
+    'COMMERCE & VENTE': {
+      travailleur: ['CV', 'Expérience commerciale', 'Techniques de vente', 'Références', 'Pièce d\'identité', 'Photo', 'Disponibilité'],
+      patron: ['Produit à vendre', 'Objectif de vente', 'Expérience demandée', 'Salaire ou commission', 'Lieu de travail']
+    },
+    'MAISON & SERVICES': {
+      travailleur: ['Pièce d\'identité', 'Expérience', 'Références familiales/professionnelles', 'Photo', 'Disponibilité', 'Compétences (cuisinier, garde enfant, nettoyage, sécurité...)'],
+      patron: ['Service recherché', 'Tâches à effectuer', 'Horaires', 'Salaire', 'Conditions de travail']
+    },
+    'ÉDUCATION': {
+      travailleur: ['Diplômes', 'Matières enseignées', 'Expérience pédagogique', 'Certificats', 'Références', 'Disponibilité'],
+      patron: ['Niveau d\'enseignement', 'Matière recherchée', 'Expérience', 'Diplôme obligatoire', 'Salaire']
+    },
+    'AGRICULTURE & ÉLEVAGE': {
+      travailleur: ['Expérience agricole', 'Domaine (culture, élevage...)', 'Formation', 'Références', 'Disponibilité'],
+      patron: ['Type d\'activité', 'Compétences demandées', 'Surface ou élevage', 'Salaire', 'Logement éventuel']
+    },
+    'MÉDIA & CRÉATION': {
+      travailleur: ['Portfolio', 'Photos/Vidéos réalisées', 'CV', 'Matériel maîtrisé', 'Expérience', 'Réseaux sociaux professionnels'],
+      patron: ['Type de création recherchée', 'Logiciels demandés', 'Expérience', 'Projet', 'Budget']
+    },
+    'FINANCE & ADMINISTRATION': {
+      travailleur: ['CV', 'Diplômes', 'Expérience comptable/administrative', 'Certificats', 'Références'],
+      patron: ['Poste recherché', 'Niveau d\'étude', 'Logiciels maîtrisés', 'Expérience', 'Salaire']
+    },
+    'INDUSTRIE & FABRICATION': {
+      travailleur: ['CV', 'Formation technique', 'Expérience usine', 'Certificats sécurité', 'Compétences techniques'],
+      patron: ['Poste industriel', 'Machine à utiliser', 'Expérience', 'Horaires', 'Salaire']
+    },
+    'BEAUTÉ & MODE': {
+      travailleur: ['Photos des réalisations', 'Expérience', 'Formation', 'Portfolio', 'Spécialité (coiffure, couture, maquillage...)'],
+      patron: ['Service recherché', 'Niveau d\'expérience', 'Style demandé', 'Horaires', 'Salaire']
+    }
   };
 
   const DEPOT_PAYS = ['Congo (RDC)', 'Congo (RC)', 'Cameroun', 'Côte d\'Ivoire', 'Sénégal', 'Mali', 'Burkina Faso', 'Bénin', 'Togo', 'Niger', 'Tchad', 'Gabon', 'Guinée', 'Liberia', 'Sierra Leone', 'Zambie', 'Zimbabwe', 'Mozambique', 'Ouganda', 'Tanzanie', 'Kenya', 'Rwanda', 'Burundi', 'Éthiopie', 'Somalie', 'Djibouti', 'Égypte', 'Soudan', 'Autres'];
 
   let depotState = {
     categorie: null,
-    metier: null
+    role: 'travailleur'
   };
 
   // Initialiser les catégories
@@ -4458,106 +4508,117 @@
       const btn = document.createElement('button');
       btn.className = 'depot-cat-btn';
       btn.textContent = cat;
-      btn.onclick = () => selectionnerCategorie(cat);
+      btn.onclick = () => selectionnerCategorieDepot(cat);
       container.appendChild(btn);
     });
 
-    // Remplir les pays
-    const selectPays = document.getElementById('depot-pays');
-    if (selectPays) {
-      selectPays.innerHTML = '<option value="">-- Choisir un pays --</option>';
+    // Remplir les pays pour TRAVAILLEUR
+    const selectPaysTrav = document.getElementById('depot-pays-travailleur');
+    if (selectPaysTrav) {
+      selectPaysTrav.innerHTML = '<option value="">-- Choisir un pays --</option>';
       DEPOT_PAYS.forEach(pays => {
         const option = document.createElement('option');
         option.value = pays;
         option.textContent = pays;
-        selectPays.appendChild(option);
+        selectPaysTrav.appendChild(option);
+      });
+    }
+
+    // Remplir les pays pour PATRON
+    const selectPaysPatron = document.getElementById('depot-pays-patron');
+    if (selectPaysPatron) {
+      selectPaysPatron.innerHTML = '<option value="">-- Choisir un pays --</option>';
+      DEPOT_PAYS.forEach(pays => {
+        const option = document.createElement('option');
+        option.value = pays;
+        option.textContent = pays;
+        selectPaysPatron.appendChild(option);
       });
     }
   }
 
-  window.selectionnerCategorie = function(categorie) {
+  window.selectionnerCategorieDepot = function(categorie) {
     depotState.categorie = categorie;
-    depotState.metier = null;
 
     // Mettre à jour les styles
     document.querySelectorAll('.depot-cat-btn').forEach(btn => {
       btn.classList.toggle('selected', btn.textContent === categorie);
     });
 
-    // Afficher les métiers
-    const container = document.getElementById('depot-metiers-sections');
-    container.innerHTML = '';
+    // Afficher la section rôle
+    document.getElementById('depot-role-section').style.display = 'block';
 
-    const label = document.createElement('label');
-    label.style.fontWeight = '700';
-    label.style.color = '#073C28';
-    label.style.marginTop = '16px';
-    label.style.marginBottom = '12px';
-    label.style.display = 'block';
-    label.textContent = '2️⃣ Sélectionnez votre métier :';
-    container.appendChild(label);
-
-    const metiers = DEPOT_METIERS_CONFIG[categorie];
-    const list = document.createElement('div');
-    list.className = 'depot-metiers-list active';
-
-    metiers.forEach(metier => {
-      const item = document.createElement('div');
-      item.className = 'depot-metier-item';
-      item.innerHTML = `
-        <div class="depot-metier-checkbox"></div>
-        <div class="depot-metier-name">${metier}</div>
-      `;
-      item.onclick = () => selectionnerMetier(metier);
-      list.appendChild(item);
-    });
-
-    container.appendChild(list);
-  };
-
-  window.selectionnerMetier = function(metier) {
-    depotState.metier = metier;
-
-    // Mettre à jour l'affichage du métier sélectionné
-    document.getElementById('depot-metier-display').textContent = '✅ ' + metier;
-    document.getElementById('depot-selected-metier-section').style.display = 'block';
-
-    // Afficher les documents requis
-    const metierSansIcon = metier.split(' ').slice(1).join(' ');
-    const docs = DEPOT_DOCUMENTS_REQUIS[metierSansIcon] || [];
-    const docsList = document.getElementById('depot-docs-list');
-    docsList.innerHTML = '';
-    
-    docs.forEach((doc, idx) => {
-      const item = document.createElement('div');
-      item.className = 'depot-doc-item';
-      item.innerHTML = `<input type="checkbox" id="doc-${idx}"> <label for="doc-${idx}">${doc}</label>`;
-      docsList.appendChild(item);
-    });
+    // Remplir les documents/critères
+    remplirDepotContenu('travailleur');
+    remplirDepotContenu('patron');
 
     // Scroll vers la section
     setTimeout(() => {
-      document.getElementById('depot-selected-metier-section').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('depot-role-section').scrollIntoView({ behavior: 'smooth' });
     }, 100);
   };
 
-  window.deposerDossierWhatsApp = function() {
-    const metier = depotState.metier;
-    const pays = document.getElementById('depot-pays').value;
-    const numero = document.getElementById('depot-numero').value;
+  function remplirDepotContenu(role) {
+    const categorie = depotState.categorie;
+    const config = DEPOT_DOMAINES_REQUIREMENTS[categorie];
+    
+    if (!config) return;
 
-    if (!metier || !pays || !numero) {
-      showMsg('depot-msg', false, '', 'Veuillez remplir tous les champs.');
+    const items = role === 'travailleur' ? config.travailleur : config.patron;
+    const containerId = role === 'travailleur' ? 'depot-docs-list-travailleur' : 'depot-criteria-list-patron';
+    const container = document.getElementById(containerId);
+    
+    if (!container) return;
+
+    container.innerHTML = '';
+    items.forEach((item, idx) => {
+      const div = document.createElement('div');
+      div.className = 'depot-doc-item';
+      div.innerHTML = `<input type="checkbox" id="${role}-item-${idx}"> <label for="${role}-item-${idx}">${item}</label>`;
+      container.appendChild(div);
+    });
+  }
+
+  window.selectionnerDepotRole = function(role) {
+    depotState.role = role;
+
+    // Mettre à jour les boutons
+    document.getElementById('depot-role-travailleur').classList.toggle('selected', role === 'travailleur');
+    document.getElementById('depot-role-travailleur').style.background = role === 'travailleur' ? '#E7F2E9' : 'white';
+    document.getElementById('depot-role-travailleur').style.borderColor = role === 'travailleur' ? '#0E6E46' : '#ddd';
+    document.getElementById('depot-role-travailleur').style.color = role === 'travailleur' ? '#0E6E46' : '#333';
+
+    document.getElementById('depot-role-patron').classList.toggle('selected', role === 'patron');
+    document.getElementById('depot-role-patron').style.background = role === 'patron' ? '#E7F2E9' : 'white';
+    document.getElementById('depot-role-patron').style.borderColor = role === 'patron' ? '#0E6E46' : '#ddd';
+    document.getElementById('depot-role-patron').style.color = role === 'patron' ? '#0E6E46' : '#333';
+
+    // Afficher/masquer les contenus
+    document.getElementById('depot-travailleur-content').style.display = role === 'travailleur' ? 'block' : 'none';
+    document.getElementById('depot-patron-content').style.display = role === 'patron' ? 'block' : 'none';
+  };
+
+  window.deposerDossier = function(role) {
+    const categorie = depotState.categorie;
+    const paysId = role === 'travailleur' ? 'depot-pays-travailleur' : 'depot-pays-patron';
+    const numeroId = role === 'travailleur' ? 'depot-numero-travailleur' : 'depot-numero-patron';
+    const msgId = role === 'travailleur' ? 'depot-msg-travailleur' : 'depot-msg-patron';
+
+    const pays = document.getElementById(paysId).value;
+    const numero = document.getElementById(numeroId).value;
+
+    if (!categorie || !pays || !numero) {
+      showMsg(msgId, false, '', 'Veuillez remplir tous les champs.');
       return;
     }
 
-    // Vérifier que le numéro a le format international
     if (!numero.startsWith('+')) {
-      showMsg('depot-msg', false, '', 'Le numéro doit commencer par +');
+      showMsg(msgId, false, '', 'Le numéro doit commencer par +');
       return;
     }
 
-    const message = `🎯 *Nouveau Dépôt de Dossier JOB CONNECT*\n\n📋 *Métier:* ${metier}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}`;
+    const typeDossier = role === 'travailleur' ? '👷 DOSSIER TRAVAILLEUR' : '🏢 OFFRE PATRON';
+    const message = `🎯 *Nouveau ${typeDossier} - JOB CONNECT*\n\n📋 *Domaine:* ${categorie}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 
@@ -4565,7 +4626,6 @@
     document.getElementById('depot-confirmation-modal').classList.add('show');
     setTimeout(() => {
       document.getElementById('depot-confirmation-modal').classList.remove('show');
-      location.reload();
     }, 3000);
   };
 
