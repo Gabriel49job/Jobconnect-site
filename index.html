@@ -2930,19 +2930,40 @@
       
       await addDoc(collection(db, "depots"), depot);
       
-      showMsg("depot-t-msg", true, "✅ Dossier déposé avec succès !", "");
-      
-      // Afficher le bouton WhatsApp si un numéro est fourni
+      // Message de succès
       if (patronTel) {
-        const btnWhatsApp = document.createElement("button");
-        btnWhatsApp.style.cssText = "width:100%; margin-top:10px; padding:12px; background:#25D366; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer;";
-        btnWhatsApp.textContent = "📱 Envoyer via WhatsApp";
-        btnWhatsApp.onclick = () => {
+        showMsg("depot-t-msg", true, "✅ Dossier déposé! WhatsApp s'ouvre...", "");
+      } else {
+        showMsg("depot-t-msg", true, "✅ Dossier déposé avec succès sur JOB CONNECT!", "");
+      }
+      
+      // AUTO-OUVRIR WHATSAPP SI NUMÉRO FOURNI
+      if (patronTel) {
+        setTimeout(() => {
           const numero = patronTel.replace(/[^0-9]/g, "");
-          const message = `Bonjour, je suis ${depot.uid}. Je postule pour le poste de ${depot.posteTravail || depot.typeTravail} via JOB CONNECT.\n\nMon dossier de candidature :\n${Object.entries(depot.documents || {}).map(([k, url]) => `• ${url}`).join("\n")}\n\n📲 Via JOB CONNECT - jobconnect-site.vercel.app`;
-          window.open(`https://wa.me/${numero}?text=${encodeURIComponent(message)}`, "_blank");
-        };
-        document.getElementById("depot-t-msg").insertAdjacentElement("afterend", btnWhatsApp);
+          
+          // Construire le message avec tous les détails
+          let message = `🙋 Bonjour!\n\n`;
+          message += `Je suis ${user.email} et je vous envoie mon dossier de candidature via JOB CONNECT.\n\n`;
+          message += `📍 Pays: ${pays}\n`;
+          message += `💼 Poste: ${document.getElementById("depot-t-poste").value || "Demandeur"}\n`;
+          message += `📧 Email: ${user.email}\n`;
+          
+          // Ajouter les liens des documents
+          if (Object.keys(documents).length > 0) {
+            message += `\n📎 Mes documents:\n`;
+            Object.entries(documents).forEach(([key, url]) => {
+              const label = key.replace(/_/g, " ").toUpperCase();
+              message += `• ${label}: ${url}\n`;
+            });
+          }
+          
+          message += `\n📲 Envoyé via JOB CONNECT\njobconnect-site.vercel.app`;
+          
+          // Ouvrir WhatsApp avec le message
+          const lien = `https://wa.me/${numero}?text=${encodeURIComponent(message)}`;
+          window.open(lien, "_blank");
+        }, 1000);
       }
       
       // Réinitialiser le formulaire
@@ -3007,20 +3028,39 @@
       
       await addDoc(collection(db, "depots"), depot);
       
-      showMsg("depot-p-msg", true, "✅ Offre publiée avec succès !", "");
-      
-      // Afficher le bouton WhatsApp si un numéro est fourni
+      // Message de succès
       if (travailleurTel) {
-        const btnWhatsApp = document.createElement("button");
-        btnWhatsApp.style.cssText = "width:100%; margin-top:10px; padding:12px; background:#25D366; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer;";
-        btnWhatsApp.textContent = "📱 Envoyer via WhatsApp";
-        btnWhatsApp.onclick = () => {
+        showMsg("depot-p-msg", true, "✅ Offre publiée! WhatsApp s'ouvre...", "");
+      } else {
+        showMsg("depot-p-msg", true, "✅ Offre publiée avec succès sur JOB CONNECT!", "");
+      }
+      
+      // AUTO-OUVRIR WHATSAPP SI NUMÉRO FOURNI
+      if (travailleurTel) {
+        setTimeout(() => {
           const numero = travailleurTel.replace(/[^0-9]/g, "");
-          const criteresList = criteres.length ? `\n\nCritères exigés:\n${criteres.map(c => "• " + c).join("\n")}` : "";
-          const message = `Bonjour, je vous envoie une offre d'emploi via JOB CONNECT.\n\n💼 Poste: ${depot.posteTravail || depot.typeTravail}\n📍 Pays: ${depot.pays}${criteresList}\n\n📲 jobconnect-site.vercel.app`;
-          window.open(`https://wa.me/${numero}?text=${encodeURIComponent(message)}`, "_blank");
-        };
-        document.getElementById("depot-p-msg").insertAdjacentElement("afterend", btnWhatsApp);
+          
+          // Construire le message avec tous les détails
+          let message = `🧑‍💼 Bonjour!\n\n`;
+          message += `Nous avons une offre d'emploi pour vous via JOB CONNECT.\n\n`;
+          message += `📍 Pays: ${pays}\n`;
+          message += `💼 Poste: ${document.getElementById("depot-p-poste").value || "À pouvoir"}\n`;
+          message += `📧 Contact: ${user.email}\n`;
+          
+          // Ajouter les critères
+          if (criteres.length > 0) {
+            message += `\n✓ Critères exigés:\n`;
+            criteres.forEach(c => {
+              message += `• ${c}\n`;
+            });
+          }
+          
+          message += `\n📲 Offre publiée via JOB CONNECT\njobconnect-site.vercel.app`;
+          
+          // Ouvrir WhatsApp avec le message
+          const lien = `https://wa.me/${numero}?text=${encodeURIComponent(message)}`;
+          window.open(lien, "_blank");
+        }, 1000);
       }
       
       // Réinitialiser le formulaire
