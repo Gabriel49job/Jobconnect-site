@@ -137,6 +137,31 @@
     color: #073C28;
   }
 
+  .depot-metier-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  .depot-metier-chip {
+    padding: 9px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #ddd;
+    background: white;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #444;
+    line-height: 1.2;
+  }
+  .depot-metier-chip.selected {
+    border-color: #0E6E46;
+    background: #E7F2E9;
+    color: #073C28;
+  }
+  .depot-metier-chip:active { background: #f0f0f0; }
+  .depot-metier-chip.selected:active { background: #dcefe0; }
+
   .card {
     background: white;
     border-radius: 14px;
@@ -1342,6 +1367,12 @@
     <!-- ÉTAPE 1: CATÉGORIES DE MÉTIERS -->
     <label style="font-weight: 700; color: #073C28; margin: 16px 0 12px; display: block; text-align: center;">Choisissez votre domaine :</label>
     <div class="depot-grid" id="depot-categories"></div>
+
+    <!-- ÉTAPE 1bis: MÉTIER PRÉCIS DANS LE DOMAINE -->
+    <div id="depot-metier-section" style="display: none; margin-top: 16px;">
+      <label style="font-weight: 700; color: #073C28; display: block;">Précisez votre métier :</label>
+      <div class="depot-metier-grid" id="depot-metier-list"></div>
+    </div>
 
     <!-- ÉTAPE 2: SÉLECTION TRAVAILLEUR vs PATRON -->
     <div id="depot-role-section" style="display: none; margin-top: 20px;">
@@ -4553,6 +4584,7 @@
 
   let depotState = {
     categorie: null,
+    metier: null,
     role: 'travailleur'
   };
 
@@ -4597,11 +4629,15 @@
 
   window.selectionnerCategorieDepot = function(categorie) {
     depotState.categorie = categorie;
+    depotState.metier = null;
 
     // Mettre à jour les styles
     document.querySelectorAll('.depot-cat-btn').forEach(btn => {
       btn.classList.toggle('selected', btn.textContent === categorie);
     });
+
+    // Afficher et remplir la section métier précis
+    remplirDepotMetiers(categorie);
 
     // Afficher la section rôle
     document.getElementById('depot-role-section').style.display = 'block';
@@ -4610,10 +4646,42 @@
     remplirDepotContenu('travailleur');
     remplirDepotContenu('patron');
 
-    // Scroll vers la section
+    // Scroll vers la section métier
     setTimeout(() => {
-      document.getElementById('depot-role-section').scrollIntoView({ behavior: 'smooth' });
+      const cible = document.getElementById('depot-metier-section');
+      (cible || document.getElementById('depot-role-section')).scrollIntoView({ behavior: 'smooth' });
     }, 100);
+  };
+
+  function remplirDepotMetiers(categorie) {
+    const section = document.getElementById('depot-metier-section');
+    const container = document.getElementById('depot-metier-list');
+    const metiers = DEPOT_METIERS_CONFIG[categorie];
+
+    if (!container || !metiers) {
+      if (section) section.style.display = 'none';
+      return;
+    }
+
+    container.innerHTML = '';
+    metiers.forEach(metier => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'depot-metier-chip';
+      chip.textContent = metier;
+      chip.onclick = () => window.selectionnerMetierDepot(metier, chip);
+      container.appendChild(chip);
+    });
+
+    section.style.display = 'block';
+  }
+
+  window.selectionnerMetierDepot = function(metier, chipEl) {
+    depotState.metier = depotState.metier === metier ? null : metier;
+
+    document.querySelectorAll('#depot-metier-list .depot-metier-chip').forEach(chip => {
+      chip.classList.toggle('selected', chip === chipEl && depotState.metier === metier);
+    });
   };
 
   function remplirDepotContenu(role) {
@@ -4750,7 +4818,8 @@
     }
 
     const typeDossier = role === 'travailleur' ? '👷 DOSSIER TRAVAILLEUR' : '🏢 OFFRE PATRON';
-    const message = `🎯 *Nouveau ${typeDossier} - JOB CONNECT*\n\n📋 *Domaine:* ${categorie}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}`;
+    const ligneMetier = depotState.metier ? `\n👤 *Métier:* ${depotState.metier}` : '';
+    const message = `🎯 *Nouveau ${typeDossier} - JOB CONNECT*\n\n📋 *Domaine:* ${categorie}${ligneMetier}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 
