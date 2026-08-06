@@ -2363,11 +2363,19 @@
   
   // Affiche ou masque l'onglet Dépôt selon la connexion
   window.afficherOuMasquerDepot = async function() {
+    const tabInscription = document.querySelector("[data-screen='inscription']");
     const tabDepot = document.getElementById("tab-depot");
     const user = auth.currentUser;
     
     if (user) {
-      tabDepot.style.display = "block";
+      // UTILISATEUR CONNECTÉ
+      tabInscription.style.display = "none";  // Masquer Inscription
+      tabDepot.style.display = "block";       // Afficher Dépôt
+      
+      // Auto-cliquer sur Dépôt
+      setTimeout(() => {
+        tabDepot.click();
+      }, 100);
       
       // Initialiser les formulaires Dépôt avec les données de l'utilisateur
       try {
@@ -2426,7 +2434,9 @@
         console.error("Erreur initialisation Dépôt:", e);
       }
     } else {
-      tabDepot.style.display = "none";
+      // UTILISATEUR PAS CONNECTÉ
+      tabInscription.style.display = "block";  // Afficher Inscription
+      tabDepot.style.display = "none";         // Masquer Dépôt
     }
   };
 
