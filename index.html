@@ -2368,6 +2368,7 @@
     
     if (user) {
       tabDepot.style.display = "block";
+      
       // Initialiser les formulaires Dépôt avec les données de l'utilisateur
       try {
         let userData = null;
@@ -2464,6 +2465,238 @@
     `).join("");
   };
 
+  // ===== CHARGEMENT ET AFFICHAGE DES DÉPÔTS PRÉCÉDENTS =====
+  window.chargerMesDepots = async function() {
+    const user = auth.currentUser;
+    if (!user) {
+      document.getElementById("mes-depots-list").innerHTML = '<div class="empty-depot">Connectez-vous pour voir vos dépôts</div>';
+      return;
+    }
+
+    try {
+      const q = query(collection(db, "depots"), where("uid", "==", user.uid), orderBy("dateDepot", "desc"));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        document.getElementById("mes-depots-list").innerHTML = '<div class="empty-depot">📭 Aucun dépôt pour le moment<br><br><button onclick="window.allerVersEcran(\'depot\')" style="background:#0E6E46; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600;">Créer un dépôt</button></div>';
+        document.getElementById("depot-notif-badge").textContent = "0";
+        return;
+      }
+
+      const depots = snap.docs.map((doc, idx) => ({ id: doc.id, ...doc.data(), index: idx }));
+      
+      document.getElementById("mes-depots-list").innerHTML = depots.map(d => {
+        const date = d.dateDepot?.toDate ? d.dateDepot.toDate() : new Date();
+        const dateStr = date.toLocaleDateString("fr-FR", { year: "numeric", month: "short", day: "numeric" });
+        const typeLabel = d.type === "travailleur" ? "👷 Dossier candidature" : "🧑‍💼 Offre d'emploi";
+        const statut = d.statut || "attente";
+        const statutLabel = statut === "accepte" ? "✅ Accepté" : (statut === "rejete" ? "❌ Rejeté" : "⏳ En attente");
+        
+        return `<div class="depot-card">
+          <h3>
+            ${typeLabel}
+            <span class="depot-statut ${statut}">${statutLabel}</span>
+          </h3>
+          <div class="depot-info">
+            📍 ${esc(d.pays || "?")} | ${esc(d.posteTravail || d.typeTravail || "?")}
+          </div>
+          <div class="depot-info">
+            📅 ${dateStr}
+          </div>
+          ${d.patronTelephoneDirectWhatsApp ? `<div class="depot-info">📱 WhatsApp: ${esc(d.patronTelephoneDirectWhatsApp)}</div>` : ''}
+          ${d.travailleurTelephoneDirectWhatsApp ? `<div class="depot-info">📱 WhatsApp: ${esc(d.travailleurTelephoneDirectWhatsApp)}</div>` : ''}
+          <div class="depot-actions">
+            <button class="depot-btn-petit depot-btn-redepot" onclick="window.redepotUnique('${esc(d.id)}')">🔄 Redéposer</button>
+            ${d.patronTelephoneDirectWhatsApp || d.travailleurTelephoneDirectWhatsApp ? `<button class="depot-btn-petit depot-btn-whatsapp" onclick="window.envoyerViaWhatsAppDepot('${esc(d.id)}')">📱 WhatsApp</button>` : ''}
+            <button class="depot-btn-petit depot-btn-details" onclick="window.afficherDetailsDepot('${esc(d.id)}')">👁️ Voir</button>
+          </div>
+        </div>`;
+      }).join("");
+
+      document.getElementById("depot-notif-badge").textContent = depots.filter(d => d.statut !== "accepte" && d.statut !== "rejete").length;
+      
+    } catch (e) {
+      console.error("Erreur chargement dépôts:", e);
+      document.getElementById("mes-depots-list").innerHTML = '<div class="empty-depot">❌ Erreur lors du chargement</div>';
+    }
+  };
+
+  // Rafraîchir l'écran Mes dépôts quand l'utilisateur le visite
+  window.allerVersEcranOriginal = window.allerVersEcran;
+  // Charger les dépôts et afficher l'onglet
+  window.chargerMesDepots_auto = async function() {
+    const user = auth.currentUser;
+    if (!user) {
+      document.getElementById("mes-depots-list").innerHTML = '<div class="empty-depot">Connectez-vous pour voir vos dépôts</div>';
+      return;
+    }
+
+    try {
+      const q = query(collection(db, "depots"), where("uid", "==", user.uid), orderBy("dateDepot", "desc"));
+      const snap = await getDocs(q);
+      
+      if (snap.empty) {
+        document.getElementById("mes-depots-list").innerHTML = '<div class="empty-depot">📭 Aucun dépôt pour le moment<br><br><button onclick="window.allerVersEcran(\'depot\')" style="background:#0E6E46; color:white; border:none; padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600;">Créer un dépôt</button></div>';
+        document.getElementById("depot-notif-badge").textContent = "0";
+        return;
+      }
+
+      const depots = snap.docs.map((doc, idx) => ({ id: doc.id, ...doc.data(), index: idx }));
+      
+      document.getElementById("mes-depots-list").innerHTML = depots.map(d => {
+        const date = d.dateDepot?.toDate ? d.dateDepot.toDate() : new Date();
+        const dateStr = date.toLocaleDateString("fr-FR", { year: "numeric", month: "short", day: "numeric" });
+        const typeLabel = d.type === "travailleur" ? "👷 Dossier candidature" : "🧑‍💼 Offre d'emploi";
+        const statut = d.statut || "attente";
+        const statutLabel = statut === "accepte" ? "✅ Accepté" : (statut === "rejete" ? "❌ Rejeté" : "⏳ En attente");
+        
+        return `<div class="depot-card">
+          <h3>
+            ${typeLabel}
+            <span class="depot-statut ${statut}">${statutLabel}</span>
+          </h3>
+          <div class="depot-info">
+            📍 ${esc(d.pays || "?")} | ${esc(d.posteTravail || d.typeTravail || "?")}
+          </div>
+          <div class="depot-info">
+            📅 ${dateStr}
+          </div>
+          ${d.patronTelephoneDirectWhatsApp ? `<div class="depot-info">📱 WhatsApp: ${esc(d.patronTelephoneDirectWhatsApp)}</div>` : ''}
+          ${d.travailleurTelephoneDirectWhatsApp ? `<div class="depot-info">📱 WhatsApp: ${esc(d.travailleurTelephoneDirectWhatsApp)}</div>` : ''}
+          <div class="depot-actions">
+            <button class="depot-btn-petit depot-btn-redepot" onclick="window.redepotUnique('${esc(d.id)}')">🔄 Redéposer</button>
+            ${d.patronTelephoneDirectWhatsApp || d.travailleurTelephoneDirectWhatsApp ? `<button class="depot-btn-petit depot-btn-whatsapp" onclick="window.envoyerViaWhatsAppDepot('${esc(d.id)}')">📱 WhatsApp</button>` : ''}
+            <button class="depot-btn-petit depot-btn-details" onclick="window.afficherDetailsDepot('${esc(d.id)}')">👁️ Voir</button>
+          </div>
+        </div>`;
+      }).join("");
+
+      document.getElementById("depot-notif-badge").textContent = depots.filter(d => d.statut !== "accepte" && d.statut !== "rejete").length;
+      
+    } catch (e) {
+      console.error("Erreur chargement dépôts:", e);
+      document.getElementById("mes-depots-list").innerHTML = '<div class="empty-depot">❌ Erreur lors du chargement</div>';
+    }
+  };
+
+  // Redéposer un dépôt avec le même contenu
+  window.redepotUnique = async function(depotId) {
+    try {
+      const docSnap = await getDoc(doc(db, "depots", depotId));
+      if (!docSnap.exists()) return alert("Dépôt non trouvé");
+      
+      const d = docSnap.data();
+      
+      // Aller à l'écran Dépôt
+      window.allerVersEcran("depot");
+      
+      // Pré-remplir avec les données du dépôt
+      setDepotRole(d.type);
+      
+      if (d.type === "travailleur") {
+        document.getElementById("depot-t-type").value = d.typeTravail;
+        document.getElementById("depot-t-poste").value = d.posteTravail;
+        document.getElementById("depot-t-pays").value = d.pays;
+        const btn = document.getElementById("btn-depot-t-type");
+        const typeObj = TYPES_TRAVAIL.find(t => t.id === d.typeTravail);
+        if (btn && typeObj) btn.textContent = typeObj.label;
+        const btnPays = document.getElementById("btn-depot-t-pays");
+        if (btnPays) btnPays.textContent = d.pays;
+        window.updateDossierTravailleurDepotUI();
+        // Vider le champ WhatsApp pour qu'il change si besoin
+        document.getElementById("depot-t-patron-tel").value = d.patronTelephoneDirectWhatsApp || "";
+      } else {
+        document.getElementById("depot-p-type").value = d.typeTravail;
+        document.getElementById("depot-p-poste").value = d.posteTravail;
+        document.getElementById("depot-p-pays").value = d.pays;
+        const btn = document.getElementById("btn-depot-p-type");
+        const typeObj = TYPES_TRAVAIL.find(t => t.id === d.typeTravail);
+        if (btn && typeObj) btn.textContent = typeObj.label;
+        const btnPays = document.getElementById("btn-depot-p-pays");
+        if (btnPays) btnPays.textContent = d.pays;
+        window.updateDossierPatronDepotUI();
+        document.getElementById("depot-p-travailleur-tel").value = d.travailleurTelephoneDirectWhatsApp || "";
+      }
+      
+      showMsg("depot-t-msg", true, "✅ Dépôt pré-rempli - Modifiez et renvoyez", "");
+      setTimeout(() => { document.getElementById("depot-t-msg").style.display = "none"; }, 2000);
+      
+    } catch (e) {
+      alert("Erreur: " + e.message);
+    }
+  };
+
+  // Envoyer le dépôt via WhatsApp
+  window.envoyerViaWhatsAppDepot = async function(depotId) {
+    try {
+      const docSnap = await getDoc(doc(db, "depots", depotId));
+      if (!docSnap.exists()) return alert("Dépôt non trouvé");
+      
+      const d = docSnap.data();
+      const tel = d.patronTelephoneDirectWhatsApp || d.travailleurTelephoneDirectWhatsApp;
+      if (!tel) return alert("Pas de numéro WhatsApp");
+
+      const typeLabel = d.type === "travailleur" ? "candidature" : "offre d'emploi";
+      let message = `Bonjour,\n\nJe vous envoie mon ${typeLabel} via JOB CONNECT.\n\n`;
+      message += `📍 Pays: ${d.pays}\n`;
+      message += `💼 Poste: ${d.posteTravail || d.typeTravail}\n`;
+      
+      if (d.documents) {
+        message += `\n📎 Documents:\n`;
+        Object.entries(d.documents).forEach(([k, url]) => {
+          message += `• ${window.labelPourDocumentCle(d.typeTravail, d.posteTravail, k)}: ${url}\n`;
+        });
+      }
+      
+      if (d.criteres && d.criteres.length) {
+        message += `\n✓ Critères:\n${d.criteres.map(c => "• " + c).join("\n")}\n`;
+      }
+      
+      message += `\n📲 Via JOB CONNECT - jobconnect-site.vercel.app`;
+      
+      const numero = tel.replace(/[^0-9]/g, "");
+      const lien = `https://wa.me/${numero}?text=${encodeURIComponent(message)}`;
+      window.open(lien, "_blank");
+      
+    } catch (e) {
+      alert("Erreur: " + e.message);
+    }
+  };
+
+  // Afficher les détails d'un dépôt
+  window.afficherDetailsDepot = async function(depotId) {
+    try {
+      const docSnap = await getDoc(doc(db, "depots", depotId));
+      if (!docSnap.exists()) return alert("Dépôt non trouvé");
+      
+      const d = docSnap.data();
+      const date = d.dateDepot?.toDate ? d.dateDepot.toDate() : new Date();
+      const typeLabel = d.type === "travailleur" ? "👷 Dossier candidature" : "🧑‍💼 Offre d'emploi";
+      
+      let details = `${typeLabel}\n\n`;
+      details += `📍 Pays: ${d.pays}\n`;
+      details += `💼 Poste: ${d.posteTravail || d.typeTravail}\n`;
+      details += `📅 Date: ${date.toLocaleDateString("fr-FR")}\n`;
+      details += `⏳ Statut: ${d.statut || "attente"}\n`;
+      
+      if (d.documents) {
+        details += `\n📎 Documents:\n`;
+        Object.entries(d.documents).forEach(([k, url]) => {
+          details += `• ${window.labelPourDocumentCle(d.typeTravail, d.posteTravail, k)}\n`;
+        });
+      }
+      
+      if (d.criteres && d.criteres.length) {
+        details += `\n✓ Critères:\n${d.criteres.join("\n")}\n`;
+      }
+      
+      alert(details);
+      
+    } catch (e) {
+      alert("Erreur: " + e.message);
+    }
+  };
+
   window.deposerTravailleur = async function() {
     const btn = document.querySelector("#depot-travailleur .submit-btn");
     if (!btn || btn.disabled) return;
@@ -2517,6 +2750,19 @@
       await addDoc(collection(db, "depots"), depot);
       
       showMsg("depot-t-msg", true, "✅ Dossier déposé avec succès !", "");
+      
+      // Afficher le bouton WhatsApp si un numéro est fourni
+      if (patronTel) {
+        const btnWhatsApp = document.createElement("button");
+        btnWhatsApp.style.cssText = "width:100%; margin-top:10px; padding:12px; background:#25D366; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer;";
+        btnWhatsApp.textContent = "📱 Envoyer via WhatsApp";
+        btnWhatsApp.onclick = () => {
+          const numero = patronTel.replace(/[^0-9]/g, "");
+          const message = `Bonjour, je suis ${depot.uid}. Je postule pour le poste de ${depot.posteTravail || depot.typeTravail} via JOB CONNECT.\n\nMon dossier de candidature :\n${Object.entries(depot.documents || {}).map(([k, url]) => `• ${url}`).join("\n")}\n\n📲 Via JOB CONNECT - jobconnect-site.vercel.app`;
+          window.open(`https://wa.me/${numero}?text=${encodeURIComponent(message)}`, "_blank");
+        };
+        document.getElementById("depot-t-msg").insertAdjacentElement("afterend", btnWhatsApp);
+      }
       
       // Réinitialiser le formulaire
       document.getElementById("depot-t-patron-tel").value = "";
@@ -2581,6 +2827,20 @@
       await addDoc(collection(db, "depots"), depot);
       
       showMsg("depot-p-msg", true, "✅ Offre publiée avec succès !", "");
+      
+      // Afficher le bouton WhatsApp si un numéro est fourni
+      if (travailleurTel) {
+        const btnWhatsApp = document.createElement("button");
+        btnWhatsApp.style.cssText = "width:100%; margin-top:10px; padding:12px; background:#25D366; color:white; border:none; border-radius:10px; font-weight:700; cursor:pointer;";
+        btnWhatsApp.textContent = "📱 Envoyer via WhatsApp";
+        btnWhatsApp.onclick = () => {
+          const numero = travailleurTel.replace(/[^0-9]/g, "");
+          const criteresList = criteres.length ? `\n\nCritères exigés:\n${criteres.map(c => "• " + c).join("\n")}` : "";
+          const message = `Bonjour, je vous envoie une offre d'emploi via JOB CONNECT.\n\n💼 Poste: ${depot.posteTravail || depot.typeTravail}\n📍 Pays: ${depot.pays}${criteresList}\n\n📲 jobconnect-site.vercel.app`;
+          window.open(`https://wa.me/${numero}?text=${encodeURIComponent(message)}`, "_blank");
+        };
+        document.getElementById("depot-p-msg").insertAdjacentElement("afterend", btnWhatsApp);
+      }
       
       // Réinitialiser le formulaire
       document.getElementById("depot-p-travailleur-tel").value = "";
