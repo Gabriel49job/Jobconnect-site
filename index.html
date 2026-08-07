@@ -4717,6 +4717,22 @@
     return documents;
   }
 
+  // Récupère, pour le PATRON, les critères effectivement cochés, pour les inclure dans le message WhatsApp.
+  function collecterCriteresCoches(role) {
+    if (role !== 'patron') return [];
+    const container = document.getElementById('depot-criteria-list-patron');
+    if (!container) return [];
+    const criteres = [];
+    container.querySelectorAll('.depot-doc-item').forEach(row => {
+      const checkbox = row.querySelector('input[type="checkbox"]');
+      const label = row.querySelector('label');
+      if (checkbox && checkbox.checked && label) {
+        criteres.push(label.textContent);
+      }
+    });
+    return criteres;
+  }
+
   function remplirDepotContenu(role) {
     const categorie = depotState.categorie;
     const config = DEPOT_DOMAINES_REQUIREMENTS[categorie];
@@ -4858,8 +4874,9 @@
     if (matchesEl) matchesEl.innerHTML = '';
 
     try {
-      // Récupérer les documents effectivement uploadés (travailleur uniquement)
+      // Récupérer les documents uploadés (travailleur) et les critères cochés (patron)
       const documents = collecterDocumentsUploades(role);
+      const criteres = collecterCriteresCoches(role);
 
       // 1) Enregistrer ce numéro dans l'annuaire JOB CONNECT (visible pour le rôle opposé)
       await window.addDoc(window.collection(window.db, 'depot_annonces'), {
@@ -4869,6 +4886,7 @@
         pays: pays,
         telephone: numero,
         documents: documents,
+        criteres: criteres,
         date: window.serverTimestamp()
       });
 
@@ -4877,7 +4895,10 @@
       const ligneDocuments = documents.length
         ? `\n\n📎 *Documents :*\n` + documents.map(d => `- ${d.label} : ${d.url}`).join('\n')
         : '';
-      const message = `🎯 *Nouveau ${typeDossier} - JOB CONNECT*\n\n📋 *Domaine:* ${categorie}${ligneMetier}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}${ligneDocuments}`;
+      const ligneCriteres = criteres.length
+        ? `\n\n✅ *Critères exigés :*\n` + criteres.map(c => `- ${c}`).join('\n')
+        : '';
+      const message = `🎯 *Nouveau ${typeDossier} - JOB CONNECT*\n\n📋 *Domaine:* ${categorie}${ligneMetier}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}${ligneDocuments}${ligneCriteres}`;
 
       // 2) Chercher, dans l'annuaire, tous les numéros du rôle opposé déjà enregistrés pour ce domaine
       const roleOppose = role === 'travailleur' ? 'patron' : 'travailleur';
