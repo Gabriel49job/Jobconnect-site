@@ -1438,42 +1438,51 @@
 
 <!-- ============ ECRAN RECHERCHE ============ -->
 <div class="screen" id="screen-recherche">
-  <div class="role-select">
-    <button class="role-btn selected" id="search-role-travailleur-btn" onclick="setSearchRole('travailleur')" data-i18n="btn_search_travailleur">🧑‍💼 Chercher un Emploi</button>
-    <button class="role-btn" id="search-role-patron-btn" onclick="setSearchRole('patron')" data-i18n="btn_search_patron">🏢 Chercher un Candidat</button>
-  </div>
-
   <div class="card">
-    <label data-i18n="lbl_s_motcle">Mot-clé</label>
-    <input type="text" id="s-keyword" placeholder="Ex: Chauffeur, Informaticien, Comptable...">
+    <label style="font-weight:700; color:#073C28; margin-bottom:12px; display:block; text-align:center;">Choisissez un domaine :</label>
+    <div class="depot-grid" id="s-domaine-grid"></div>
 
-    <label data-i18n="lbl_s_domaine">Domaine</label>
-    <button type="button" class="country-picker-btn" id="btn-s-domaine" onclick="ouvrirSelecteurDomaineRecherche()">-- Choisir un domaine --</button>
-    <input type="hidden" id="s-domaine" value="">
+    <!-- Apparaît une fois le domaine choisi -->
+    <div id="s-metier-section" style="display:none; margin-top:16px;">
+      <label style="font-weight:700; color:#073C28; display:block;">Précisez votre métier :</label>
+      <div class="depot-metier-grid" id="s-metier-list"></div>
+    </div>
 
-    <label data-i18n="lbl_s_localisation">Localisation</label>
-    <input type="text" id="s-localisation" placeholder="Ville, commune ou province">
+    <!-- Apparaît une fois le domaine choisi -->
+    <div id="s-filtres-section" style="display:none; margin-top:20px;">
+      <div class="role-select">
+        <button class="role-btn selected" id="search-role-travailleur-btn" onclick="setSearchRole('travailleur')" data-i18n="btn_search_travailleur">🧑‍💼 Chercher un Emploi</button>
+        <button class="role-btn" id="search-role-patron-btn" onclick="setSearchRole('patron')" data-i18n="btn_search_patron">🏢 Chercher un Candidat</button>
+      </div>
 
-    <label id="s-contrat-label" data-i18n="lbl_s_contrat">Type de contrat</label>
-    <select id="s-contrat">
-      <option value="">-- Type de contrat --</option>
-      <option>Temps plein</option>
-      <option>Temps partiel</option>
-      <option>Freelance</option>
-      <option>Stage</option>
-      <option>CDD</option>
-      <option>CDI</option>
-    </select>
+      <label>Mot-clé</label>
+      <input type="text" id="s-keyword" placeholder="Ex: Chauffeur, Informaticien, Comptable...">
 
-    <label id="s-experience-label" data-i18n="lbl_s_experience" style="display:none;">Niveau d'expérience</label>
-    <select id="s-experience" style="display:none;">
-      <option value="">-- Niveau d'expérience --</option>
-      <option value="Débutant (0-2 ans)">Débutant (0-2 ans)</option>
-      <option value="Intermédiaire (3-5 ans)">Intermédiaire (3-5 ans)</option>
-      <option value="Expert (+5 ans)">Expert (+5 ans)</option>
-    </select>
+      <label>Localisation</label>
+      <input type="text" id="s-localisation" placeholder="Ville, commune ou province">
 
-    <button class="search-btn" id="s-search-btn" onclick="lancerRecherche()" data-i18n="btn_rechercher">🔍 LANCER LA RECHERCHE</button>
+      <label id="s-contrat-label">Type de contrat</label>
+      <select id="s-contrat">
+        <option value="">-- Type de contrat --</option>
+        <option>Temps plein</option>
+        <option>Temps partiel</option>
+        <option>Freelance</option>
+        <option>Stage</option>
+        <option>CDD</option>
+        <option>CDI</option>
+      </select>
+
+      <label id="s-experience-label" style="display:none;">Niveau d'expérience</label>
+      <select id="s-experience" style="display:none;">
+        <option value="">-- Niveau d'expérience --</option>
+        <option value="Débutant (0-2 ans)">Débutant (0-2 ans)</option>
+        <option value="Intermédiaire (3-5 ans)">Intermédiaire (3-5 ans)</option>
+        <option value="Expert (+5 ans)">Expert (+5 ans)</option>
+      </select>
+
+      <button class="search-btn" id="s-search-btn" onclick="lancerRecherche()" data-i18n="btn_rechercher">🔍 LANCER LA RECHERCHE</button>
+    </div>
+
     <div id="s-results"></div>
   </div>
 </div>
@@ -3278,12 +3287,78 @@
   // "travailleur" = onglet "Chercher un Emploi" (le candidat regarde les offres publiées par des patrons)
   // "patron"      = onglet "Chercher un Candidat" (le recruteur regarde les dossiers publiés par des travailleurs)
   let searchRole = "travailleur";
+  let selectedDomaineRecherche = "";
+  let selectedMetierRecherche = "";
   let offresEnregistrees = JSON.parse(localStorage.getItem("offresEnregistrees") || "[]");
 
+  // ===== Étape 1 : grille des domaines (identique au Dépôt) =====
+  function initRechercheDomaines() {
+    const container = document.getElementById("s-domaine-grid");
+    const config = window.DEPOT_METIERS_CONFIG;
+    if (!container || !config) return;
+    container.innerHTML = "";
+    Object.keys(config).forEach(cat => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "depot-cat-btn";
+      btn.textContent = cat;
+      btn.onclick = () => window.selectionnerDomaineRecherche(cat, btn);
+      container.appendChild(btn);
+    });
+  }
+  initRechercheDomaines();
+
+  // ===== Étape 2 : clic sur un domaine -> affiche les métiers précis + les filtres/statut =====
+  window.selectionnerDomaineRecherche = function (categorie, btnEl) {
+    selectedDomaineRecherche = categorie;
+    selectedMetierRecherche = "";
+
+    document.querySelectorAll("#s-domaine-grid .depot-cat-btn").forEach(btn => {
+      btn.classList.toggle("selected", btn === btnEl);
+    });
+
+    const config = window.DEPOT_METIERS_CONFIG || {};
+    const metiers = config[categorie] || [];
+    const metierListEl = document.getElementById("s-metier-list");
+    metierListEl.innerHTML = "";
+    metiers.forEach(metier => {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "depot-metier-chip";
+      chip.textContent = metier;
+      chip.onclick = () => window.selectionnerMetierRecherche(metier, chip);
+      metierListEl.appendChild(chip);
+    });
+    document.getElementById("s-metier-section").style.display = metiers.length ? "block" : "none";
+
+    // Le statut (Chercher un Emploi / Chercher un Candidat) et les filtres n'apparaissent qu'une fois le domaine choisi
+    document.getElementById("s-filtres-section").style.display = "block";
+    window.actualiserEcranRecherche();
+
+    setTimeout(() => {
+      const cible = document.getElementById("s-metier-section").style.display !== "none"
+        ? document.getElementById("s-metier-section")
+        : document.getElementById("s-filtres-section");
+      cible.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 100);
+  };
+
+  // ===== Étape 3 : précision du métier (avant de choisir son statut) =====
+  window.selectionnerMetierRecherche = function (metier, chipEl) {
+    selectedMetierRecherche = selectedMetierRecherche === metier ? "" : metier;
+    document.querySelectorAll("#s-metier-list .depot-metier-chip").forEach(chip => {
+      chip.classList.toggle("selected", chip === chipEl && selectedMetierRecherche === metier);
+    });
+  };
+
   window.actualiserEcranRecherche = function () {
+    if (!selectedDomaineRecherche) {
+      document.getElementById("s-results").innerHTML = "";
+      return;
+    }
     document.getElementById("s-results").innerHTML = searchRole === "travailleur"
-      ? '<div class="empty-state">Choisissez un domaine, un mot-clé ou une localisation, puis lancez la recherche pour voir les offres d\'emploi.</div>'
-      : '<div class="empty-state">Choisissez un domaine, un mot-clé ou une localisation, puis lancez la recherche pour voir les profils de candidats.</div>';
+      ? '<div class="empty-state">Précisez votre métier et vos critères, puis lancez la recherche pour voir les offres d\'emploi.</div>'
+      : '<div class="empty-state">Précisez votre métier et vos critères, puis lancez la recherche pour voir les profils de candidats.</div>';
   };
 
   window.setSearchRole = function (role) {
@@ -3328,8 +3403,13 @@
   };
 
   window.lancerRecherche = async function () {
+    if (!selectedDomaineRecherche) {
+      document.getElementById("s-results").innerHTML = '<div class="empty-state">Veuillez d\'abord choisir un domaine.</div>';
+      return;
+    }
     const motCle = document.getElementById("s-keyword").value.trim().toLowerCase();
-    const domaine = document.getElementById("s-domaine").value;
+    const domaine = selectedDomaineRecherche;
+    const metier = selectedMetierRecherche;
     const localisation = document.getElementById("s-localisation").value.trim().toLowerCase();
     const filtreSupp = (searchRole === "travailleur"
       ? document.getElementById("s-contrat").value
@@ -3344,6 +3424,7 @@
     try {
       let constraints = [where("role", "==", roleRecherche)];
       if (domaine) constraints.push(where("categorie", "==", domaine));
+      if (metier) constraints.push(where("metier", "==", metier));
       const q = query(collection(db, "depot_annonces"), ...constraints);
       const snap = await getDocs(q);
 
@@ -4529,25 +4610,6 @@
   };
   // Rendu accessible à l'écran Recherche (qui vit dans un <script type="module"> séparé)
   window.DEPOT_METIERS_CONFIG = DEPOT_METIERS_CONFIG;
-
-  // ===== Sélecteur de domaine pour l'écran RECHERCHE (réutilise la fenêtre modale des métiers) =====
-  window.ouvrirSelecteurDomaineRecherche = function () {
-    const listEl = document.getElementById('job-modal-list');
-    document.getElementById('job-modal-title').textContent = 'Choisissez un domaine';
-    document.getElementById('job-modal-back').style.display = 'none';
-    listEl.innerHTML =
-      `<button type="button" class="job-cat-btn" style="background:#666;" onclick="choisirDomaineRecherche('')">Tous les domaines</button>` +
-      Object.keys(DEPOT_METIERS_CONFIG).map(cat =>
-        `<button type="button" class="job-cat-btn" onclick="choisirDomaineRecherche('${cat.replace(/'/g, "\\'")}')">${cat}</button>`
-      ).join('');
-    document.getElementById('job-modal-overlay').classList.add('open');
-  };
-
-  window.choisirDomaineRecherche = function (categorie) {
-    document.getElementById('s-domaine').value = categorie;
-    document.getElementById('btn-s-domaine').textContent = categorie || '-- Choisir un domaine --';
-    window.fermerSelecteurTravail();
-  };
 
   // Documents pour TRAVAILLEUR et Critères pour PATRON par domaine
   const DEPOT_DOMAINES_REQUIREMENTS = {
