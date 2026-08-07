@@ -1346,6 +1346,29 @@
     background: #f5f5f5;
     color: #999;
   }
+  .postuler-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(20px);
+    background: #0E6E46;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    z-index: 9999;
+    max-width: 90%;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+  }
+  .postuler-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
@@ -4006,15 +4029,13 @@
         if (searchRole === "travailleur") {
           // Résultats = offres publiées par des patrons
           const estEnregistree = offresEnregistrees.includes(d.id);
-          const criteresHtml = d.criteres && d.criteres.length
-            ? `<div class="criteres-list-affichage"><strong>✅ Critères demandés :</strong><ul>${d.criteres.map(c => `<li>${esc(c)}</li>`).join("")}</ul></div>`
-            : "";
+          const criteresHtml = window.formatCriteresDetailHtml ? window.formatCriteresDetailHtml(d.criteres) : "";
           return `<div class="result-card">
             <h3>${titre}<span class="role-label">🏢 Offre</span></h3>
             <p>📋 ${esc(d.categorie || "")}</p>
             <p>📍 ${lieuAffiche}</p>
             ${criteresHtml}
-            <a class="whatsapp-link" href="${lien}" target="_blank" rel="noopener">💬 Postuler</a>
+            <button type="button" class="whatsapp-link" onclick="window.postulerVersDepot()">💬 Postuler</button>
             <button type="button" class="action-btn${estEnregistree ? " saved" : ""}" onclick="window.toggleEnregistrerOffre('${d.id}', this)">${estEnregistree ? "✅ Offre enregistrée" : "⭐ Enregistrer l'offre"}</button>
           </div>`;
         } else {
@@ -5079,6 +5100,29 @@
 </script>
 
 <script>
+  // Petit message flottant (toast) de rappel
+  window.afficherToast = function (message, duree = 3500) {
+    let toastEl = document.getElementById("postuler-toast");
+    if (!toastEl) {
+      toastEl = document.createElement("div");
+      toastEl.id = "postuler-toast";
+      toastEl.className = "postuler-toast";
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = message;
+    toastEl.classList.add("show");
+    clearTimeout(window._toastTimeout);
+    window._toastTimeout = setTimeout(() => {
+      toastEl.classList.remove("show");
+    }, duree);
+  };
+
+  // Clic sur "Postuler" : redirige vers Dépôt + rappel des étapes à faire
+  window.postulerVersDepot = function () {
+    window.allerVersEcran('depot');
+    window.afficherToast("Veuillez sélectionner votre domaine et vos documents pour postuler.");
+  };
+
   // Navigation entre onglets
   window.allerVersEcran = function (nomEcran) {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -5356,6 +5400,66 @@
     if (fieldEl) {
       fieldEl.style.display = checkbox.checked ? 'block' : 'none';
     }
+  };
+
+  // Formate les critères du patron (nouveau format objet OU ancien format tableau)
+  // pour un affichage HTML lisible dans les résultats de recherche.
+  window.formatCriteresDetailHtml = function (criteres) {
+    if (!criteres) return "";
+
+    // Ancien format : simple tableau de libellés
+    if (Array.isArray(criteres)) {
+      if (!criteres.length) return "";
+      return `<div class="criteres-list-affichage"><strong>✅ Critères demandés :</strong><ul>${criteres.map(c => `<li>${esc(c)}</li>`).join("")}</ul></div>`;
+    }
+
+    // Nouveau format : objet structuré (salaire, lieu, horaires, contrat, etc.)
+    if (typeof criteres !== "object") return "";
+    const lignes = [];
+    if (criteres.salaire) {
+      const s = criteres.salaire;
+      lignes.push(`💰 Salaire : ${esc(s.montant || "?")} ${esc(s.devise || "")}${s.periode ? " / " + esc(s.periode) : ""}`);
+    }
+    if (criteres.lieu) {
+      const l = [criteres.lieu.ville, criteres.lieu.adresse, criteres.lieu.type].filter(Boolean).map(esc).join(", ");
+      if (l) lignes.push(`📍 Lieu : ${l}`);
+    }
+    if (criteres.horaires) {
+      const h = [criteres.horaires.jours, criteres.horaires.debut, criteres.horaires.fin].filter(Boolean).map(esc).join(", ");
+      if (h) lignes.push(`🕐 Horaires : ${h}`);
+    }
+    if (criteres.contrat && criteres.contrat.length) {
+      lignes.push(`📄 Contrat : ${criteres.contrat.map(esc).join(", ")}`);
+    }
+    if (criteres.etude) {
+      lignes.push(`🎓 Niveau d'étude : ${esc(criteres.etude)}`);
+    }
+    if (criteres.experience) {
+      lignes.push(`💼 Expérience : ${esc(criteres.experience)} ans`);
+    }
+    if (criteres.competences) {
+      lignes.push(`🛠️ Compétences : ${esc(criteres.competences)}`);
+    }
+    if (criteres.langues) {
+      const langStr = (criteres.langues.langues || []).map(esc).join(", ") + (criteres.langues.niveau ? ` (${esc(criteres.langues.niveau)})` : "");
+      if (langStr.trim()) lignes.push(`🌍 Langues : ${langStr}`);
+    }
+    if (criteres.responsabilites) {
+      lignes.push(`📋 Responsabilités : ${esc(criteres.responsabilites)}`);
+    }
+    if (criteres.documents && criteres.documents.length) {
+      lignes.push(`📄 Documents demandés : ${criteres.documents.map(esc).join(", ")}`);
+    }
+    if (criteres.age) {
+      const ageStr = [criteres.age.min, criteres.age.max].filter(Boolean).map(esc).join("-");
+      if (ageStr) lignes.push(`👤 Âge : ${ageStr} ans`);
+    }
+    if (criteres.autres) {
+      lignes.push(`📝 Autres conditions : ${esc(criteres.autres)}`);
+    }
+
+    if (!lignes.length) return "";
+    return `<div class="criteres-list-affichage"><strong>✅ Critères demandés :</strong><ul>${lignes.map(l => `<li>${l}</li>`).join("")}</ul></div>`;
   };
 
   // Récupère les critères du patron complètement remplis
