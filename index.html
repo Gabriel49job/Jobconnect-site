@@ -19,53 +19,33 @@
   }
   header {
     position: relative;
-    background: linear-gradient(135deg, #073C28, #0E6E46, #2FA870);
+    background: #0E6E46;
     color: white;
-    padding: 30px 16px 22px;
+    padding: 22px 16px 18px;
     text-align: center;
-    overflow: hidden;
-  }
-  header::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    opacity: 0.16;
-    background-image:
-      linear-gradient(45deg, rgba(255,255,255,0.5) 25%, transparent 25%),
-      linear-gradient(-45deg, rgba(255,255,255,0.5) 25%, transparent 25%);
-    background-size: 22px 22px;
-    background-position: 0 0, 11px 0;
-    pointer-events: none;
   }
   header .brandmark {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 58px;
-    height: 58px;
-    margin-bottom: 8px;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 6px;
     border-radius: 50%;
   }
   header h1 {
     position: relative;
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     font-weight: 800;
     letter-spacing: 0.3px;
-    margin-bottom: 6px;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    margin-bottom: 4px;
   }
-  header p { position: relative; font-size: 0.85rem; opacity: 0.92; letter-spacing: 0.2px; }
+  header p { position: relative; font-size: 0.82rem; opacity: 0.9; letter-spacing: 0.2px; }
 
   .signature-divider {
-    height: 8px;
-    background:
-      linear-gradient(135deg, #E8A33D 25%, transparent 25%) -4px 0,
-      linear-gradient(225deg, #E8A33D 25%, transparent 25%) -4px 0,
-      linear-gradient(315deg, #E8A33D 25%, transparent 25%) 0 0,
-      linear-gradient(45deg, #E8A33D 25%, transparent 25%) 0 0;
-    background-size: 8px 8px;
-    background-color: #FAF6EF;
+    height: 3px;
+    background-color: #E8A33D;
   }
 
   .tabs {
@@ -369,6 +349,22 @@
     margin: 6px 0 2px;
   }
   .whatsapp-link:active { background: #cdf0dc; }
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FBEEDA;
+    color: #073C28;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    text-decoration: none;
+    margin: 6px 6px 2px 0;
+  }
+  .action-btn:active { background: #f5deb0; }
+  .action-btn.saved { background: #E7F2E9; color: #0E6E46; }
   .badge {
     display: inline-block;
     background: #E7F2E9;
@@ -601,14 +597,16 @@
   }
   .search-btn {
     width: 100%;
-    padding: 12px;
-    background: white;
-    border: 2px solid #0E6E46;
-    color: #0E6E46;
+    padding: 13px;
+    background: #0E6E46;
+    border: none;
+    color: white;
     border-radius: 10px;
     font-weight: 700;
+    font-size: 1rem;
     margin-bottom: 16px;
   }
+  .search-btn:active { background: #073C28; }
 
   /* ===== Sélecteur de travail (catégorie -> métier) ===== */
   .job-picker-btn {
@@ -1441,22 +1439,41 @@
 <!-- ============ ECRAN RECHERCHE ============ -->
 <div class="screen" id="screen-recherche">
   <div class="role-select">
-    <button class="role-btn selected" id="search-role-patron-btn" onclick="setSearchRole('patron')" data-i18n="btn_search_patron">🧑‍💼 EMPLOYEUR</button>
-    <button class="role-btn" id="search-role-travailleur-btn" onclick="setSearchRole('travailleur')" data-i18n="btn_search_travailleur">👷 EMPLOYÉ</button>
+    <button class="role-btn selected" id="search-role-travailleur-btn" onclick="setSearchRole('travailleur')" data-i18n="btn_search_travailleur">🧑‍💼 Chercher un Emploi</button>
+    <button class="role-btn" id="search-role-patron-btn" onclick="setSearchRole('patron')" data-i18n="btn_search_patron">🏢 Chercher un Candidat</button>
   </div>
 
   <div class="card">
-    <div class="filter-row" id="filter-row-recherche" style="display:none;">
-      <div style="flex:1;">
-        <button type="button" class="country-picker-btn" id="btn-s-pays" onclick="ouvrirSelecteurPays('s-pays','btn-s-pays')">-- Choisir un pays --</button>
-        <input type="hidden" id="s-pays" value="">
-      </div>
-      <div style="flex:1;">
-        <button type="button" class="job-picker-btn" id="btn-s-type" onclick="ouvrirSelecteurTravail('s-type','','btn-s-type')">-- Tout type de travail --</button>
-        <input type="hidden" id="s-type" value="">
-      </div>
-    </div>
-    <button class="search-btn" onclick="lancerRecherche()" data-i18n="btn_rechercher">🔍 Rechercher</button>
+    <label data-i18n="lbl_s_motcle">Mot-clé</label>
+    <input type="text" id="s-keyword" placeholder="Ex: Chauffeur, Informaticien, Comptable...">
+
+    <label data-i18n="lbl_s_domaine">Domaine</label>
+    <button type="button" class="country-picker-btn" id="btn-s-domaine" onclick="ouvrirSelecteurDomaineRecherche()">-- Choisir un domaine --</button>
+    <input type="hidden" id="s-domaine" value="">
+
+    <label data-i18n="lbl_s_localisation">Localisation</label>
+    <input type="text" id="s-localisation" placeholder="Ville, commune ou province">
+
+    <label id="s-contrat-label" data-i18n="lbl_s_contrat">Type de contrat</label>
+    <select id="s-contrat">
+      <option value="">-- Type de contrat --</option>
+      <option>Temps plein</option>
+      <option>Temps partiel</option>
+      <option>Freelance</option>
+      <option>Stage</option>
+      <option>CDD</option>
+      <option>CDI</option>
+    </select>
+
+    <label id="s-experience-label" data-i18n="lbl_s_experience" style="display:none;">Niveau d'expérience</label>
+    <select id="s-experience" style="display:none;">
+      <option value="">-- Niveau d'expérience --</option>
+      <option value="Débutant (0-2 ans)">Débutant (0-2 ans)</option>
+      <option value="Intermédiaire (3-5 ans)">Intermédiaire (3-5 ans)</option>
+      <option value="Expert (+5 ans)">Expert (+5 ans)</option>
+    </select>
+
+    <button class="search-btn" id="s-search-btn" onclick="lancerRecherche()" data-i18n="btn_rechercher">🔍 LANCER LA RECHERCHE</button>
     <div id="s-results"></div>
   </div>
 </div>
@@ -3258,163 +3275,134 @@
     }
   };
 
-  let searchRole = "patron"; // "patron" cherche des "travailleurs" ; "travailleur" cherche des "patrons"
+  // "travailleur" = onglet "Chercher un Emploi" (le candidat regarde les offres publiées par des patrons)
+  // "patron"      = onglet "Chercher un Candidat" (le recruteur regarde les dossiers publiés par des travailleurs)
+  let searchRole = "travailleur";
+  let offresEnregistrees = JSON.parse(localStorage.getItem("offresEnregistrees") || "[]");
 
   window.actualiserEcranRecherche = function () {
-    if (searchRole === "patron") {
-      document.getElementById("s-results").innerHTML = '<div class="empty-state">Appuyez sur Rechercher pour voir tous les travailleurs disponibles.</div>';
-    } else {
-      document.getElementById("s-results").innerHTML = '<div class="empty-state">Choisissez un pays et/ou un type de travail, puis appuyez sur Rechercher.</div>';
-    }
+    document.getElementById("s-results").innerHTML = searchRole === "travailleur"
+      ? '<div class="empty-state">Choisissez un domaine, un mot-clé ou une localisation, puis lancez la recherche pour voir les offres d\'emploi.</div>'
+      : '<div class="empty-state">Choisissez un domaine, un mot-clé ou une localisation, puis lancez la recherche pour voir les profils de candidats.</div>';
   };
 
   window.setSearchRole = function (role) {
     searchRole = role;
-    document.getElementById("search-role-patron-btn").classList.toggle("selected", role === "patron");
     document.getElementById("search-role-travailleur-btn").classList.toggle("selected", role === "travailleur");
-    const filterRowEl = document.getElementById("filter-row-recherche");
-    if (role === "patron") {
-      // Le patron n'a pas de filtres, mais doit quand même appuyer sur Rechercher
-      filterRowEl.style.display = "none";
-      document.getElementById("s-pays").value = "";
-      document.getElementById("btn-s-pays").textContent = "-- Choisir un pays --";
-      document.getElementById("s-type").value = "";
-      document.getElementById("btn-s-type").textContent = "-- Tout type de travail --";
-    } else {
-      // Le travailleur choisit ses critères puis lance la recherche lui-même
-      filterRowEl.style.display = "flex";
-    }
+    document.getElementById("search-role-patron-btn").classList.toggle("selected", role === "patron");
+
+    document.getElementById("s-keyword").placeholder = role === "travailleur"
+      ? "Ex: Chauffeur, Informaticien, Comptable..."
+      : "Ex: Maçon expérimenté, Vendeur...";
+
+    document.getElementById("s-contrat-label").style.display = role === "travailleur" ? "block" : "none";
+    document.getElementById("s-contrat").style.display = role === "travailleur" ? "block" : "none";
+    document.getElementById("s-experience-label").style.display = role === "patron" ? "block" : "none";
+    document.getElementById("s-experience").style.display = role === "patron" ? "block" : "none";
+
+    document.getElementById("s-search-btn").textContent = role === "travailleur"
+      ? "🔍 LANCER LA RECHERCHE" : "🔍 VOIR LES PROFILS";
+
     window.actualiserEcranRecherche();
   };
 
-  // Formatte une date/heure en français, lisible sur mobile
-  function formatDateHeure(date) {
-    return date.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric" }) +
-      " à " + date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  // Transforme un numéro de téléphone en lien WhatsApp valide (wa.me)
+  function waLink(tel) {
+    if (!tel) return "#";
+    const clean = tel.replace(/[^\d+]/g, "").replace(/^\+/, "");
+    return `https://wa.me/${clean}`;
   }
 
-  window.lancerRecherche = async function () {
-    const pays = document.getElementById("s-pays").value;
-    const type = document.getElementById("s-type").value;
-    const resultsEl = document.getElementById("s-results");
-
-    // Un travailleur (EMPLOYÉ) doit obligatoirement choisir un pays et/ou un type de travail
-    if (searchRole !== "patron" && !pays && !type) {
-      resultsEl.innerHTML = '<div class="empty-state">Veuillez choisir un pays et/ou un type de travail où vous voulez travailler, pour trouver un employeur.</div>';
-      return;
+  window.toggleEnregistrerOffre = function (id, btn) {
+    const idx = offresEnregistrees.indexOf(id);
+    if (idx === -1) {
+      offresEnregistrees.push(id);
+      btn.textContent = "✅ Offre enregistrée";
+      btn.classList.add("saved");
+    } else {
+      offresEnregistrees.splice(idx, 1);
+      btn.textContent = "⭐ Enregistrer l'offre";
+      btn.classList.remove("saved");
     }
+    localStorage.setItem("offresEnregistrees", JSON.stringify(offresEnregistrees));
+  };
 
+  window.lancerRecherche = async function () {
+    const motCle = document.getElementById("s-keyword").value.trim().toLowerCase();
+    const domaine = document.getElementById("s-domaine").value;
+    const localisation = document.getElementById("s-localisation").value.trim().toLowerCase();
+    const filtreSupp = (searchRole === "travailleur"
+      ? document.getElementById("s-contrat").value
+      : document.getElementById("s-experience").value).toLowerCase();
+
+    const resultsEl = document.getElementById("s-results");
     resultsEl.innerHTML = '<div class="empty-state">Recherche en cours...</div>';
 
-    const targetCollection = searchRole === "patron" ? "travailleurs" : "patrons";
-
-    // Horodatage : on lit la date de la dernière recherche AVANT de la remplacer
-    const storageKey = "derniereRecherche_" + searchRole;
-    const previousSearchISO = localStorage.getItem(storageKey);
-    const previousSearchDate = previousSearchISO ? new Date(previousSearchISO) : null;
-    const now = new Date();
+    // On cherche dans l'annuaire de Dépôt les annonces du rôle opposé à celui de l'utilisateur
+    const roleRecherche = searchRole === "travailleur" ? "patron" : "travailleur";
 
     try {
-      let constraints = [where("actif", "==", true)];
-      if (pays) constraints.push(where("pays", "==", pays));
-      if (type) constraints.push(where("typeTravail", "==", type));
-
-      const q = query(collection(db, targetCollection), ...constraints);
-
+      let constraints = [where("role", "==", roleRecherche)];
+      if (domaine) constraints.push(where("categorie", "==", domaine));
+      const q = query(collection(db, "depot_annonces"), ...constraints);
       const snap = await getDocs(q);
 
-      // On enregistre l'heure de cette recherche pour la prochaine fois
-      localStorage.setItem(storageKey, now.toISOString());
-
-      const infoBar = `<div class="search-time-bar">
-          🕒 Recherche lancée le ${formatDateHeure(now)}<br>
-          ${previousSearchDate ? "Dernière recherche précédente : " + formatDateHeure(previousSearchDate) : "Première recherche effectuée."}
-        </div>`;
-
-      if (snap.empty) {
-        resultsEl.innerHTML = infoBar + '<div class="empty-state">Aucun résultat trouvé pour ces critères.</div>';
-        return;
-      }
-
-      const typeLabel = (id) => (TYPES_TRAVAIL.find(t => t.id === id) || {}).label || id;
-      const badgeClass = (id) => "badge badge-" + (id || "");
-
-      // Retrouve le libellé lisible d'une clé de document à partir de la config du métier
-      const labelPourDoc = (catId, poste, key) => {
-        const config = getDossierConfig(catId, poste);
-        const docItem = config.documents.find(x => x.key === key);
-        return docItem ? docItem.label : key;
-      };
-
-      // Transforme un numéro de téléphone en lien WhatsApp valide (wa.me)
-      const waLink = (tel) => {
-        if (!tel) return "#";
-        const clean = tel.replace(/[^\d+]/g, "").replace(/^\+/, "");
-        return `https://wa.me/${clean}`;
-      };
-
-      // Génère un lien de partage WhatsApp pour faire connaître un profil (et l'app)
-      const partageLink = (nom, typeLabelTxt, pays) => {
-        const texte = `Regarde ce profil sur JOB CONNECT : ${nom} — ${typeLabelTxt} (${pays}). Découvre l'app ici : https://jobconnect-site.vercel.app`;
-        return `https://wa.me/?text=${encodeURIComponent(texte)}`;
-      };
-
-      // Trie les résultats du plus récent au plus ancien
       let docs = [];
       snap.forEach(docSnap => docs.push({ id: docSnap.id, ...docSnap.data() }));
+
+      // Filtres complémentaires côté client (mot-clé, localisation, contrat/expérience si mentionnés dans l'annonce)
+      docs = docs.filter(d => {
+        const texte = `${d.metier || ""} ${d.categorie || ""}`.toLowerCase();
+        const lieu = (d.pays || "").toLowerCase();
+        if (motCle && !texte.includes(motCle)) return false;
+        if (localisation && !lieu.includes(localisation)) return false;
+        return true;
+      });
+
       docs.sort((a, b) => {
-        const ta = a.dateInscription?.toMillis ? a.dateInscription.toMillis() : 0;
-        const tb = b.dateInscription?.toMillis ? b.dateInscription.toMillis() : 0;
+        const ta = a.date?.toMillis ? a.date.toMillis() : 0;
+        const tb = b.date?.toMillis ? b.date.toMillis() : 0;
         return tb - ta;
       });
 
-      let html = infoBar;
-      docs.forEach(d => {
-        const inscritDate = d.dateInscription?.toDate ? d.dateInscription.toDate() : null;
-        const isNew = previousSearchDate && inscritDate && inscritDate > previousSearchDate;
-        const newBadge = isNew ? '<span class="new-msg-badge">🆕 Nouveau message</span>' : "";
+      if (docs.length === 0) {
+        resultsEl.innerHTML = '<div class="empty-state">Aucun résultat trouvé pour ces critères.</div>';
+        return;
+      }
 
-        const nomAffiche = `${esc(d.prenom || "")} ${esc(d.nom || "")}`.trim();
-        // Compteur de vues : on incrémente en arrière-plan sans bloquer l'affichage
-        updateDoc(doc(db, targetCollection, d.id), { vues: increment(1) }).catch(() => {});
-        const vuesTexte = `<span style="color:#888; font-size:0.78rem; font-weight:600;">👁️ Vu ${(d.vues || 0) + 1} fois</span>`;
-        const badgeVerifie = d.emailVerifie === true ? '<span class="verified-badge">✅ Vérifié</span>' : "";
-        if (searchRole === "patron") {
-          html += `<div class="result-card">
-            ${newBadge}
-            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}<span class="role-label">👷 Travailleur</span>${badgeVerifie}</h3>
-            <p>📍 ${esc(d.pays || "")} — ${esc(d.adresse || "")}</p>
-            <p>🎓 ${esc(d.niveauEtude || "Non précisé")}</p>
-            ${d.documents && Object.keys(d.documents).length ? `
-            <div class="doc-links">
-              <strong>📎 Dossier de candidature :</strong>
-              ${Object.entries(d.documents).map(([k, url]) => `<a href="${esc(url)}" target="_blank" rel="noopener" class="doc-link-item">📄 ${esc(labelPourDoc(d.typeTravail, d.posteTravail, k))}</a>`).join("")}
-            </div>` : ""}
-            <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
-            <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
-            <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
-            <a class="share-link-btn" href="${partageLink(nomAffiche, typeLabel(d.typeTravail) + (d.posteTravail ? " — " + d.posteTravail : ""), d.pays || "")}" target="_blank" rel="noopener">📤 Partager ce profil</a>
-            <br>${vuesTexte}
+      resultsEl.innerHTML = docs.map(d => {
+        const titre = esc(d.metier || d.categorie || "");
+        const lieuAffiche = esc(d.pays || "Non précisé");
+        const lien = waLink(d.telephone);
+
+        if (searchRole === "travailleur") {
+          // Résultats = offres publiées par des patrons
+          const estEnregistree = offresEnregistrees.includes(d.id);
+          const criteresHtml = d.criteres && d.criteres.length
+            ? `<div class="criteres-list-affichage"><strong>✅ Critères demandés :</strong><ul>${d.criteres.map(c => `<li>${esc(c)}</li>`).join("")}</ul></div>`
+            : "";
+          return `<div class="result-card">
+            <h3>${titre}<span class="role-label">🏢 Offre</span></h3>
+            <p>📋 ${esc(d.categorie || "")}</p>
+            <p>📍 ${lieuAffiche}</p>
+            ${criteresHtml}
+            <a class="whatsapp-link" href="${lien}" target="_blank" rel="noopener">💬 Postuler</a>
+            <button type="button" class="action-btn${estEnregistree ? " saved" : ""}" onclick="window.toggleEnregistrerOffre('${d.id}', this)">${estEnregistree ? "✅ Offre enregistrée" : "⭐ Enregistrer l'offre"}</button>
           </div>`;
         } else {
-          html += `<div class="result-card">
-            ${newBadge}
-            <h3>${esc(d.prenom || "")} ${esc(d.nom || "")}<span class="role-label">🧑‍💼 Patron</span>${badgeVerifie}</h3>
-            <p>📍 ${esc(d.pays || "")} — ${esc(d.lieuTravail || "")}</p>
-            ${d.criteresRequis && d.criteresRequis.length ? `
-            <div class="criteres-list-affichage">
-              <strong>✅ Critères requis :</strong>
-              <ul>${d.criteresRequis.map(c => `<li>${esc(c)}</li>`).join("")}</ul>
-            </div>` : ""}
-            <a class="whatsapp-link" href="${waLink(d.telephone)}" target="_blank" rel="noopener">💬 ${esc(d.telephone || "")} (WhatsApp)</a>
-            <span class="${badgeClass(d.typeTravail)}">${esc(typeLabel(d.typeTravail))}${d.posteTravail ? " — " + esc(d.posteTravail) : ""}</span><br>
-            <button type="button" class="report-link-btn" onclick="ouvrirSignalement('${targetCollection}','${d.id}','${nomAffiche.replace(/'/g, "\\'")}')">🚩 Signaler cette annonce</button>
-            <a class="share-link-btn" href="${partageLink(nomAffiche, typeLabel(d.typeTravail) + (d.posteTravail ? " — " + d.posteTravail : ""), d.pays || "")}" target="_blank" rel="noopener">📤 Partager ce profil</a>
-            <br>${vuesTexte}
+          // Résultats = dossiers publiés par des travailleurs (candidats)
+          const nbDocuments = d.documents ? d.documents.length : 0;
+          const premierDoc = nbDocuments ? esc(d.documents[0].url) : "";
+          return `<div class="result-card">
+            <h3>${titre}<span class="role-label">👷 Candidat</span></h3>
+            <p>📋 ${esc(d.categorie || "")}</p>
+            <p>📍 ${lieuAffiche}</p>
+            ${nbDocuments ? `<p class="dossier-note">📎 ${nbDocuments} document${nbDocuments > 1 ? "s" : ""} joint${nbDocuments > 1 ? "s" : ""}</p>` : `<p class="dossier-note">Aucun document joint pour le moment.</p>`}
+            ${premierDoc ? `<a class="action-btn" href="${premierDoc}" target="_blank" rel="noopener">📄 Voir le CV / Dossier</a>` : ""}
+            <a class="whatsapp-link" href="${lien}" target="_blank" rel="noopener">💬 Contacter</a>
           </div>`;
         }
-      });
-      resultsEl.innerHTML = html;
+      }).join("");
     } catch (e) {
       resultsEl.innerHTML = '<div class="empty-state">Erreur de recherche. Vérifiez votre connexion.</div>';
     }
@@ -3701,11 +3689,11 @@
       h2_retrouver_annonce: "Retrouver mon annonce", h2_retrouver_compte: "Retrouver mon compte", h2_tous_comptes: "Tous les comptes enregistrés",
       btn_enregistrer: "Enregistrer", btn_retrouver_annonce: "🔎 Retrouver mon annonce", btn_se_connecter: "Se connecter",
       btn_role_travailleur: "👷 Travailleur (EMPLOYÉ)", btn_role_patron: "🧑‍💼 Patron (EMPLOYEUR)",
-      btn_search_patron: "🧑‍💼 EMPLOYEUR", btn_search_travailleur: "👷 EMPLOYÉ",
+      btn_search_patron: "🏢 Chercher un Candidat", btn_search_travailleur: "🧑‍💼 Chercher un Emploi",
       btn_google: "🔵 Continuer avec Google", txt_ou_email: "— ou avec votre email —",
       txt_probleme_compte: "Un problème avec votre compte ?", btn_activer_mon_compte: "🔓 Activer mon compte",
       btn_retrouver_compte_supprime: "🔎 Retrouver mon compte supprimé", btn_deconnexion_admin: "🚪 Se déconnecter de l'admin",
-      btn_rechercher: "🔍 Rechercher"
+      btn_rechercher: "🔍 LANCER LA RECHERCHE"
     },
     en: {
       tagline: "The platform that connects employers and workers, everywhere in the world",
@@ -4538,6 +4526,27 @@
     'FINANCE & ADMINISTRATION': ['💰 Comptable', '🏦 Banquier', '📝 Secrétaire', '📊 Assistant administratif', '💼 Gestionnaire', '⚖️ Avocat'],
     'INDUSTRIE & FABRICATION': ['⚙️ Opérateur machine', '🔩 Technicien industriel', '🔥 Soudeur industriel', '✅ Contrôleur qualité', '👨‍💼 Chef d\'équipe'],
     'BEAUTÉ & MODE': ['✂️ Coiffeur', '💅 Esthéticien', '💄 Maquilleur', '👗 Couturier', '👠 Styliste']
+  };
+  // Rendu accessible à l'écran Recherche (qui vit dans un <script type="module"> séparé)
+  window.DEPOT_METIERS_CONFIG = DEPOT_METIERS_CONFIG;
+
+  // ===== Sélecteur de domaine pour l'écran RECHERCHE (réutilise la fenêtre modale des métiers) =====
+  window.ouvrirSelecteurDomaineRecherche = function () {
+    const listEl = document.getElementById('job-modal-list');
+    document.getElementById('job-modal-title').textContent = 'Choisissez un domaine';
+    document.getElementById('job-modal-back').style.display = 'none';
+    listEl.innerHTML =
+      `<button type="button" class="job-cat-btn" style="background:#666;" onclick="choisirDomaineRecherche('')">Tous les domaines</button>` +
+      Object.keys(DEPOT_METIERS_CONFIG).map(cat =>
+        `<button type="button" class="job-cat-btn" onclick="choisirDomaineRecherche('${cat.replace(/'/g, "\\'")}')">${cat}</button>`
+      ).join('');
+    document.getElementById('job-modal-overlay').classList.add('open');
+  };
+
+  window.choisirDomaineRecherche = function (categorie) {
+    document.getElementById('s-domaine').value = categorie;
+    document.getElementById('btn-s-domaine').textContent = categorie || '-- Choisir un domaine --';
+    window.fermerSelecteurTravail();
   };
 
   // Documents pour TRAVAILLEUR et Critères pour PATRON par domaine
