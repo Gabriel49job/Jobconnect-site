@@ -1138,6 +1138,214 @@
     cursor: pointer;
     white-space: nowrap;
   }
+
+  /* ========== MON COMPTE STYLES ========== */
+  .moncompte-profile-display {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+    border-left: 4px solid #E8A33D;
+  }
+  .moncompte-profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+  }
+  .moncompte-profile-row:last-child { border-bottom: none; }
+  .moncompte-profile-label {
+    color: #6B7A72;
+    font-weight: 600;
+  }
+  .moncompte-profile-value {
+    color: #073C28;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .dossier-item {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    border-left: 4px solid #0E6E46;
+  }
+  .dossier-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 10px;
+  }
+  .dossier-item-title {
+    font-weight: 700;
+    color: #073C28;
+    font-size: 0.95rem;
+  }
+  .dossier-item-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #E7F2E9;
+    color: #0E6E46;
+  }
+  .dossier-item-details {
+    font-size: 0.85rem;
+    color: #6B7A72;
+    line-height: 1.5;
+  }
+  .dossier-item-details strong {
+    color: #333;
+  }
+  .dossier-action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .dossier-btn-small {
+    flex: 1;
+    min-width: 70px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: white;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .dossier-btn-small:active { background: #f0f0f0; }
+  .dossier-btn-small.danger {
+    border-color: #B33F2E;
+    color: #B33F2E;
+  }
+  .dossier-btn-small.danger:active { background: #ffe6e0; }
+
+  .moncompte-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .moncompte-modal.open {
+    display: flex;
+  }
+  .moncompte-modal-content {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    max-height: 85vh;
+    max-width: 520px;
+    width: 90%;
+    overflow-y: auto;
+    position: relative;
+  }
+  .moncompte-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f0f0f0;
+    color: #333;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  .moncompte-modal-header {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #073C28;
+    margin-bottom: 16px;
+  }
+
+  .edit-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .edit-tab-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .edit-tab-btn.active {
+    background: #0E6E46;
+    color: white;
+    border-color: #0E6E46;
+  }
+  .edit-tab-content {
+    display: none;
+  }
+  .edit-tab-content.active {
+    display: block;
+  }
+
+  .danger-zone {
+    background: #fff5f5;
+    border: 1px solid #ffe6e0;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 20px;
+  }
+  .danger-zone-title {
+    color: #B33F2E;
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+  .danger-zone-desc {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  #confirm-suppression {
+    display: none;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+  }
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+  .empty-state-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .status-active {
+    background: #E7F2E9;
+    color: #0E6E46;
+  }
+  .status-inactive {
+    background: #f5f5f5;
+    color: #999;
+  }
 </style>
 </head>
 <body>
@@ -1413,9 +1621,238 @@
         <label style="font-weight: 700;">Votre numéro de téléphone :</label>
         <input type="tel" id="depot-numero-patron" placeholder="+243 975 123 456" style="margin-bottom: 16px;">
 
+        <!-- CRITÈRES DÉTAILLÉS DU PATRON -->
         <div id="depot-criteria-patron" class="depot-documents-section">
-          <h4>✅ Critères demandés :</h4>
-          <div id="depot-criteria-list-patron"></div>
+          <h4>💰 Offre d'emploi :</h4>
+          
+          <!-- SALAIRE PROPOSÉ -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-salaire-toggle" onchange="window.togglePatronCriteria(this, 'salaire')">
+              <span style="font-weight: 600;">💰 Salaire proposé</span>
+            </label>
+            <div id="salaire-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="number" id="patron-salaire-montant" placeholder="Montant" style="margin-bottom: 8px;">
+              <select id="patron-salaire-devise" style="margin-bottom: 8px;">
+                <option value="">Devise</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="CDF">CDF</option>
+                <option value="UGX">UGX</option>
+              </select>
+              <select id="patron-salaire-periode" style="margin-bottom: 8px;">
+                <option value="">Période</option>
+                <option value="Heure">Heure</option>
+                <option value="Jour">Jour</option>
+                <option value="Semaine">Semaine</option>
+                <option value="Mois">Mois</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- LIEU DE TRAVAIL -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-lieu-toggle" onchange="window.togglePatronCriteria(this, 'lieu')">
+              <span style="font-weight: 600;">📍 Lieu de travail</span>
+            </label>
+            <div id="lieu-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="text" id="patron-lieu-ville" placeholder="Ville" style="margin-bottom: 8px;">
+              <input type="text" id="patron-lieu-adresse" placeholder="Adresse" style="margin-bottom: 8px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="radio" name="patron-travail-type" value="Sur place"> Sur place
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="radio" name="patron-travail-type" value="À distance"> À distance
+                </label>
+              </div>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                <input type="radio" name="patron-travail-type" value="Hybride"> Hybride
+              </label>
+            </div>
+          </div>
+
+          <!-- HORAIRES DE TRAVAIL -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-horaires-toggle" onchange="window.togglePatronCriteria(this, 'horaires')">
+              <span style="font-weight: 600;">🕐 Horaires de travail</span>
+            </label>
+            <div id="horaires-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="text" id="patron-horaires-jours" placeholder="Jours de travail (ex: Lun-Ven)" style="margin-bottom: 8px;">
+              <input type="time" id="patron-horaires-debut" style="margin-bottom: 8px;">
+              <input type="time" id="patron-horaires-fin" style="margin-bottom: 8px;">
+            </div>
+          </div>
+
+          <!-- TYPE DE CONTRAT -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-contrat-toggle" onchange="window.togglePatronCriteria(this, 'contrat')">
+              <span style="font-weight: 600;">📄 Type de contrat</span>
+            </label>
+            <div id="contrat-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="CDI"> CDI
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="CDD"> CDD
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Temporaire"> Temporaire
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Stage"> Stage
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Temps plein"> Temps plein
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Temps partiel"> Temps partiel
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Indépendant"> Indépendant
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- NIVEAU D'ÉTUDE DEMANDÉ -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-etude-toggle" onchange="window.togglePatronCriteria(this, 'etude')">
+              <span style="font-weight: 600;">🎓 Niveau d'étude demandé</span>
+            </label>
+            <div id="etude-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <select id="patron-etude-niveau" style="width: 100%;">
+                <option value="">-- Choisir --</option>
+                <option value="Aucun diplôme">Aucun diplôme exigé</option>
+                <option value="Primaire">Primaire</option>
+                <option value="Secondaire">Secondaire</option>
+                <option value="Certificat">Certificat</option>
+                <option value="Diplôme">Diplôme</option>
+                <option value="Licence">Licence</option>
+                <option value="Master">Master</option>
+                <option value="Doctorat">Doctorat</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- EXPÉRIENCE DEMANDÉE -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-exp-toggle" onchange="window.togglePatronCriteria(this, 'exp')">
+              <span style="font-weight: 600;">💼 Expérience demandée</span>
+            </label>
+            <div id="exp-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="number" id="patron-exp-annees" placeholder="Nombre minimum d'années" style="width: 100%;">
+            </div>
+          </div>
+
+          <!-- COMPÉTENCES OBLIGATOIRES -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-competences-toggle" onchange="window.togglePatronCriteria(this, 'competences')">
+              <span style="font-weight: 600;">🛠️ Compétences obligatoires</span>
+            </label>
+            <div id="competences-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <textarea id="patron-competences-list" placeholder="Lister les compétences (séparées par des virgules)" style="width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+            </div>
+          </div>
+
+          <!-- LANGUES DEMANDÉES -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-langues-toggle" onchange="window.togglePatronCriteria(this, 'langues')">
+              <span style="font-weight: 600;">🌍 Langues demandées</span>
+            </label>
+            <div id="langues-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-langue" value="Français"> Français
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-langue" value="Anglais"> Anglais
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-langue" value="Kiswahili"> Kiswahili
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-langue" value="Lingála"> Lingála
+                </label>
+              </div>
+              <select id="patron-langues-niveau">
+                <option value="">Niveau</option>
+                <option value="Débutant">Débutant</option>
+                <option value="Moyen">Moyen</option>
+                <option value="Avancé">Avancé</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- RESPONSABILITÉS DU TRAVAIL -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-responsabilites-toggle" onchange="window.togglePatronCriteria(this, 'responsabilites')">
+              <span style="font-weight: 600;">📋 Responsabilités du travail</span>
+            </label>
+            <div id="responsabilites-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <textarea id="patron-responsabilites-desc" placeholder="Description des tâches" style="width: 100%; min-height: 80px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+            </div>
+          </div>
+
+          <!-- DOCUMENTS À FOURNIR PAR LE TRAVAILLEUR -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-docs-toggle" onchange="window.togglePatronCriteria(this, 'docs')">
+              <span style="font-weight: 600;">📄 Documents à fournir par le travailleur</span>
+            </label>
+            <div id="docs-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="CV"> CV
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Diplôme ou certificat"> Diplôme ou certificat
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Pièce d'identité"> Pièce d'identité
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Photo d'identité"> Photo d'identité
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Portfolio"> Portfolio
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Certificat d'expérience"> Certificat d'expérience
+              </label>
+            </div>
+          </div>
+
+          <!-- ÂGE DU TRAVAILLEUR -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-age-toggle" onchange="window.togglePatronCriteria(this, 'age')">
+              <span style="font-weight: 600;">👤 Âge du travailleur</span>
+            </label>
+            <div id="age-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="number" id="patron-age-min" placeholder="Âge minimum" style="margin-bottom: 8px;">
+              <input type="number" id="patron-age-max" placeholder="Âge maximum" style="margin-bottom: 8px;">
+            </div>
+          </div>
+
+          <!-- AUTRES CONDITIONS -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-autres-toggle" onchange="window.togglePatronCriteria(this, 'autres')">
+              <span style="font-weight: 600;">📝 Autres conditions</span>
+            </label>
+            <div id="autres-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <textarea id="patron-autres-conditions" placeholder="Conditions supplémentaires" style="width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+            </div>
+          </div>
         </div>
 
         <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossier('patron')">💬 Publier l'offre via WhatsApp</button>
@@ -1490,13 +1927,123 @@
 <!-- ============ ECRAN MON COMPTE ============ -->
 <div class="screen" id="screen-compte">
   <div class="card">
-    <h2 data-i18n="h2_retrouver_annonce">Retrouver mon annonce</h2>
-    <label data-i18n="lbl_telephone_inscription">Numéro de téléphone utilisé à l'inscription</label>
-    <input type="tel" id="c-tel" placeholder="+243 ...">
-    <button class="submit-btn" onclick="retrouverCompte()" data-i18n="btn_retrouver_annonce">🔎 Retrouver mon annonce</button>
-    <div class="msg" id="c-msg"></div>
+    <h2 data-i18n="h2_retrouver_annonce">📋 Mon Compte</h2>
+    <p style="font-size: 0.9rem; color: #666; margin-bottom: 16px;">
+      Retrouvez votre compte en entrant votre numéro de téléphone.
+    </p>
+
+    <div id="moncompte-search">
+      <label data-i18n="lbl_telephone_inscription">Numéro de téléphone</label>
+      <input type="tel" id="c-tel" placeholder="+243 ...">
+      <button class="submit-btn" onclick="rechercherCompteMonCompte()" data-i18n="btn_retrouver_annonce">🔍 Rechercher mon compte</button>
+      <div class="msg" id="c-msg"></div>
+    </div>
+
+    <div id="moncompte-found" style="display: none;">
+      <!-- Affichée après recherche réussie -->
+      <div class="moncompte-profile-display" id="moncompte-profile-display"></div>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+        <button class="submit-btn" style="margin-top: 0; flex: 1;" onclick="afficherEditionDossierMonCompte()">✏️ Éditer</button>
+        <button style="flex: 1; margin-top: 0; padding: 14px; background: white; border: 2px solid #0E6E46; color: #0E6E46; border-radius: 10px; font-weight: 700; font-size: 1rem;" onclick="retourMonCompteSearch()">← Retour</button>
+      </div>
+
+      <div id="moncompte-dossiers" style="margin-top: 16px;"></div>
+    </div>
   </div>
-  <div id="c-results"></div>
+</div>
+
+<!-- MODALE ÉDITION DOSSIER -->
+<div class="moncompte-modal" id="modal-edition">
+  <div class="moncompte-modal-content">
+    <button class="moncompte-modal-close" onclick="fermerEditionMonCompte()">✕</button>
+    <div class="moncompte-modal-header">✏️ Éditer mon dossier</div>
+
+    <div class="edit-tabs">
+      <button class="edit-tab-btn active" onclick="switchEditTabMonCompte('infos')">Infos</button>
+      <button class="edit-tab-btn" onclick="switchEditTabMonCompte('statut')">Statut</button>
+    </div>
+
+    <div id="edit-infos-tab" class="edit-tab-content active">
+      <label>Domaine / Métier</label>
+      <input type="text" id="edit-metier" placeholder="Ex: Développeur web">
+
+      <label>Pays</label>
+      <input type="text" id="edit-pays" placeholder="Ex: RDC">
+
+      <label>Téléphone</label>
+      <input type="tel" id="edit-numero" placeholder="+243 9XX XXX XXX">
+
+      <button class="submit-btn" onclick="sauvegarderEditionMonCompte()">💾 Sauvegarder</button>
+      <div class="msg" id="edit-msg"></div>
+    </div>
+
+    <div id="edit-statut-tab" class="edit-tab-content">
+      <label>Statut du compte</label>
+      <select id="edit-statut" style="margin-bottom: 12px;">
+        <option value="actif">✅ Actif</option>
+        <option value="inactif">❌ Inactif (masqué)</option>
+      </select>
+
+      <p style="font-size: 0.85rem; color: #666; margin-bottom: 16px;">
+        <strong>Inactif:</strong> Votre compte est masqué mais vos données sont conservées.<br>
+        <strong>Actif:</strong> Votre compte et vos annonces sont visibles.
+      </p>
+
+      <button class="submit-btn" onclick="changerStatutMonCompte()">✔️ Changer le statut</button>
+
+      <div class="danger-zone">
+        <div class="danger-zone-title">⚠️ Zone critique</div>
+        <div class="danger-zone-desc">
+          Supprimer votre compte entraîne la suppression définitive de tous vos dossiers et offres. Cette action est irréversible.
+        </div>
+        <button class="submit-btn" style="background: #B33F2E; margin: 8px 0 0;" onclick="demanderConfirmationSuppressionMonCompte()">
+          🗑️ Supprimer mon compte
+        </button>
+      </div>
+
+      <div id="confirm-suppression" style="margin-top: 16px; padding: 12px; background: #ffe6e0; border-radius: 8px; border: 1px solid #B33F2E;">
+        <p style="font-size: 0.9rem; color: #B33F2E; font-weight: 600; margin-bottom: 12px;">
+          ⚠️ Êtes-vous sûr ? Tous les dossiers seront supprimés.
+        </p>
+        <button class="submit-btn" style="background: #B33F2E; margin: 0; padding: 10px;" onclick="confirmerSuppressionMonCompte()">
+          Oui, supprimer
+        </button>
+        <button style="width: 100%; margin: 8px 0 0; padding: 10px; border: 2px solid #B33F2E; background: white; color: #B33F2E; border-radius: 10px; font-weight: 700; font-size: 1rem;" onclick="annulerSuppressionMonCompte()">
+          Non, retour
+        </button>
+      </div>
+      
+      <div class="msg" id="edit-msg-statut"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE SIGNALEMENT -->
+<div class="moncompte-modal" id="modal-signalement">
+  <div class="moncompte-modal-content">
+    <button class="moncompte-modal-close" onclick="fermerSignalementMonCompte()">✕</button>
+    <div class="moncompte-modal-header">⚠️ Signaler une annonce</div>
+
+    <label>Annonce signalée</label>
+    <input type="text" id="signalement-annonce" readonly style="background: #f5f5f5;">
+
+    <label>Raison du signalement</label>
+    <select id="signalement-raison">
+      <option value="">Sélectionner une raison...</option>
+      <option value="contenu_offensant">Contenu offensant</option>
+      <option value="arnaque">Possible arnaque</option>
+      <option value="donnees_privees">Données privées exposées</option>
+      <option value="spam">Spam / Dupliquée</option>
+      <option value="autre">Autre</option>
+    </select>
+
+    <label>Description (optionnel)</label>
+    <textarea id="signalement-desc" placeholder="Décrivez le problème..." style="min-height: 100px; margin-bottom: 12px;"></textarea>
+
+    <button class="submit-btn" onclick="soumettreSignalementMonCompte()">📤 Soumettre le signalement</button>
+    <div class="msg" id="signalement-msg"></div>
+  </div>
 </div>
 
 <!-- ============ ECRAN ADMIN (réservé au gérant de l'application) ============ -->
@@ -4788,9 +5335,146 @@
     return documents;
   }
 
+  // Toggle visibility of patron criteria fields
+  window.togglePatronCriteria = function(checkbox, fieldType) {
+    const fieldIds = {
+      salaire: 'salaire-fields',
+      lieu: 'lieu-fields',
+      horaires: 'horaires-fields',
+      contrat: 'contrat-fields',
+      etude: 'etude-fields',
+      exp: 'exp-fields',
+      competences: 'competences-fields',
+      langues: 'langues-fields',
+      responsabilites: 'responsabilites-fields',
+      docs: 'docs-fields',
+      age: 'age-fields',
+      autres: 'autres-fields'
+    };
+    
+    const fieldEl = document.getElementById(fieldIds[fieldType]);
+    if (fieldEl) {
+      fieldEl.style.display = checkbox.checked ? 'block' : 'none';
+    }
+  };
+
+  // Récupère les critères du patron complètement remplis
+  function collecterCriteresPatron() {
+    const criteres = {};
+    
+    // Salaire
+    if (document.getElementById('patron-salaire-toggle').checked) {
+      const montant = document.getElementById('patron-salaire-montant').value;
+      const devise = document.getElementById('patron-salaire-devise').value;
+      const periode = document.getElementById('patron-salaire-periode').value;
+      if (montant || devise || periode) {
+        criteres.salaire = { montant, devise, periode };
+      }
+    }
+    
+    // Lieu
+    if (document.getElementById('patron-lieu-toggle').checked) {
+      const ville = document.getElementById('patron-lieu-ville').value;
+      const adresse = document.getElementById('patron-lieu-adresse').value;
+      const type = document.querySelector('input[name="patron-travail-type"]:checked')?.value || '';
+      if (ville || adresse || type) {
+        criteres.lieu = { ville, adresse, type };
+      }
+    }
+    
+    // Horaires
+    if (document.getElementById('patron-horaires-toggle').checked) {
+      const jours = document.getElementById('patron-horaires-jours').value;
+      const debut = document.getElementById('patron-horaires-debut').value;
+      const fin = document.getElementById('patron-horaires-fin').value;
+      if (jours || debut || fin) {
+        criteres.horaires = { jours, debut, fin };
+      }
+    }
+    
+    // Contrat
+    if (document.getElementById('patron-contrat-toggle').checked) {
+      const types = Array.from(document.querySelectorAll('.patron-contrat-type:checked')).map(el => el.value);
+      if (types.length > 0) {
+        criteres.contrat = types;
+      }
+    }
+    
+    // Niveau d'étude
+    if (document.getElementById('patron-etude-toggle').checked) {
+      const niveau = document.getElementById('patron-etude-niveau').value;
+      if (niveau) {
+        criteres.etude = niveau;
+      }
+    }
+    
+    // Expérience
+    if (document.getElementById('patron-exp-toggle').checked) {
+      const annees = document.getElementById('patron-exp-annees').value;
+      if (annees) {
+        criteres.experience = annees;
+      }
+    }
+    
+    // Compétences
+    if (document.getElementById('patron-competences-toggle').checked) {
+      const competences = document.getElementById('patron-competences-list').value;
+      if (competences) {
+        criteres.competences = competences;
+      }
+    }
+    
+    // Langues
+    if (document.getElementById('patron-langues-toggle').checked) {
+      const langues = Array.from(document.querySelectorAll('.patron-langue:checked')).map(el => el.value);
+      const niveau = document.getElementById('patron-langues-niveau').value;
+      if (langues.length > 0 || niveau) {
+        criteres.langues = { langues, niveau };
+      }
+    }
+    
+    // Responsabilités
+    if (document.getElementById('patron-responsabilites-toggle').checked) {
+      const desc = document.getElementById('patron-responsabilites-desc').value;
+      if (desc) {
+        criteres.responsabilites = desc;
+      }
+    }
+    
+    // Documents
+    if (document.getElementById('patron-docs-toggle').checked) {
+      const docs = Array.from(document.querySelectorAll('.patron-doc:checked')).map(el => el.value);
+      if (docs.length > 0) {
+        criteres.documents = docs;
+      }
+    }
+    
+    // Âge
+    if (document.getElementById('patron-age-toggle').checked) {
+      const min = document.getElementById('patron-age-min').value;
+      const max = document.getElementById('patron-age-max').value;
+      if (min || max) {
+        criteres.age = { min, max };
+      }
+    }
+    
+    // Autres conditions
+    if (document.getElementById('patron-autres-toggle').checked) {
+      const conditions = document.getElementById('patron-autres-conditions').value;
+      if (conditions) {
+        criteres.autres = conditions;
+      }
+    }
+    
+    return criteres;
+  }
+
   // Récupère, pour le PATRON, les critères effectivement cochés, pour les inclure dans le message WhatsApp.
   function collecterCriteresCoches(role) {
-    if (role !== 'patron') return [];
+    if (role === 'patron') {
+      return collecterCriteresPatron();
+    }
+    
     const container = document.getElementById('depot-criteria-list-patron');
     if (!container) return [];
     const criteres = [];
@@ -4966,9 +5650,59 @@
       const ligneDocuments = documents.length
         ? `\n\n📎 *Documents :*\n` + documents.map(d => `- ${d.label} : ${d.url}`).join('\n')
         : '';
-      const ligneCriteres = criteres.length
-        ? `\n\n✅ *Critères exigés :*\n` + criteres.map(c => `- ${c}`).join('\n')
-        : '';
+      
+      let ligneCriteres = '';
+      if (role === 'patron' && typeof criteres === 'object' && !Array.isArray(criteres)) {
+        // Format structured patron criteria
+        const crLines = [];
+        if (criteres.salaire) {
+          crLines.push(`💰 *Salaire:* ${criteres.salaire.montant || '?'} ${criteres.salaire.devise || ''} / ${criteres.salaire.periode || ''}`);
+        }
+        if (criteres.lieu) {
+          const lieuStr = [criteres.lieu.ville, criteres.lieu.adresse, criteres.lieu.type].filter(Boolean).join(', ');
+          crLines.push(`📍 *Lieu:* ${lieuStr}`);
+        }
+        if (criteres.horaires) {
+          const horairesStr = [criteres.horaires.jours, criteres.horaires.debut, criteres.horaires.fin].filter(Boolean).join(', ');
+          crLines.push(`🕐 *Horaires:* ${horairesStr}`);
+        }
+        if (criteres.contrat && criteres.contrat.length > 0) {
+          crLines.push(`📄 *Contrat:* ${criteres.contrat.join(', ')}`);
+        }
+        if (criteres.etude) {
+          crLines.push(`🎓 *Niveau d'étude:* ${criteres.etude}`);
+        }
+        if (criteres.experience) {
+          crLines.push(`💼 *Expérience:* ${criteres.experience} ans`);
+        }
+        if (criteres.competences) {
+          crLines.push(`🛠️ *Compétences:* ${criteres.competences}`);
+        }
+        if (criteres.langues) {
+          const langStr = (criteres.langues.langues || []).join(', ') + (criteres.langues.niveau ? ` (${criteres.langues.niveau})` : '');
+          if (langStr.trim()) crLines.push(`🌍 *Langues:* ${langStr}`);
+        }
+        if (criteres.responsabilites) {
+          crLines.push(`📋 *Responsabilités:* ${criteres.responsabilites}`);
+        }
+        if (criteres.documents && criteres.documents.length > 0) {
+          crLines.push(`📄 *Documents demandés:* ${criteres.documents.join(', ')}`);
+        }
+        if (criteres.age) {
+          const ageStr = [criteres.age.min, criteres.age.max].filter(Boolean).join('-');
+          if (ageStr) crLines.push(`👤 *Âge:* ${ageStr} ans`);
+        }
+        if (criteres.autres) {
+          crLines.push(`📝 *Autres:* ${criteres.autres}`);
+        }
+        ligneCriteres = crLines.length
+          ? `\n\n✅ *Critères exigés :*\n` + crLines.map(c => `${c}`).join('\n')
+          : '';
+      } else if (Array.isArray(criteres) && criteres.length > 0) {
+        // Legacy format for backward compatibility
+        ligneCriteres = `\n\n✅ *Critères exigés :*\n` + criteres.map(c => `- ${c}`).join('\n');
+      }
+      
       const message = `🎯 *Nouveau ${typeDossier} - JOB CONNECT*\n\n📋 *Domaine:* ${categorie}${ligneMetier}\n🌍 *Pays:* ${pays}\n📞 *Contact:* ${numero}${ligneDocuments}${ligneCriteres}`;
 
       // 2) Chercher, dans l'annuaire, tous les numéros du rôle opposé déjà enregistrés pour ce domaine
@@ -5028,6 +5762,272 @@
       initierDepot();
     }
   });
+
+  // ========== MON COMPTE FUNCTIONS ==========
+  let currentAccountMonCompte = null;
+
+  window.rechercherCompteMonCompte = async function() {
+    const phone = document.getElementById('c-tel').value.trim();
+    const msgDiv = document.getElementById('c-msg');
+    const foundDiv = document.getElementById('moncompte-found');
+
+    if (!phone) {
+      showMsgMonCompte(msgDiv, '❌ Veuillez entrer un numéro', 'error');
+      return;
+    }
+
+    showMsgMonCompte(msgDiv, '🔍 Recherche...', null);
+
+    try {
+      const q = query(
+        collection(db, 'depot_annonces'),
+        where('telephone', '==', phone)
+      );
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        showMsgMonCompte(msgDiv, '❌ Aucun compte trouvé avec ce numéro', 'error');
+        foundDiv.style.display = 'none';
+        return;
+      }
+
+      // Récupérer tous les dossiers
+      const dossiers = [];
+      snap.forEach(docSnap => {
+        dossiers.push({ id: docSnap.id, ...docSnap.data() });
+      });
+
+      currentAccountMonCompte = {
+        phone: phone,
+        dossiers: dossiers
+      };
+
+      afficherProfilMonCompte(dossiers);
+      foundDiv.style.display = 'block';
+      msgDiv.innerHTML = '';
+    } catch (e) {
+      showMsgMonCompte(msgDiv, '❌ Erreur: ' + (e.message || 'inconnue'), 'error');
+    }
+  };
+
+  function afficherProfilMonCompte(dossiers) {
+    const profile = dossiers[0]; // Premier dossier comme ref
+    const html = `
+      <div class="moncompte-profile-row">
+        <span class="moncompte-profile-label">📞 Téléphone</span>
+        <span class="moncompte-profile-value">${profile.telephone}</span>
+      </div>
+      <div class="moncompte-profile-row">
+        <span class="moncompte-profile-label">👤 Type</span>
+        <span class="moncompte-profile-value">${profile.role === 'travailleur' ? '👷 Travailleur' : '🏢 Patron'}</span>
+      </div>
+      <div class="moncompte-profile-row">
+        <span class="moncompte-profile-label">📂 Dossiers</span>
+        <span class="moncompte-profile-value">${dossiers.length}</span>
+      </div>
+      <div class="moncompte-profile-row">
+        <span class="moncompte-profile-label">Statut</span>
+        <span class="moncompte-profile-value">
+          <span class="status-badge ${profile.statut === 'actif' ? 'status-active' : 'status-inactive'}">
+            ${profile.statut === 'actif' ? '✅ Actif' : '❌ Inactif'}
+          </span>
+        </span>
+      </div>
+    `;
+    document.getElementById('moncompte-profile-display').innerHTML = html;
+
+    afficherDossiersMonCompte(dossiers);
+  }
+
+  function afficherDossiersMonCompte(dossiers) {
+    const container = document.getElementById('moncompte-dossiers');
+    
+    if (dossiers.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-text">Aucun dossier trouvé.</div></div>';
+      return;
+    }
+
+    const html = dossiers.map((d, idx) => `
+      <div class="dossier-item">
+        <div class="dossier-item-header">
+          <div class="dossier-item-title">${d.role === 'travailleur' ? '👷' : '🏢'} ${d.categorie}</div>
+          <div class="dossier-item-status">${d.statut === 'actif' ? '✅ Actif' : '❌ Inactif'}</div>
+        </div>
+        <div class="dossier-item-details">
+          <div><strong>Métier:</strong> ${d.metier || 'Non spécifié'}</div>
+          <div><strong>Pays:</strong> ${d.pays}</div>
+          <div><strong>Téléphone:</strong> ${d.telephone}</div>
+        </div>
+        <div class="dossier-action-buttons">
+          <button class="dossier-btn-small" onclick="window.preparerSignalementMonCompte('${d.id}', '${d.categorie}')">⚠️ Signaler</button>
+          <button class="dossier-btn-small danger" onclick="window.supprimerDossierSeulMonCompte('${d.id}')">🗑️ Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+
+    container.innerHTML = html;
+  }
+
+  window.preparerSignalementMonCompte = function(dossierId, categorie) {
+    document.getElementById('signalement-annonce').value = categorie;
+    window.signalementDossierIdMonCompte = dossierId;
+    document.getElementById('modal-signalement').classList.add('open');
+  };
+
+  window.fermerSignalementMonCompte = function() {
+    document.getElementById('modal-signalement').classList.remove('open');
+    document.getElementById('signalement-raison').value = '';
+    document.getElementById('signalement-desc').value = '';
+  };
+
+  window.soumettreSignalementMonCompte = async function() {
+    const raison = document.getElementById('signalement-raison').value;
+    const desc = document.getElementById('signalement-desc').value;
+    const msgDiv = document.getElementById('signalement-msg');
+
+    if (!raison) {
+      showMsgMonCompte(msgDiv, '❌ Veuillez sélectionner une raison', 'error');
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, 'signalements'), {
+        dossierId: window.signalementDossierIdMonCompte,
+        raison: raison,
+        description: desc,
+        telephoneAuteur: currentAccountMonCompte.phone,
+        dateSignalement: serverTimestamp()
+      });
+      showMsgMonCompte(msgDiv, '✅ Signalement envoyé', 'success');
+      setTimeout(() => window.fermerSignalementMonCompte(), 2000);
+    } catch (e) {
+      showMsgMonCompte(msgDiv, '❌ Erreur: ' + e.message, 'error');
+    }
+  };
+
+  window.afficherEditionDossierMonCompte = function() {
+    if (!currentAccountMonCompte || currentAccountMonCompte.dossiers.length === 0) return;
+    
+    const d = currentAccountMonCompte.dossiers[0];
+    document.getElementById('edit-metier').value = d.metier || '';
+    document.getElementById('edit-pays').value = d.pays || '';
+    document.getElementById('edit-numero').value = d.telephone || '';
+    document.getElementById('edit-statut').value = d.statut || 'actif';
+    document.getElementById('modal-edition').classList.add('open');
+  };
+
+  window.switchEditTabMonCompte = function(tabName) {
+    document.querySelectorAll('.edit-tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.edit-tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(`edit-${tabName}-tab`).classList.add('active');
+    event.target.classList.add('active');
+  };
+
+  window.sauvegarderEditionMonCompte = async function() {
+    const metier = document.getElementById('edit-metier').value.trim();
+    const pays = document.getElementById('edit-pays').value.trim();
+    const numero = document.getElementById('edit-numero').value.trim();
+    const msgDiv = document.getElementById('edit-msg');
+
+    if (!pays || !numero) {
+      showMsgMonCompte(msgDiv, '❌ Pays et téléphone obligatoires', 'error');
+      return;
+    }
+
+    try {
+      for (const d of currentAccountMonCompte.dossiers) {
+        await updateDoc(doc(db, 'depot_annonces', d.id), {
+          metier: metier || null,
+          pays: pays,
+          telephone: numero
+        });
+      }
+      showMsgMonCompte(msgDiv, '✅ Dossier mis à jour', 'success');
+      setTimeout(() => {
+        window.fermerEditionMonCompte();
+        window.retourMonCompteSearch();
+      }, 1500);
+    } catch (e) {
+      showMsgMonCompte(msgDiv, '❌ Erreur: ' + e.message, 'error');
+    }
+  };
+
+  window.changerStatutMonCompte = async function() {
+    const statut = document.getElementById('edit-statut').value;
+    const msgDiv = document.getElementById('edit-msg-statut');
+
+    try {
+      for (const d of currentAccountMonCompte.dossiers) {
+        await updateDoc(doc(db, 'depot_annonces', d.id), { statut: statut });
+      }
+      showMsgMonCompte(msgDiv, `✅ Statut changé en ${statut === 'actif' ? 'Actif' : 'Inactif'}`, 'success');
+      setTimeout(() => window.fermerEditionMonCompte(), 1500);
+    } catch (e) {
+      showMsgMonCompte(msgDiv, '❌ Erreur: ' + e.message, 'error');
+    }
+  };
+
+  window.demanderConfirmationSuppressionMonCompte = function() {
+    document.getElementById('confirm-suppression').style.display = 'block';
+  };
+
+  window.annulerSuppressionMonCompte = function() {
+    document.getElementById('confirm-suppression').style.display = 'none';
+  };
+
+  window.confirmerSuppressionMonCompte = async function() {
+    const msgDiv = document.getElementById('edit-msg-statut');
+    try {
+      for (const d of currentAccountMonCompte.dossiers) {
+        await deleteDoc(doc(db, 'depot_annonces', d.id));
+      }
+      showMsgMonCompte(msgDiv, '✅ Compte supprimé', 'success');
+      setTimeout(() => {
+        window.fermerEditionMonCompte();
+        window.retourMonCompteSearch();
+        currentAccountMonCompte = null;
+      }, 1500);
+    } catch (e) {
+      showMsgMonCompte(msgDiv, '❌ Erreur: ' + e.message, 'error');
+    }
+  };
+
+  window.supprimerDossierSeulMonCompte = async function(dossierId) {
+    if (!confirm('⚠️ Supprimer ce dossier ?')) return;
+    try {
+      await deleteDoc(doc(db, 'depot_annonces', dossierId));
+      currentAccountMonCompte.dossiers = currentAccountMonCompte.dossiers.filter(d => d.id !== dossierId);
+      afficherDossiersMonCompte(currentAccountMonCompte.dossiers);
+      const msgDiv = document.getElementById('c-msg');
+      showMsgMonCompte(msgDiv, '✅ Dossier supprimé', 'success');
+    } catch (e) {
+      const msgDiv = document.getElementById('c-msg');
+      showMsgMonCompte(msgDiv, '❌ Erreur: ' + e.message, 'error');
+    }
+  };
+
+  window.fermerEditionMonCompte = function() {
+    document.getElementById('modal-edition').classList.remove('open');
+    document.getElementById('confirm-suppression').style.display = 'none';
+    document.getElementById('edit-msg').innerHTML = '';
+    document.getElementById('edit-msg-statut').innerHTML = '';
+  };
+
+  window.retourMonCompteSearch = function() {
+    document.getElementById('moncompte-found').style.display = 'none';
+    document.getElementById('c-tel').value = currentAccountMonCompte ? currentAccountMonCompte.phone : '';
+    currentAccountMonCompte = null;
+  };
+
+  function showMsgMonCompte(msgDiv, msg, status) {
+    if (status === null) {
+      msgDiv.innerHTML = '';
+      return;
+    }
+    const className = status === 'success' ? 'msg success' : 'msg error';
+    msgDiv.innerHTML = `<div class="${className}">${msg}</div>`;
+  }
 </script>
 
 </body>
