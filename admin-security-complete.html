@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOB CONNECT - Admin Security Setup</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+  .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+  h1 { color: #0E6E46; }
+  .section { margin: 30px 0; padding: 20px; background: #f9f9f9; border-left: 4px solid #0E6E46; }
+  .code-block { 
+    background: #1e1e1e; 
+    color: #d4d4d4; 
+    padding: 15px; 
+    border-radius: 5px; 
+    overflow-x: auto; 
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 10px 0;
+  }
+  .code-block code { white-space: pre; }
+  .highlight { background: #fff3cd; padding: 2px 6px; border-radius: 3px; }
+  .success { color: #28a745; font-weight: bold; }
+  .warning { color: #dc3545; font-weight: bold; }
+  button { padding: 10px 20px; background: #0E6E46; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  button:hover { background: #073C28; }
+  .step { margin: 15px 0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+<h1>🔐 JOB CONNECT - Configuration Admin & Modérateur Complète</h1>
+
+<div class="section">
+<h2>📋 RÉSUMÉ</h2>
+<p>Cette guide te montre comment :</p>
+<ul>
+  <li>✅ Récupérer correctement l'UID de l'utilisateur connecté</li>
+  <li>✅ Créer un document admin/modérateur dans Firestore</li>
+  <li>✅ Sécuriser les accès avec les règles Firestore</li>
+  <li>✅ Vérifier si un utilisateur est admin avant d'afficher le panel</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>1️⃣ CODE À AJOUTER DANS TON index.html</h2>
+
+<h3>A) Fonction pour récupérer l'UID actuel</h3>
+<p>Ajoute ceci dans ta section <code>&lt;script&gt;</code> (après l'initialisation Firebase) :</p>
+
+<div class="code-block"><code>// ========== UID & ADMIN FUNCTIONS ==========
+let currentUserUID = null;
+let isCurrentUserAdmin = false;
+
+// Récupérer l'UID de l'utilisateur connecté
+function getCurrentUID() {
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserUID = user.uid;
+        console.log('✅ UID récupéré:', currentUserUID);
+        resolve(currentUserUID);
+      } else {
+        currentUserUID = null;
+        resolve(null);
+      }
+      unsubscribe();
+    });
+  });
+}
+
+// Vérifier si l'utilisateur est admin
+async function checkIfUserIsAdmin() {
+  if (!currentUserUID) {
+    console.log('❌ Pas d\'utilisateur connecté');
+    isCurrentUserAdmin = false;
+    return false;
+  }
+
+  try {
+    const adminDocRef = doc(db, 'admins', currentUserUID);
+    const adminDocSnap = await getDoc(adminDocRef);
+    
+    if (adminDocSnap.exists()) {
+      console.log('✅ Utilisateur est admin');
+      isCurrentUserAdmin = true;
+      return true;
+    } else {
+      console.log('❌ Utilisateur n\'est pas admin');
+      isCurrentUserAdmin = false;
+      return false;
+    }
+  } catch (e) {
+    console.error('❌ Erreur lors de la vérification admin:', e);
+    isCurrentUserAdmin = false;
+    return false;
+  }
+}
+
+// Créer un document admin (FONCTION POUR GABRIEL AU DÉMARRAGE)
+async function createAdminDocument(uid, email, nom) {
+  try {
+    const adminRef = doc(db, 'admins', uid);
+    
+    // Vérifier si le document existe déjà
+    const existingDoc = await getDoc(adminRef);
+    if (existingDoc.exists()) {
+      console.log('⚠️ Ce compte est déjà admin');
+      return false;
+    }
+
+    // Créer le document admin
+    await setDoc(adminRef, {
+      uid: uid,
+      email: email,
+      nom: nom,
+      role: 'modérateur', // ou 'admin'
+      dateCreation: serverTimestamp(),
+      permissions: {
+        canViewReports: true,
+        canViewAllAccounts: true,
+        canBanAccounts: true,
+        canManageAdmins: false // Seul l'admin peut changer ça
+      }
+    });
+
+    console.log('✅ Document admin créé pour:', uid);
+    isCurrentUserAdmin = true;
+    return true;
+  } catch (e) {
+    console.error('❌ Erreur création admin:', e);
+    return false;
+  }
+}
+
+// Appeler au démarrage pour initialiser
+async function initializeAdminSystem() {
+  const uid = await getCurrentUID();
+  if (uid) {
+    await checkIfUserIsAdmin();
+    // Afficher/cacher le panel admin selon le statut
+    const adminTab = document.querySelector('[data-tab="admin"]');
+    if (adminTab && isCurrentUserAdmin) {
+      adminTab.style.display = 'block';
+    }
+  }
+}</code></div>
+
+<h3>B) Ajouter l'appel au démarrage</h3>
+<p>Ajoute ceci à la fin de ta section <code>&lt;script&gt;</code> (après l'initialisation Firebase) :</p>
+
+<div class="code-block"><code>// Au démarrage, initialiser le système admin
+document.addEventListener('DOMContentLoaded', async () => {
+  await initializeAdminSystem();
+});</code></div>
+
+<h3>C) Ajouter un bouton pour créer un admin (TEST)</h3>
+<p>Ajoute ceci dans ton interface pour tester (à utiliser UNE FOIS) :</p>
+
+<div class="code-block"><code>// Dans ta section développement/test, ajoute un formulaire :
+&lt;div id="admin-setup" style="padding: 20px; background: #fff3cd; margin: 20px 0; border-radius: 10px; display: none;"&gt;
+  &lt;h3&gt;⚠️ Configuration Admin (DÉVELOPPEMENT SEULEMENT)&lt;/h3&gt;
+  &lt;p&gt;À utiliser UNE SEULE FOIS pour créer l'account admin principal&lt;/p&gt;
+  &lt;input type="text" id="admin-nom" placeholder="Nom complet" /&gt;
+  &lt;button onclick="window.createMyAdminAccount()"&gt;Créer Admin&lt;/button&gt;
+  &lt;div id="admin-setup-msg"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+// Et ajoute cette fonction :
+window.createMyAdminAccount = async function() {
+  const nom = document.getElementById('admin-nom').value;
+  const msgDiv = document.getElementById('admin-setup-msg');
+  
+  if (!nom) {
+    msgDiv.innerHTML = '❌ Entrez votre nom';
+    return;
+  }
+
+  if (!currentUserUID) {
+    msgDiv.innerHTML = '❌ Veuillez d\'abord vous connecter';
+    return;
+  }
+
+  const user = auth.currentUser;
+  const success = await createAdminDocument(currentUserUID, user.email, nom);
+  
+  if (success) {
+    msgDiv.innerHTML = '✅ Admin créé avec succès! Rechargez la page.';
+  } else {
+    msgDiv.innerHTML = '❌ Erreur lors de la création';
+  }
+};</code></div>
+
+</div>
+
+<div class="section">
+<h2>2️⃣ RÈGLES FIRESTORE (SÉCURITÉ ESSENTIELS)</h2>
+
+<p><span class="highlight">ACCÈS FIREBASE CONSOLE → RÈGLES FIRESTORE</span></p>
+
+<div class="code-block"><code>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===== COLLECTION ADMINS =====
+    match /admins/{uid} {
+      // Lecture: admin peut lire les infos de tous les admins, autres ne voient rien
+      allow read: if request.auth.uid == uid 
+                  || exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      
+      // Écriture: seul l'admin lui-même peut créer son doc (au démarrage)
+      //           seul Gabriel (uid hardcodé) peut modifier les permissions
+      allow create: if request.auth.uid == uid 
+                    && request.resource.data.uid == uid
+                    && request.resource.data.email == request.auth.token.email;
+      
+      allow update: if request.auth.uid == "GABRIEL_UID_ICI"
+                    || (request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(['nom'])); // Peut modifier juste son nom
+      
+      allow delete: if request.auth.uid == "GABRIEL_UID_ICI";
+    }
+
+    // ===== COLLECTION SIGNALEMENTS =====
+    match /signalements/{signalementId} {
+      // Lecture: admin peut voir tous, auteur peut voir le sien
+      allow read: if exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+                  || (request.query.filters.length == 1 
+                      && request.query.filters[0].field.name == 'telephoneAuteur'
+                      && request.query.filters[0].value == request.auth.token.phone_number);
+      
+      // Écriture: tout le monde peut créer un signalement
+      allow create: if request.resource.data.telephoneAuteur == request.auth.token.phone_number
+                    && request.resource.data.dossierId != null;
+      
+      // Admin peut mettre à jour le statut
+      allow update: if exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      
+      allow delete: if request.auth.uid == "GABRIEL_UID_ICI";
+    }
+
+    // ===== AUTRES COLLECTIONS =====
+    // Garder tes règles existantes pour depot_annonces, utilisateurs, etc.
+    
+  }
+}
+</code></div>
+
+<p><span class="warning">⚠️ IMPORTANT :</span> Remplace <code class="highlight">GABRIEL_UID_ICI</code> par ton UID réel (voir point 3)</p>
+
+</div>
+
+<div class="section">
+<h2>3️⃣ TROUVER TON UID GABRIEL</h2>
+
+<h3>Étape 1: Se connecter à JOB CONNECT</h3>
+<p>Connecte-toi avec ton compte (email/mot de passe ou Google)</p>
+
+<h3>Étape 2: Ouvrir la console Chrome</h3>
+<div class="step">
+  <strong>Sur Android:</strong>
+  <ul>
+    <li>Ouvre JOB CONNECT dans Chrome</li>
+    <li>Appuie sur Menu (3 points) → More tools → Inspect</li>
+    <li>Ça peut être difficile sur mobile...</li>
+  </ul>
+</div>
+
+<h3>Étape 3: Méthode PLUS FACILE (Firestore Console)</h3>
+<p>Plutôt que la console Chrome, utilise Firestore directement :</p>
+<ol>
+  <li>Va sur <strong>console.firebase.google.com</strong></li>
+  <li>Sélectionne ton projet (jobconnect-aade6 ou autre)</li>
+  <li>Clique sur <strong>Authentication</strong> (à gauche)</li>
+  <li>Tu verras tous tes utilisateurs avec leurs <span class="highlight">UID</span></li>
+  <li>Copie l'UID de ton compte</li>
+</ol>
+
+<p><span class="success">✅ Tu as ton UID!</span></p>
+
+</div>
+
+<div class="section">
+<h2>4️⃣ PROCÉDURE COMPLÈTE DE DÉPLOIEMENT</h2>
+
+<h3>Étape 1: Ajouter le code dans index.html</h3>
+<ul>
+  <li>Ouvre ton index.html dans Acode</li>
+  <li>Ajoute les 3 blocs de code ci-dessus (section 1)</li>
+  <li>Sauvegarde</li>
+</ul>
+
+<h3>Étape 2: Récupérer ton UID</h3>
+<ul>
+  <li>Va sur Firebase Console</li>
+  <li>Authentication → Cherche ton email</li>
+  <li>Copie l'UID</li>
+</ul>
+
+<h3>Étape 3: Mettre à jour les règles Firestore</h3>
+<ul>
+  <li>Firebase Console → Firestore → Règles</li>
+  <li>Remplace <code class="highlight">GABRIEL_UID_ICI</code> par ton UID</li>
+  <li>Publie</li>
+</ul>
+
+<h3>Étape 4: Créer le document admin</h3>
+<ul>
+  <li>Recharge JOB CONNECT</li>
+  <li>Clique sur le bouton "Créer Admin" (le formulaire devrait apparaître)</li>
+  <li>Ça crée une entrée dans la collection 'admins'</li>
+</ul>
+
+<h3>Étape 5: Push vers GitHub et Vercel</h3>
+<div class="code-block"><code>git add .
+git commit -m "feat: Add admin/moderator security system with proper UID handling"
+git push</code></div>
+
+<p>Vercel redéploiera automatiquement ✅</p>
+
+</div>
+
+<div class="section">
+<h2>5️⃣ STRUCTURE FIRESTORE RÉSULTANTE</h2>
+
+<div class="code-block"><code>jobconnect-site/
+├── admins/
+│   └── {uid_gabriel}
+│       ├── uid: "XYZ123..."
+│       ├── email: "gabriel@example.com"
+│       ├── nom: "Gabriel"
+│       ├── role: "modérateur"
+│       ├── dateCreation: timestamp
+│       └── permissions:
+│           ├── canViewReports: true
+│           ├── canViewAllAccounts: true
+│           ├── canBanAccounts: true
+│           └── canManageAdmins: false
+├── depot_annonces/
+│   └── ... (dossiers existants)
+├── signalements/
+│   └── ... (rapports)
+└── ... autres collections
+</code></div>
+
+</div>
+
+<div class="section">
+<h2>6️⃣ RÉSULTATS ATTENDUS</h2>
+
+<ul>
+  <li>✅ <code class="highlight">currentUserUID</code> contient l'UID au démarrage</li>
+  <li>✅ <code class="highlight">isCurrentUserAdmin</code> est <code>true</code> après création du doc admin</li>
+  <li>✅ Le panel admin n'apparaît QUE pour les admins</li>
+  <li>✅ Les signalements ne sont visibles que par les admins</li>
+  <li>✅ Firestore protège tout via les règles</li>
+</ul>
+
+</div>
+
+<div class="section">
+<h2>7️⃣ COMMANDES DE DÉBOGAGE</h2>
+
+<p>Ouvre la console Chrome/Android et teste :</p>
+
+<div class="code-block"><code>// Afficher l'UID actuel
+console.log('Mon UID:', currentUserUID);
+
+// Afficher l'état admin
+console.log('Suis-je admin?', isCurrentUserAdmin);
+
+// Récupérer à nouveau l'UID
+getCurrentUID().then(uid => console.log('UID:', uid));
+
+// Vérifier le statut admin
+checkIfUserIsAdmin().then(isAdmin => console.log('Admin:', isAdmin));</code></div>
+
+</div>
+
+<div class="section">
+<h2>⚠️ POINTS CRITIQUES</h2>
+
+<ul>
+  <li><span class="warning">NE PUBLIE PAS</span> ton UID réel dans le code côté client — utilise-le que dans les règles Firestore</li>
+  <li>La collection <code>admins</code> doit exister dans Firestore AVANT de tester</li>
+  <li>Les règles Firestore s'appliquent même en développement</li>
+  <li>Ne supprime jamais ton doc admin sans avoir une autre méthode pour te reconnecter</li>
+</ul>
+
+</div>
+
+</div>
+
+</body>
+</html>
