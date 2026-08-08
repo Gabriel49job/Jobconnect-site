@@ -6132,7 +6132,146 @@
     const className = status === 'success' ? 'msg success' : 'msg error';
     msgDiv.innerHTML = `<div class="${className}">${msg}</div>`;
   }
-</script>
+ // ========================================
+// 🔐 SYSTÈME ADMIN JOB CONNECT - GABRIEL
+// CODE PERSONNALISÉ AVEC UID INTÉGRÉ
+// À COPIER DANS index.html (après Firebase init)
+// ========================================
 
+// Variables globales pour l'admin
+let currentUserUID = null;
+let isCurrentUserAdmin = false;
+
+// ========== 1. RÉCUPÉRER L'UID ACTUEL ==========
+function getCurrentUID() {
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserUID = user.uid;
+        console.log('✅ UID récupéré:', currentUserUID);
+        console.log('📧 Email:', user.email);
+        resolve(currentUserUID);
+      } else {
+        currentUserUID = null;
+        console.log('❌ Aucun utilisateur connecté');
+        resolve(null);
+      }
+      unsubscribe();
+    });
+  });
+}
+
+// ========== 2. VÉRIFIER SI UTILISATEUR EST ADMIN ==========
+async function checkIfUserIsAdmin() {
+  if (!currentUserUID) {
+    console.log('❌ Pas d\'utilisateur connecté pour la vérification admin');
+    isCurrentUserAdmin = false;
+    return false;
+  }
+
+  try {
+    const adminDocRef = doc(db, 'admins', currentUserUID);
+    const adminDocSnap = await getDoc(adminDocRef);
+    
+    if (adminDocSnap.exists()) {
+      const adminData = adminDocSnap.data();
+      console.log('✅ Utilisateur est admin/modérateur:', adminData);
+      isCurrentUserAdmin = true;
+      return true;
+    } else {
+      console.log('ℹ️ Utilisateur n\'est pas encore admin');
+      isCurrentUserAdmin = false;
+      return false;
+    }
+  } catch (e) {
+    console.error('❌ Erreur lors de la vérification admin:', e);
+    isCurrentUserAdmin = false;
+    return false;
+  }
+}
+
+// ========== 3. CRÉER UN DOCUMENT ADMIN ==========
+async function createAdminDocument(uid, email, nom) {
+  try {
+    if (!uid || !email || !nom) {
+      throw new Error('UID, email et nom sont obligatoires');
+    }
+
+    const adminRef = doc(db, 'admins', uid);
+    
+    // Vérifier si le document existe déjà
+    const existingDoc = await getDoc(adminRef);
+    if (existingDoc.exists()) {
+      console.log('⚠️ Ce compte est déjà admin');
+      return { success: false, message: 'Déjà admin' };
+    }
+
+    // Créer le document admin
+    await setDoc(adminRef, {
+      uid: uid,
+      email: email,
+      nom: nom,
+      role: 'modérateur',
+      dateCreation: serverTimestamp(),
+      dateModification: serverTimestamp(),
+      statut: 'actif',
+      permissions: {
+        canViewReports: true,
+        canViewAllAccounts: true,
+        canBanAccounts: true,
+        canManageAdmins: false,
+        canViewSignalements: true
+      }
+    });
+
+    console.log('✅ Document admin créé pour:', uid);
+    isCurrentUserAdmin = true;
+    return { success: true, message: 'Admin créé avec succès' };
+  } catch (e) {
+    console.error('❌ Erreur création admin:', e);
+    return { success: false, message: e.message };
+  }
+}
+
+// ========== 4. INITIALISER AU DÉMARRAGE ==========
+async function initializeAdminSystem() {
+  console.log('🔄 Initialisation du système admin...');
+  
+  const uid = await getCurrentUID();
+  
+  if (uid) {
+    console.log('👤 UID détecté:', uid);
+    await checkIfUserIsAdmin();
+  }
+}
+
+// ========== 5. CRÉER UN ADMIN (FONCTION PUBLIQUE) ==========
+window.createMyAdminAccount = async function() {
+  const nom = document.getElementById('admin-nom')?.value || '';
+  const msgDiv = document.getElementById('admin-setup-msg');
+  
+  if (!msgDiv) {
+    console.error('❌ Éléments HTML non trouvés');
+    return;
+  }
+
+  if (!nom || nom.trim().length === 0) {
+    msgDiv.innerHTML = '<div class="msg error">❌ Entrez votre nom complet</div>';
+    return;
+  }
+
+  if (!currentUserUID) {
+    msgDiv.innerHTML = '<div class="msg error">❌ Veuillez d\'abord vous connecter</div>';
+    return;
+  }
+
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      msgDiv.innerHTML = '<div class="msg error">❌ Pas d\'utilisateur connecté</div>';
+      return;
+    }
+
+    msgDiv.innerHTML = '<div class="msg info">⏳ C</script>
 </body>
 </html>
