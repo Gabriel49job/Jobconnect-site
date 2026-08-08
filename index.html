@@ -71,6 +71,22 @@
     color: #6B7A72;
     border-bottom: 3px solid transparent;
   }
+  .tab-notif-badge {
+    display: none;
+    position: absolute;
+    top: 6px;
+    right: 18%;
+    background: #B33F2E;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    min-width: 17px;
+    height: 17px;
+    line-height: 17px;
+    border-radius: 9px;
+    padding: 0 4px;
+    box-shadow: 0 0 0 2px white;
+  }
   .tab-btn.active {
     color: #0E6E46;
     background: #E7F2E9;
@@ -79,6 +95,52 @@
 
   .screen { display: none; padding: 16px; max-width: 520px; margin: 0 auto; }
   .screen.active { display: block; }
+
+  .role-select {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .role-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    background: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #444;
+  }
+  .role-btn.selected {
+    border-color: #0E6E46;
+    background: #E7F2E9;
+    color: #073C28;
+  }
+
+  .depot-metier-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  .depot-metier-chip {
+    padding: 9px 14px;
+    border-radius: 20px;
+    border: 1.5px solid #ddd;
+    background: white;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #444;
+    line-height: 1.2;
+  }
+  .depot-metier-chip.selected {
+    border-color: #0E6E46;
+    background: #E7F2E9;
+    color: #073C28;
+  }
+  .depot-metier-chip:active { background: #f0f0f0; }
+  .depot-metier-chip.selected:active { background: #dcefe0; }
 
   .card {
     background: white;
@@ -115,32 +177,17 @@
   }
   input:focus, select:focus { outline: none; border-color: #0E6E46; background: white; }
 
-  .submit-btn {
+  .country-picker-btn {
     width: 100%;
-    margin-top: 20px;
-    padding: 14px;
-    background: #0E6E46;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-  }
-  .submit-btn:active { background: #073C28; }
-  .submit-btn:disabled { background: #9FC2AC; cursor: not-allowed; }
-
-  .msg {
-    margin-top: 14px;
-    padding: 12px;
+    text-align: left;
+    padding: 11px 12px;
     border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-align: center;
-    display: none;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    background: #fafafa;
+    color: #1a1a1a;
   }
-  .msg.success { background: #E7F2E9; color: #073C28; display: block; }
-  .msg.error { background: #F7E6E2; color: #B33F2E; display: block; }
+  .country-picker-btn:active { background: #eee; }
 
   .hamburger-btn {
     position: absolute;
@@ -154,8 +201,8 @@
     color: #fff;
     font-size: 1.25rem;
     line-height: 1;
-    cursor: pointer;
   }
+  .hamburger-btn:active { background: rgba(255,255,255,0.25); }
 
   .settings-menu {
     display: flex;
@@ -176,10 +223,10 @@
     font-weight: 600;
     color: #1C2620;
     text-decoration: none;
-    cursor: pointer;
   }
   .settings-item:active { background: #E7F2E9; }
   .settings-item-value { color: #6B7A72; font-weight: 500; font-size: 0.85rem; }
+
 
   .country-modal-overlay {
     display: none;
@@ -199,6 +246,26 @@
     display: flex;
     flex-direction: column;
   }
+  .country-modal-search {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 2px solid #0E6E46;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    background: #f0f7f3;
+  }
+  .country-modal-list {
+    overflow-y: auto;
+    flex: 1;
+    border-top: 1px solid #eee;
+  }
+  .country-modal-item {
+    padding: 13px 6px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .country-modal-item:active { background: #E7F2E9; }
   .country-modal-close {
     margin-top: 12px;
     padding: 12px;
@@ -207,139 +274,1128 @@
     background: #eee;
     color: #444;
     font-weight: 700;
-    cursor: pointer;
   }
 
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-content {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    max-width: 500px;
+  .submit-btn {
     width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    margin-top: 20px;
+    padding: 14px;
+    background: #0E6E46;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
   }
-  .modal-close {
+  .submit-btn:active { background: #073C28; }
+  .submit-btn:disabled { background: #9FC2AC; }
+
+  .password-wrapper {
+    position: relative;
+  }
+  .password-wrapper input {
+    padding-right: 46px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .password-toggle {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
-    font-size: 1.8rem;
-    cursor: pointer;
-    color: #999;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 4px;
   }
-  .modal-close:active { color: #333; }
 
-  .signal-reason-btn {
-    width: 100%;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    background: white;
+  .msg {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 600;
-    color: #333;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s;
+    text-align: center;
+    display: none;
   }
-  .signal-reason-btn:active {
-    border-color: #B33F2E;
-    background: #F7E6E2;
-    color: #B33F2E;
-  }
-  .signal-reason-btn.selected {
-    border-color: #B33F2E;
-    background: #F7E6E2;
-    color: #B33F2E;
-  }
+  .msg.success { background: #E7F2E9; color: #073C28; display: block; }
+  .msg.error { background: #F7E6E2; color: #B33F2E; display: block; }
 
-  .annonce-card {
+  .filter-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .filter-row select { flex: 1; }
+
+  .result-card {
+    background: white;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    border-left: 4px solid #0E6E46;
+  }
+  .result-card h3 { font-size: 1rem; font-weight: 800; color: #073C28; margin-bottom: 4px; letter-spacing: 0.2px; }
+  .result-card p { font-size: 0.82rem; color: #555; margin: 2px 0; }
+  .whatsapp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #e7f9ee;
+    color: #0E6E46;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    margin: 6px 0 2px;
+  }
+  .whatsapp-link:active { background: #cdf0dc; }
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FBEEDA;
+    color: #073C28;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    text-decoration: none;
+    margin: 6px 6px 2px 0;
+  }
+  .action-btn:active { background: #f5deb0; }
+  .action-btn.saved { background: #E7F2E9; color: #0E6E46; }
+  .badge {
+    display: inline-block;
+    background: #E7F2E9;
+    color: #073C28;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+  .badge-domestique { background: #fdeee0; color: #b5541a; }
+  .badge-ventes     { background: #fdf0dc; color: #a3760a; }
+  .badge-routes     { background: #e3eefd; color: #1a5cb5; }
+  .badge-finances   { background: #f0e6fa; color: #6a1ab5; }
+  .badge-soins      { background: #fde0e6; color: #b5194a; }
+  .badge-technique  { background: #e0f7f5; color: #0a8a7a; }
+  .search-time-bar {
+    background: #eef6ff;
+    color: #1a5cb5;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .new-msg-badge {
+    display: block;
+    width: fit-content;
+    background: #ff9d1a;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    padding: 3px 9px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+  .empty-state {
+    text-align: center;
+    color: #888;
+    padding: 30px 10px;
+    font-size: 0.88rem;
+  }
+  .compte-card {
     background: white;
     border-radius: 12px;
     padding: 16px;
-    margin-bottom: 12px;
-    border-left: 4px solid #0E6E46;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin-top: 14px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.06);
   }
-  .annonce-card h3 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #073C28;
-    margin-bottom: 8px;
-  }
-  .annonce-card p {
-    font-size: 0.85rem;
-    color: #666;
-    margin: 6px 0;
-  }
-  .annonce-actions {
+  .compte-checkbox-label {
     display: flex;
+    align-items: center;
     gap: 8px;
-    margin-top: 12px;
-    flex-wrap: wrap;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #333;
+    margin: 8px 0;
   }
-  .annonce-btn {
-    flex: 1;
-    min-width: 80px;
-    padding: 10px 12px;
+  .compte-checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #0E6E46;
+  }
+  .statut-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 10px;
+    margin: 8px 0;
+  }
+  .statut-actif { background: #E7F2E9; color: #073C28; }
+  .statut-inactif { background: #f1f1f1; color: #888; }
+  .toggle-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    margin-top: 10px;
+  }
+  .toggle-btn.desactiver { background: #F7E6E2; color: #B33F2E; }
+  .toggle-btn.activer { background: #E7F2E9; color: #073C28; }
+  .toggle-btn.supprimer { background: #B33F2E; color: white; }
+  .toggle-row {
+    display: flex;
+    gap: 10px;
+  }
+  .toggle-row .toggle-btn { margin-top: 10px; }
+
+  /* ===== Signalement d'une annonce ===== */
+  .report-link-btn {
+    display: inline-block;
+    background: none;
+    border: none;
+    color: #B33F2E;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 0 0;
+    margin-top: 4px;
+  }
+  .report-link-btn:active { opacity: 0.6; }
+  .share-link-btn {
+    display: inline-block;
+    background: none;
+    border: none;
+    color: #0E6E46;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 10px 0 0;
+    margin-top: 4px;
+  }
+  .share-link-btn:active { opacity: 0.6; }
+  .verified-badge {
+    display: inline-block;
+    background: #E3F2FD;
+    color: #1565C0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .role-label {
+    display: inline-block;
+    background: #FAF6EF;
+    color: #6B7A72;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 3px 9px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+    border: 1px solid #e0dcd0;
+  }
+  .signal-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .signal-modal-overlay.open { display: flex; }
+  .signal-modal {
+    background: white;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    padding: 18px;
+  }
+  .signal-reason-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+  }
+  .signal-reason-label input[type="radio"] { width: 18px; height: 18px; accent-color: #B33F2E; }
+  .signal-reason-label.checked { border-color: #B33F2E; background: #F7E6E2; }
+
+  /* ===== Badges de signalement dans le panneau admin ===== */
+  .admin-search-input {
+    margin-bottom: 4px;
+  }
+  .signal-badge {
+    display: inline-block;
+    background: #B33F2E;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 10px;
+    margin: 8px 0;
+  }
+  .signal-details {
+    background: #FDF3F1;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 8px 0;
+    font-size: 0.82rem;
+    color: #7a2e22;
+  }
+  .signal-details p { margin: 4px 0; }
+  .compte-card.a-des-signalements { border: 2px solid #B33F2E; }
+
+  .recup-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .recup-modal-overlay.open { display: flex; }
+  .recup-modal {
+    background: white;
+    width: 100%;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+    padding: 18px;
+  }
+  .google-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: white;
+    color: #444;
+    font-weight: 700;
+    margin: 10px 0 16px;
+  }
+  .recup-separateur {
+    text-align: center;
+    color: #999;
+    font-size: 0.82rem;
+    margin: 6px 0 14px;
+  }
+  .search-btn {
+    width: 100%;
+    padding: 13px;
+    background: #0E6E46;
+    border: none;
+    color: white;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 16px;
+  }
+  .search-btn:active { background: #073C28; }
+
+  /* ===== Sélecteur de travail (catégorie -> métier) ===== */
+  .job-picker-btn {
+    width: 100%;
+    text-align: left;
+    padding: 11px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+    background: #fafafa;
+    color: #1a1a1a;
+  }
+  .job-picker-btn:active { background: #eee; }
+
+  .job-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    align-items: flex-end;
+  }
+  .job-modal-overlay.open { display: flex; }
+  .job-modal {
+    background: white;
+    width: 100%;
+    max-height: 78vh;
+    border-radius: 18px 18px 0 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .job-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .job-modal-back {
+    display: none;
+    background: #E7F2E9;
+    color: #073C28;
     border: none;
     border-radius: 8px;
+    padding: 8px 12px;
+    font-weight: 700;
     font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
   }
-  .annonce-btn-contact {
+  .job-modal-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #073C28;
+  }
+  .job-modal-list {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px 2px;
+  }
+  .job-cat-btn {
+    width: 100%;
+    text-align: left;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: none;
+    background: #0E6E46;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .job-cat-btn:active { background: #073C28; }
+  .job-checkbox {
+    flex-shrink: 0;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid white;
+    border-radius: 4px;
+    background: transparent;
+  }
+  .job-checkbox.checked {
+    background: white;
+    position: relative;
+  }
+  .job-checkbox.checked::after {
+    content: "✔";
+    position: absolute;
+    top: -4px;
+    left: 1px;
+    font-size: 0.8rem;
+    color: #0E6E46;
+    font-weight: 900;
+  }
+  .job-modal-close {
+    margin-top: 12px;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #eee;
+    color: #444;
+    font-weight: 700;
+  }
+
+  /* ===== STYLES POUR LE NOUVEAU DÉPÔT ===== */
+  .depot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .depot-cat-btn {
+    padding: 16px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+    color: #1C2620;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .depot-cat-btn:active {
+    background: #0E6E46;
+    color: white;
+    border-color: #0E6E46;
+  }
+  .depot-cat-btn.selected {
+    background: #0E6E46;
+    color: white;
+    border-color: #0E6E46;
+  }
+  .depot-metiers-list {
+    margin-bottom: 16px;
+    display: none;
+  }
+  .depot-metiers-list.active {
+    display: block;
+  }
+  .depot-metier-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #F5F1E8;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  .depot-metier-item:active {
+    background: #E7F2E9;
+    border-color: #0E6E46;
+  }
+  .depot-metier-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #0E6E46;
+    border-radius: 4px;
+    background: white;
+    flex-shrink: 0;
+  }
+  .depot-metier-checkbox.checked {
+    background: #0E6E46;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+  .depot-metier-name {
+    flex: 1;
+    font-weight: 600;
+    color: #333;
+  }
+  .depot-documents-section {
+    background: #E7F2E9;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+  }
+  .depot-documents-section h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0E6E46;
+    margin-bottom: 10px;
+  }
+  .depot-doc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    color: #333;
+  }
+  .depot-doc-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #0E6E46;
+    cursor: pointer;
+  }
+
+  /* ===== STYLES POUR TRAVAILLEUR AVEC UPLOAD ===== */
+  .depot-doc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
+  .depot-doc-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .depot-doc-left input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #0E6E46;
+    cursor: pointer;
+  }
+  .depot-doc-left label {
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    margin: 0;
+  }
+  .depot-doc-upload-btn {
+    background: #E7F2E9;
+    border: 2px solid #0E6E46;
+    color: #0E6E46;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    min-height: 44px;
+  }
+  .depot-doc-upload-btn:active {
+    background: #0E6E46;
+    color: white;
+  }
+  .depot-file-input {
+    display: none;
+  }
+  .depot-file-name {
+    font-size: 0.75rem;
+    color: #0E6E46;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .depot-confirmation-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .depot-confirmation-modal.show {
+    display: flex;
+  }
+  .depot-confirmation-content {
+    background: white;
+    border-radius: 16px;
+    padding: 32px 20px;
+    text-align: center;
+    max-width: 380px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  .depot-confirmation-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+  .depot-confirmation-content h3 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #0E6E46;
+    margin-bottom: 8px;
+  }
+  .depot-confirmation-content p {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 20px;
+  }
+  .depot-confirmation-btn {
+    background: #0E6E46;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .welcome-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #073C28, #0E6E46, #2FA870);
+    padding: 24px;
+  }
+  .welcome-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,0.5) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(255,255,255,0.5) 25%, transparent 25%);
+    background-size: 22px 22px;
+    background-position: 0 0, 11px 0;
+    pointer-events: none;
+  }
+  .welcome-content {
+    position: relative;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    color: white;
+  }
+  .welcome-content .brandmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 74px;
+    height: 74px;
+    margin-bottom: 12px;
+  }
+  .welcome-content h1 {
+    font-size: 1.7rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .welcome-content p {
+    font-size: 0.9rem;
+    opacity: 0.92;
+    margin-bottom: 30px;
+  }
+  .welcome-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    margin: 12px 0;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .welcome-btn-travailleur { background: #FFFFFF; color: #073C28; }
+  .welcome-btn-patron { background: #E8A33D; color: #073C28; }
+  .welcome-skip {
+    margin-top: 18px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.85);
+    font-size: 0.85rem;
+    text-decoration: underline;
+  }
+
+  .google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px;
+    margin: 6px 0 4px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .ou-separateur {
+    text-align: center;
+    color: #999;
+    font-size: 0.8rem;
+    margin: 14px 0 10px;
+  }
+  .dossier-note {
+    font-size: 0.85rem;
+    color: #555;
+    background: #F5F1E8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 10px 0 14px;
+  }
+  .patron-choix-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #F5F1E8;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 0.88rem;
+    color: #333;
+    line-height: 1.5;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .patron-choix-item:active { background: #E7F2E9; }
+  .critere-check-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #333;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .critere-check-label input[type="checkbox"] {
+    margin-top: 3px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  #t-documents-list input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 14px;
+    border: 1px dashed #bbb;
+    border-radius: 8px;
+    background: #fafafa;
+    font-size: 0.82rem;
+  }
+  .doc-links {
+    background: #F5F1E8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-size: 0.85rem;
+  }
+  .doc-links strong { display: block; margin-bottom: 6px; color: #073C28; }
+  .doc-link-item {
+    display: inline-block;
+    background: #073C28;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    margin: 3px 4px 3px 0;
+    font-size: 0.78rem;
+    text-decoration: none;
+  }
+  .criteres-list-affichage {
+    background: #F5F1E8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    font-size: 0.85rem;
+  }
+  .criteres-list-affichage strong { display: block; margin-bottom: 4px; color: #073C28; }
+  .criteres-list-affichage ul { margin: 0; padding-left: 18px; }
+  .criteres-list-affichage li { margin: 3px 0; }
+
+  /* ===== Styles pour les cartes Patrons/Travailleurs ===== */
+  .patron-card, .travailleur-card {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-left: 4px solid #0E6E46;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .patron-card-info, .travailleur-card-info {
+    flex: 1;
+  }
+  .patron-card-info h4, .travailleur-card-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 0.95rem;
+    color: #073C28;
+    font-weight: 700;
+  }
+  .patron-card-info p, .travailleur-card-info p {
+    margin: 3px 0;
+    font-size: 0.8rem;
+    color: #666;
+  }
+  .patron-card-tel, .travailleur-card-tel {
+    font-weight: 700;
+    color: #0E6E46;
+    font-size: 0.9rem;
+  }
+  .patron-card-btn, .travailleur-card-btn {
+    background: #0E6E46;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-left: 10px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  /* ========== MON COMPTE STYLES ========== */
+  .moncompte-profile-display {
+    background: white;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+    border-left: 4px solid #E8A33D;
+  }
+  .moncompte-profile-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+  }
+  .moncompte-profile-row:last-child { border-bottom: none; }
+  .moncompte-profile-label {
+    color: #6B7A72;
+    font-weight: 600;
+  }
+  .moncompte-profile-value {
+    color: #073C28;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .dossier-item {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    border-left: 4px solid #0E6E46;
+  }
+  .dossier-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 10px;
+  }
+  .dossier-item-title {
+    font-weight: 700;
+    color: #073C28;
+    font-size: 0.95rem;
+  }
+  .dossier-item-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
     background: #E7F2E9;
     color: #0E6E46;
   }
-  .annonce-btn-signaler {
-    background: #F7E6E2;
+  .dossier-item-details {
+    font-size: 0.85rem;
+    color: #6B7A72;
+    line-height: 1.5;
+  }
+  .dossier-item-details strong {
+    color: #333;
+  }
+  .dossier-action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .dossier-btn-small {
+    flex: 1;
+    min-width: 70px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: white;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .dossier-btn-small:active { background: #f0f0f0; }
+  .dossier-btn-small.danger {
+    border-color: #B33F2E;
     color: #B33F2E;
+  }
+  .dossier-btn-small.danger:active { background: #ffe6e0; }
+
+  .moncompte-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .moncompte-modal.open {
+    display: flex;
+  }
+  .moncompte-modal-content {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    max-height: 85vh;
+    max-width: 520px;
+    width: 90%;
+    overflow-y: auto;
+    position: relative;
+  }
+  .moncompte-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f0f0f0;
+    color: #333;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  .moncompte-modal-header {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #073C28;
+    margin-bottom: 16px;
+  }
+
+  .edit-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .edit-tab-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+  .edit-tab-btn.active {
+    background: #0E6E46;
+    color: white;
+    border-color: #0E6E46;
+  }
+  .edit-tab-content {
+    display: none;
+  }
+  .edit-tab-content.active {
+    display: block;
+  }
+
+  .danger-zone {
+    background: #fff5f5;
+    border: 1px solid #ffe6e0;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 20px;
+  }
+  .danger-zone-title {
+    color: #B33F2E;
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+  }
+  .danger-zone-desc {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 12px;
+  }
+  #confirm-suppression {
+    display: none;
   }
 
   .empty-state {
     text-align: center;
-    color: #999;
     padding: 40px 20px;
+    color: #999;
+  }
+  .empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+  .empty-state-text {
     font-size: 0.95rem;
+    line-height: 1.6;
   }
 
-  textarea {
-    width: 100%;
-    min-height: 80px;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    resize: vertical;
+  .status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
   }
-  textarea:focus { outline: none; border-color: #0E6E46; background: white; }
+  .status-active {
+    background: #E7F2E9;
+    color: #0E6E46;
+  }
+  .status-inactive {
+    background: #f5f5f5;
+    color: #999;
+  }
+  .postuler-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(20px);
+    background: #0E6E46;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    z-index: 9999;
+    max-width: 90%;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+  }
+  .postuler-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
+
+<!-- ============ ECRAN D'ACCUEIL (avant Inscription/Recherche) ============ -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-content">
+    <div class="brandmark">
+      <svg viewBox="0 0 100 100" width="74" height="74">
+        <circle cx="50" cy="50" r="48" fill="rgba(255,255,255,0.14)" stroke="#E8A33D" stroke-width="3"/>
+        <text x="50" y="66" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="700"
+              fill="#FFFFFF" text-anchor="middle">JC</text>
+      </svg>
+    </div>
+    <h1>JOB <span style="color:#E8A33D;">CONNECT</span></h1>
+    <p>La plateforme qui connecte patrons et travailleurs, partout dans le monde</p>
+
+    <button type="button" class="welcome-btn welcome-btn-travailleur" onclick="choisirAccueil('travailleur')">
+      👷 Je cherche un emploi
+    </button>
+    <button type="button" class="welcome-btn welcome-btn-patron" onclick="choisirAccueil('patron')">
+      🧑‍💼 Je recrute
+    </button>
+
+    <button type="button" class="welcome-skip" onclick="fermerAccueil()">Passer, aller directement à la recherche</button>
+  </div>
+</div>
 
 <header>
   <div class="brandmark">
@@ -350,407 +1406,1208 @@
     </svg>
   </div>
   <h1>JOB <span style="color:#E8A33D;">CONNECT</span></h1>
-  <p>La plateforme qui connecte patrons et travailleurs</p>
-  <button type="button" class="hamburger-btn" onclick="ouvrirParametres()">☰</button>
+  <p data-i18n="tagline">La plateforme qui connecte patrons et travailleurs, partout dans le monde</p>
+  <button type="button" class="hamburger-btn" id="btn-settings" onclick="ouvrirParametres()" aria-label="Paramètres">☰</button>
 </header>
 <div class="signature-divider"></div>
 
 <div class="tabs">
-  <button class="tab-btn active" onclick="allerVersEcran('accueil')">Accueil</button>
-  <button class="tab-btn" onclick="allerVersEcran('depot')">📦 Dépôt</button>
-  <button class="tab-btn" onclick="allerVersEcran('mon-compte')">Mon compte</button>
+  <button class="tab-btn active" data-screen="inscription" data-i18n="tab_inscription">Inscription</button>
+  <button class="tab-btn" id="tab-depot" data-screen="depot" data-i18n="tab_depot" style="display:none;">📦 Dépôt</button>
+  <button class="tab-btn" data-screen="recherche" data-i18n="tab_recherche">Recherche<span class="tab-notif-badge" id="tab-notif-badge">0</span></button>
+  <button class="tab-btn" data-screen="compte" data-i18n="tab_compte">Mon compte</button>
+  <button class="tab-btn" data-screen="admin" data-i18n="tab_admin">Admin</button>
 </div>
 
-<!-- Paramètres -->
-<div class="country-modal-overlay" id="settings-overlay" onclick="if(event.target===this) fermerParametres()">
+<!-- ============ FENÊTRE DE SÉLECTION DE LANGUE ============ -->
+<div class="country-modal-overlay" id="lang-modal-overlay" onclick="if(event.target===this) fermerSelecteurLangue()">
+  <div class="country-modal">
+    <div class="country-modal-list" id="lang-modal-list"></div>
+    <button type="button" class="country-modal-close" onclick="fermerSelecteurLangue()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ PANNEAU PARAMÈTRES ============ -->
+<div class="country-modal-overlay" id="settings-modal-overlay" onclick="if(event.target===this) fermerParametres()">
   <div class="country-modal">
     <div class="settings-menu">
-      <button class="settings-item" onclick="fermerParametres(); ouvrirSelecteurLangue();">
+      <button type="button" class="settings-item" onclick="fermerParametres(); ouvrirSelecteurLangue();">
         <span>🌐 Langue</span>
-        <span class="settings-item-value">Français</span>
+        <span class="settings-item-value" id="settings-lang-value">Français</span>
       </button>
+      <a class="settings-item" href="confidentialite.html" target="_blank" rel="noopener">
+        <span>🔒 Politique de confidentialité</span>
+        <span>›</span>
+      </a>
     </div>
-    <button class="country-modal-close" onclick="fermerParametres()">Fermer</button>
+    <button type="button" class="country-modal-close" onclick="fermerParametres()">Fermer</button>
   </div>
 </div>
 
-<!-- Sélecteur de langue -->
-<div class="country-modal-overlay" id="lang-overlay" onclick="if(event.target===this) fermerSelecteurLangue()">
-  <div class="country-modal">
-    <div id="lang-list" style="flex: 1; overflow-y: auto; padding: 10px 0;"></div>
-    <button class="country-modal-close" onclick="fermerSelecteurLangue()">Fermer</button>
-  </div>
-</div>
+<!-- ============ ECRAN INSCRIPTION ============ -->
+<div class="screen active" id="screen-inscription">
 
-<!-- ÉCRAN ACCUEIL -->
-<div class="screen active" id="screen-accueil">
+  <div class="role-select">
+    <button class="role-btn selected" id="role-travailleur-btn" onclick="setRole('travailleur')" data-i18n="btn_role_travailleur">👷 Travailleur (EMPLOYÉ)</button>
+    <button class="role-btn" id="role-patron-btn" onclick="setRole('patron')" data-i18n="btn_role_patron">🧑‍💼 Patron (EMPLOYEUR)</button>
+  </div>
+
+  <!-- FORMULAIRE TRAVAILLEUR -->
+  <div class="card" id="form-travailleur">
+    <h2 data-i18n="h2_inscription_travailleur">Inscription Travailleur</h2>
+
+    <!-- ETAPE 1 : CONNEXION -->
+    <div id="t-step-connexion">
+      <button type="button" class="google-btn" onclick="connexionGoogleInscription('travailleur')">🔵 Continuer avec Google</button>
+      <div class="ou-separateur">— ou remplissez vos informations —</div>
+      <label data-i18n="lbl_nom">Nom</label>
+      <input type="text" id="t-nom" placeholder="Nom">
+      <label data-i18n="lbl_postnom">Post-nom</label>
+      <input type="text" id="t-postnom" placeholder="Post-nom">
+      <label data-i18n="lbl_prenom">Prénom</label>
+      <input type="text" id="t-prenom" placeholder="Prénom">
+      <label data-i18n="lbl_adresse">Adresse</label>
+      <input type="text" id="t-adresse" placeholder="Adresse complète">
+      <label data-i18n="lbl_telephone">Numéro de téléphone</label>
+      <input type="tel" id="t-tel" placeholder="+243 ...">
+      <div id="t-email-section">
+        <label data-i18n="lbl_email">Adresse email</label>
+        <input type="email" id="t-email" placeholder="exemple@gmail.com">
+        <label data-i18n="lbl_password">Mot de passe</label>
+        <div class="password-wrapper">
+          <input type="password" id="t-password" placeholder="6 caractères minimum">
+          <button type="button" class="password-toggle" onclick="togglePasswordVisibility('t-password', this)">👁️</button>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="validerConnexionTravailleur()">Continuer</button>
+      <div class="msg" id="t-connexion-msg"></div>
+    </div>
+
+    <!-- ETAPE 2 : PAYS + TYPE DE TRAVAIL -->
+    <div id="t-step-travail" style="display:none;">
+      <label data-i18n="lbl_date_naissance">Date de naissance</label>
+      <input type="date" id="t-naissance">
+      <label data-i18n="lbl_niveau_etude">Niveau d'étude</label>
+      <select id="t-niveau">
+        <option value="">-- Choisir --</option>
+        <option>Primaire</option>
+        <option>Secondaire</option>
+        <option>Universitaire</option>
+        <option>Aucun</option>
+      </select>
+      <label data-i18n="lbl_pays_voulez">Pays où vous voulez travailler</label>
+      <button type="button" class="country-picker-btn" id="btn-t-pays" onclick="ouvrirSelecteurPays('t-pays','btn-t-pays')">-- Choisir un pays --</button>
+      <input type="hidden" id="t-pays" value="">
+      <label data-i18n="lbl_type_travail_prefere">Type de travail préféré</label>
+      <button type="button" class="job-picker-btn" id="btn-t-type" onclick="ouvrirSelecteurTravail('t-type','t-poste','btn-t-type')">-- Choisir un type de travail --</button>
+      <input type="hidden" id="t-type" value="">
+      <input type="hidden" id="t-poste" value="">
+    </div>
+
+    <!-- ETAPE 3 : DOSSIER DE CANDIDATURE -->
+    <div id="t-step-dossier" style="display:none;">
+      <p class="dossier-note">Déposez votre dossier de candidature pour ce poste (photo ou scan, PDF ou image) :</p>
+      <div id="t-documents-list"></div>
+      <button class="submit-btn" id="btn-inscrire-t" onclick="inscrireTravailleur()" data-i18n="btn_enregistrer">Enregistrer mon dossier</button>
+      <div class="msg" id="t-msg"></div>
+    </div>
+
+    <!-- ETAPE 4 : CHOIX DU PATRON EN BAS, une fois le dossier rempli et enregistré : cliquer sur un numéro ouvre WhatsApp directement -->
+    <div id="t-step-patron" style="display:none;">
+      <p class="dossier-note">✅ Dossier enregistré. Choisissez un patron ci-dessous pour lui envoyer directement votre dossier sur WhatsApp :</p>
+      <div id="t-patron-list"></div>
+    </div>
+  </div>
+
+  <!-- FORMULAIRE PATRON -->
+  <div class="card" id="form-patron" style="display:none;">
+    <h2 data-i18n="h2_inscription_patron">Inscription Patron</h2>
+
+    <!-- ETAPE 1 : CONNEXION -->
+    <div id="p-step-connexion">
+      <button type="button" class="google-btn" onclick="connexionGoogleInscription('patron')">🔵 Continuer avec Google</button>
+      <div class="ou-separateur">— ou remplissez vos informations —</div>
+      <label data-i18n="lbl_nom">Nom</label>
+      <input type="text" id="p-nom" placeholder="Nom">
+      <label data-i18n="lbl_postnom">Post-nom</label>
+      <input type="text" id="p-postnom" placeholder="Post-nom">
+      <label data-i18n="lbl_prenom">Prénom</label>
+      <input type="text" id="p-prenom" placeholder="Prénom">
+      <label data-i18n="lbl_adresse">Adresse</label>
+      <input type="text" id="p-adresse" placeholder="Adresse complète">
+      <label data-i18n="lbl_numero_contacter">Numéro à contacter</label>
+      <input type="tel" id="p-tel" placeholder="+243 ...">
+      <div id="p-email-section">
+        <label data-i18n="lbl_email">Adresse email</label>
+        <input type="email" id="p-email" placeholder="exemple@gmail.com">
+        <label data-i18n="lbl_password">Mot de passe</label>
+        <div class="password-wrapper">
+          <input type="password" id="p-password" placeholder="6 caractères minimum">
+          <button type="button" class="password-toggle" onclick="togglePasswordVisibility('p-password', this)">👁️</button>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="validerConnexionPatron()">Continuer</button>
+      <div class="msg" id="p-connexion-msg"></div>
+    </div>
+
+    <!-- ETAPE 2 : PAYS + TRAVAIL PROPOSE -->
+    <div id="p-step-travail" style="display:none;">
+      <label data-i18n="lbl_lieu_naissance">Lieu de naissance</label>
+      <input type="text" id="p-naissance-lieu" placeholder="Lieu de naissance (optionnel)">
+      <label data-i18n="lbl_travail_propose">Travail proposé</label>
+      <button type="button" class="job-picker-btn" id="btn-p-type" onclick="ouvrirSelecteurTravail('p-type','p-poste','btn-p-type')">-- Choisir un type de travail --</button>
+      <input type="hidden" id="p-type" value="">
+      <input type="hidden" id="p-poste" value="">
+      <label data-i18n="lbl_pays_travail">Pays du travail</label>
+      <button type="button" class="country-picker-btn" id="btn-p-pays" onclick="ouvrirSelecteurPays('p-pays','btn-p-pays')">-- Choisir un pays --</button>
+      <input type="hidden" id="p-pays" value="">
+      <label data-i18n="lbl_lieu_travail">Lieu du travail (ville / adresse)</label>
+      <input type="text" id="p-lieu" placeholder="Ville ou adresse précise">
+    </div>
+
+    <!-- ETAPE 3 : CRITERES DE RECRUTEMENT -->
+    <div id="p-step-criteres" style="display:none;">
+      <p class="dossier-note">Cochez les critères que vous exigez pour ce poste :</p>
+      <div id="p-criteres-list"></div>
+      <button class="submit-btn" id="btn-inscrire-p" onclick="inscrirePatron()" data-i18n="btn_enregistrer">Enregistrer mon offre</button>
+      <div class="msg" id="p-msg"></div>
+    </div>
+
+    <!-- ETAPE 4 : CHOIX DU TRAVAILLEUR EN BAS, une fois les critères remplis et enregistrés : cliquer sur un numéro ouvre WhatsApp directement -->
+    <div id="p-step-travailleur" style="display:none;">
+      <p class="dossier-note">✅ Offre enregistrée. Choisissez un travailleur ci-dessous pour lui envoyer directement vos critères sur WhatsApp :</p>
+      <div id="p-travailleur-list"></div>
+    </div>
+  </div>
+
   <div class="card">
-    <h2>📦 DÉPÔT DE DOSSIER</h2>
-    <p style="color: #666; margin-bottom: 16px;">Enregistrez votre annonce en tant que travailleur ou patron.</p>
-    <button class="submit-btn" onclick="allerVersEcran('depot')">Commencer →</button>
-  </div>
-
-  <div class="card">
-    <h2>Mon Compte</h2>
-    <p style="color: #666; margin-bottom: 16px;">Gérez votre profil et vos annonces.</p>
-    <button class="submit-btn" onclick="allerVersEcran('mon-compte')">Accéder →</button>
+    <p style="text-align:center; color:#555; font-size:0.88rem; margin-bottom:10px;" data-i18n="txt_probleme_compte">Un problème avec votre compte ?</p>
+    <button type="button" class="toggle-btn activer" onclick="allerVersMonCompte()" data-i18n="btn_activer_mon_compte">🔓 Activer mon compte</button>
+    <button type="button" class="toggle-btn desactiver" onclick="ouvrirRecuperationCompte()" data-i18n="btn_retrouver_compte_supprime">🔎 Retrouver mon compte supprimé</button>
   </div>
 </div>
 
-<!-- ÉCRAN DÉPÔT -->
+<!-- ============ ECRAN DÉPÔT AVEC TRAVAILLEUR & PATRON ============ -->
 <div class="screen" id="screen-depot">
-  <div class="card">
-    <h2>📦 Déposer une annonce</h2>
-    
-    <label>Domaine</label>
-    <select id="domaine">
-      <option value="">-- Choisir --</option>
-      <option value="IT">Informatique & Technologie</option>
-      <option value="SANTE">Santé & Médecine</option>
-      <option value="CONSTRUCTION">Construction & Bâtiment</option>
-      <option value="TRANSPORT">Transport & Automobile</option>
-      <option value="COMMERCE">Commerce & Vente</option>
-      <option value="MAISON">Maison & Services</option>
-    </select>
 
-    <label style="margin-top: 16px;">Vous êtes</label>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-      <button class="submit-btn" style="margin: 0; background: #E7F2E9; color: #0E6E46; border: 2px solid #0E6E46;" id="btn-travailleur" onclick="selectionnerRole('travailleur')">👷 Travailleur</button>
-      <button class="submit-btn" style="margin: 0; background: white; color: #333; border: 2px solid #ddd;" id="btn-patron" onclick="selectionnerRole('patron')">🏢 Patron</button>
+  <div class="card">
+    <h2 style="text-align: center; font-size: 1.3rem;">📦 DÉPÔT DE DOSSIER</h2>
+    
+    <!-- ÉTAPE 1: CATÉGORIES DE MÉTIERS -->
+    <label style="font-weight: 700; color: #073C28; margin: 16px 0 12px; display: block; text-align: center;">Choisissez votre domaine :</label>
+    <div class="depot-grid" id="depot-categories"></div>
+
+    <!-- ÉTAPE 1bis: MÉTIER PRÉCIS DANS LE DOMAINE -->
+    <div id="depot-metier-section" style="display: none; margin-top: 16px;">
+      <label style="font-weight: 700; color: #073C28; display: block;">Précisez votre métier :</label>
+      <div class="depot-metier-grid" id="depot-metier-list"></div>
     </div>
 
-    <label style="margin-top: 16px;">Pays</label>
-    <select id="pays">
-      <option value="">-- Choisir --</option>
-      <option value="RDC">RD Congo</option>
-      <option value="UG">Ouganda</option>
-      <option value="KE">Kenya</option>
-      <option value="TZ">Tanzanie</option>
-      <option value="RW">Rwanda</option>
-      <option value="CM">Cameroun</option>
-      <option value="SN">Sénégal</option>
-    </select>
+    <!-- ÉTAPE 2: SÉLECTION TRAVAILLEUR vs PATRON -->
+    <div id="depot-role-section" style="display: none; margin-top: 20px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+        <button type="button" class="role-btn selected" id="depot-role-travailleur" onclick="window.selectionnerDepotRole('travailleur')" style="background: #E7F2E9; border-color: #0E6E46; color: #0E6E46;">👷 TRAVAILLEUR</button>
+        <button type="button" class="role-btn" id="depot-role-patron" onclick="window.selectionnerDepotRole('patron')" style="border-color: #ddd;">🏢 PATRON</button>
+      </div>
 
-    <label style="margin-top: 16px;">Numéro WhatsApp</label>
-    <input type="tel" id="telephone" placeholder="+243 975 123 456">
+      <!-- TRAVAILLEUR: DOSSIER À DÉPOSER -->
+      <div id="depot-travailleur-content" style="display: block;">
+        <label style="font-weight: 700; color: #073C28; margin-bottom: 8px; display: block;">📋 Dossier à déposer :</label>
+        
+        <label style="font-weight: 700; margin-top: 12px;">Pays de travail :</label>
+        <select id="depot-pays-travailleur" style="margin-bottom: 12px;">
+          <option value="">-- Choisir un pays --</option>
+        </select>
 
-    <label style="margin-top: 16px;">Description (optionnel)</label>
-    <textarea id="description" placeholder="Décrivez votre profil ou votre offre..."></textarea>
+        <label style="font-weight: 700;">Votre numéro de téléphone :</label>
+        <input type="tel" id="depot-numero-travailleur" placeholder="+243 975 123 456" style="margin-bottom: 16px;">
 
-    <button class="submit-btn" onclick="deposerAnnonce()">Publier →</button>
-    <div class="msg" id="depot-msg"></div>
+        <div id="depot-docs-travailleur" class="depot-documents-section">
+          <h4>📄 Documents à fournir :</h4>
+          <div id="depot-docs-list-travailleur"></div>
+        </div>
+
+        <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossier('travailleur')">💬 Déposer via WhatsApp</button>
+        <div class="msg" id="depot-msg-travailleur"></div>
+        <div id="depot-matches-travailleur"></div>
+      </div>
+
+      <!-- PATRON: CRITÈRES À EXIGER -->
+      <div id="depot-patron-content" style="display: none;">
+        <label style="font-weight: 700; color: #073C28; margin-bottom: 8px; display: block;">📋 Critères à exiger :</label>
+        
+        <label style="font-weight: 700; margin-top: 12px;">Pays de recrutement :</label>
+        <select id="depot-pays-patron" style="margin-bottom: 12px;">
+          <option value="">-- Choisir un pays --</option>
+        </select>
+
+        <label style="font-weight: 700;">Votre numéro de téléphone :</label>
+        <input type="tel" id="depot-numero-patron" placeholder="+243 975 123 456" style="margin-bottom: 16px;">
+
+        <!-- CRITÈRES DÉTAILLÉS DU PATRON -->
+        <div id="depot-criteria-patron" class="depot-documents-section">
+          <h4>💰 Offre d'emploi :</h4>
+          
+          <!-- SALAIRE PROPOSÉ -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-salaire-toggle" onchange="window.togglePatronCriteria(this, 'salaire')">
+              <span style="font-weight: 600;">💰 Salaire proposé</span>
+            </label>
+            <div id="salaire-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="number" id="patron-salaire-montant" placeholder="Montant" style="margin-bottom: 8px;">
+              <select id="patron-salaire-devise" style="margin-bottom: 8px;">
+                <option value="">Devise</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="CDF">CDF</option>
+                <option value="UGX">UGX</option>
+              </select>
+              <select id="patron-salaire-periode" style="margin-bottom: 8px;">
+                <option value="">Période</option>
+                <option value="Heure">Heure</option>
+                <option value="Jour">Jour</option>
+                <option value="Semaine">Semaine</option>
+                <option value="Mois">Mois</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- LIEU DE TRAVAIL -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-lieu-toggle" onchange="window.togglePatronCriteria(this, 'lieu')">
+              <span style="font-weight: 600;">📍 Lieu de travail</span>
+            </label>
+            <div id="lieu-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="text" id="patron-lieu-ville" placeholder="Ville" style="margin-bottom: 8px;">
+              <input type="text" id="patron-lieu-adresse" placeholder="Adresse" style="margin-bottom: 8px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="radio" name="patron-travail-type" value="Sur place"> Sur place
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="radio" name="patron-travail-type" value="À distance"> À distance
+                </label>
+              </div>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                <input type="radio" name="patron-travail-type" value="Hybride"> Hybride
+              </label>
+            </div>
+          </div>
+
+          <!-- HORAIRES DE TRAVAIL -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-horaires-toggle" onchange="window.togglePatronCriteria(this, 'horaires')">
+              <span style="font-weight: 600;">🕐 Horaires de travail</span>
+            </label>
+            <div id="horaires-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="text" id="patron-horaires-jours" placeholder="Jours de travail (ex: Lun-Ven)" style="margin-bottom: 8px;">
+              <input type="time" id="patron-horaires-debut" style="margin-bottom: 8px;">
+              <input type="time" id="patron-horaires-fin" style="margin-bottom: 8px;">
+            </div>
+          </div>
+
+          <!-- TYPE DE CONTRAT -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-contrat-toggle" onchange="window.togglePatronCriteria(this, 'contrat')">
+              <span style="font-weight: 600;">📄 Type de contrat</span>
+            </label>
+            <div id="contrat-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="CDI"> CDI
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="CDD"> CDD
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Temporaire"> Temporaire
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Stage"> Stage
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Temps plein"> Temps plein
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Temps partiel"> Temps partiel
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-contrat-type" value="Indépendant"> Indépendant
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- NIVEAU D'ÉTUDE DEMANDÉ -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-etude-toggle" onchange="window.togglePatronCriteria(this, 'etude')">
+              <span style="font-weight: 600;">🎓 Niveau d'étude demandé</span>
+            </label>
+            <div id="etude-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <select id="patron-etude-niveau" style="width: 100%;">
+                <option value="">-- Choisir --</option>
+                <option value="Aucun diplôme">Aucun diplôme exigé</option>
+                <option value="Primaire">Primaire</option>
+                <option value="Secondaire">Secondaire</option>
+                <option value="Certificat">Certificat</option>
+                <option value="Diplôme">Diplôme</option>
+                <option value="Licence">Licence</option>
+                <option value="Master">Master</option>
+                <option value="Doctorat">Doctorat</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- EXPÉRIENCE DEMANDÉE -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-exp-toggle" onchange="window.togglePatronCriteria(this, 'exp')">
+              <span style="font-weight: 600;">💼 Expérience demandée</span>
+            </label>
+            <div id="exp-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="number" id="patron-exp-annees" placeholder="Nombre minimum d'années" style="width: 100%;">
+            </div>
+          </div>
+
+          <!-- COMPÉTENCES OBLIGATOIRES -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-competences-toggle" onchange="window.togglePatronCriteria(this, 'competences')">
+              <span style="font-weight: 600;">🛠️ Compétences obligatoires</span>
+            </label>
+            <div id="competences-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <textarea id="patron-competences-list" placeholder="Lister les compétences (séparées par des virgules)" style="width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+            </div>
+          </div>
+
+          <!-- LANGUES DEMANDÉES -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-langues-toggle" onchange="window.togglePatronCriteria(this, 'langues')">
+              <span style="font-weight: 600;">🌍 Langues demandées</span>
+            </label>
+            <div id="langues-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-langue" value="Français"> Français
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-langue" value="Anglais"> Anglais
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-langue" value="Kiswahili"> Kiswahili
+                </label>
+                <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem;">
+                  <input type="checkbox" class="patron-langue" value="Lingála"> Lingála
+                </label>
+              </div>
+              <select id="patron-langues-niveau">
+                <option value="">Niveau</option>
+                <option value="Débutant">Débutant</option>
+                <option value="Moyen">Moyen</option>
+                <option value="Avancé">Avancé</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- RESPONSABILITÉS DU TRAVAIL -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-responsabilites-toggle" onchange="window.togglePatronCriteria(this, 'responsabilites')">
+              <span style="font-weight: 600;">📋 Responsabilités du travail</span>
+            </label>
+            <div id="responsabilites-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <textarea id="patron-responsabilites-desc" placeholder="Description des tâches" style="width: 100%; min-height: 80px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+            </div>
+          </div>
+
+          <!-- DOCUMENTS À FOURNIR PAR LE TRAVAILLEUR -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-docs-toggle" onchange="window.togglePatronCriteria(this, 'docs')">
+              <span style="font-weight: 600;">📄 Documents à fournir par le travailleur</span>
+            </label>
+            <div id="docs-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="CV"> CV
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Diplôme ou certificat"> Diplôme ou certificat
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Pièce d'identité"> Pièce d'identité
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Photo d'identité"> Photo d'identité
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Portfolio"> Portfolio
+              </label>
+              <label style="display: flex; align-items: center; gap: 4px; font-size: 0.9rem; margin-bottom: 6px;">
+                <input type="checkbox" class="patron-doc" value="Certificat d'expérience"> Certificat d'expérience
+              </label>
+            </div>
+          </div>
+
+          <!-- ÂGE DU TRAVAILLEUR -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-age-toggle" onchange="window.togglePatronCriteria(this, 'age')">
+              <span style="font-weight: 600;">👤 Âge du travailleur</span>
+            </label>
+            <div id="age-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <input type="number" id="patron-age-min" placeholder="Âge minimum" style="margin-bottom: 8px;">
+              <input type="number" id="patron-age-max" placeholder="Âge maximum" style="margin-bottom: 8px;">
+            </div>
+          </div>
+
+          <!-- AUTRES CONDITIONS -->
+          <div class="patron-criteria-group">
+            <label style="display: flex; align-items: center; gap: 8px; margin: 12px 0 8px;">
+              <input type="checkbox" id="patron-autres-toggle" onchange="window.togglePatronCriteria(this, 'autres')">
+              <span style="font-weight: 600;">📝 Autres conditions</span>
+            </label>
+            <div id="autres-fields" style="display: none; padding: 12px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+              <textarea id="patron-autres-conditions" placeholder="Conditions supplémentaires" style="width: 100%; min-height: 60px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="submit-btn" style="background: #25D366; margin-top: 16px;" onclick="window.deposerDossier('patron')">💬 Publier l'offre via WhatsApp</button>
+        <div class="msg" id="depot-msg-patron"></div>
+        <div id="depot-matches-patron"></div>
+      </div>
+    </div>
   </div>
-
-  <!-- Affichage des annonces -->
-  <div id="annonces-list"></div>
 </div>
 
-<!-- ÉCRAN MON COMPTE -->
-<div class="screen" id="screen-mon-compte">
-  <div class="card">
-    <h2>Mon Compte</h2>
-    
-    <label>Entrez votre numéro WhatsApp</label>
-    <input type="tel" id="recherche-tel" placeholder="+243 975 123 456">
-    <button class="submit-btn" onclick="rechercherCompte()">Retrouver mon compte →</button>
-    <div class="msg" id="compte-msg"></div>
+<!-- Modal de confirmation -->
+<div class="depot-confirmation-modal" id="depot-confirmation-modal">
+  <div class="depot-confirmation-content">
+    <div class="depot-confirmation-icon">✅</div>
+    <h3>Dépôt Confirmé!</h3>
+    <p>Votre dossier a été envoyé avec succès via WhatsApp.<br>Vous serez contacté(e) bientôt.</p>
+    <button class="depot-confirmation-btn" onclick="document.getElementById('depot-confirmation-modal').classList.remove('show')">Fermer</button>
+  </div>
+</div>
 
-    <div id="compte-details" style="display: none; margin-top: 24px;">
-      <div id="compte-list"></div>
+<!-- ============ ECRAN RECHERCHE ============ -->
+<div class="screen" id="screen-recherche">
+  <div class="card">
+    <label style="font-weight:700; color:#073C28; margin-bottom:12px; display:block; text-align:center;">Choisissez un domaine :</label>
+    <div class="depot-grid" id="s-domaine-grid"></div>
+
+    <!-- Apparaît une fois le domaine choisi -->
+    <div id="s-metier-section" style="display:none; margin-top:16px;">
+      <label style="font-weight:700; color:#073C28; display:block;">Précisez votre métier :</label>
+      <div class="depot-metier-grid" id="s-metier-list"></div>
+    </div>
+
+    <!-- Apparaît une fois le domaine choisi -->
+    <div id="s-filtres-section" style="display:none; margin-top:20px;">
+      <div class="role-select">
+        <button class="role-btn selected" id="search-role-travailleur-btn" onclick="setSearchRole('travailleur')" data-i18n="btn_search_travailleur">🧑‍💼 Chercher un Emploi</button>
+        <button class="role-btn" id="search-role-patron-btn" onclick="setSearchRole('patron')" data-i18n="btn_search_patron">🏢 Chercher un Candidat</button>
+      </div>
+
+      <label>Mot-clé</label>
+      <input type="text" id="s-keyword" placeholder="Ex: Chauffeur, Informaticien, Comptable...">
+
+      <label>Localisation</label>
+      <input type="text" id="s-localisation" placeholder="Ville, commune ou province">
+
+      <label id="s-contrat-label">Type de contrat</label>
+      <select id="s-contrat">
+        <option value="">-- Type de contrat --</option>
+        <option>Temps plein</option>
+        <option>Temps partiel</option>
+        <option>Freelance</option>
+        <option>Stage</option>
+        <option>CDD</option>
+        <option>CDI</option>
+      </select>
+
+      <label id="s-experience-label" style="display:none;">Niveau d'expérience</label>
+      <select id="s-experience" style="display:none;">
+        <option value="">-- Niveau d'expérience --</option>
+        <option value="Débutant (0-2 ans)">Débutant (0-2 ans)</option>
+        <option value="Intermédiaire (3-5 ans)">Intermédiaire (3-5 ans)</option>
+        <option value="Expert (+5 ans)">Expert (+5 ans)</option>
+      </select>
+
+      <button class="search-btn" id="s-search-btn" onclick="lancerRecherche()" data-i18n="btn_rechercher">🔍 LANCER LA RECHERCHE</button>
+    </div>
+
+    <div id="s-results"></div>
+  </div>
+</div>
+
+<!-- ============ ECRAN MON COMPTE ============ -->
+<div class="screen" id="screen-compte">
+  <div class="card">
+    <h2 data-i18n="h2_retrouver_annonce">📋 Mon Compte</h2>
+    <p style="font-size: 0.9rem; color: #666; margin-bottom: 16px;">
+      Retrouvez votre compte en entrant votre numéro de téléphone.
+    </p>
+
+    <div id="moncompte-search">
+      <label data-i18n="lbl_telephone_inscription">Numéro de téléphone</label>
+      <input type="tel" id="c-tel" placeholder="+243 ...">
+      <button class="submit-btn" onclick="rechercherCompteMonCompte()" data-i18n="btn_retrouver_annonce">🔍 Rechercher mon compte</button>
+      <div class="msg" id="c-msg"></div>
+    </div>
+
+    <div id="moncompte-found" style="display: none;">
+      <!-- Affichée après recherche réussie -->
+      <div class="moncompte-profile-display" id="moncompte-profile-display"></div>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+        <button class="submit-btn" style="margin-top: 0; flex: 1;" onclick="afficherEditionDossierMonCompte()">✏️ Éditer</button>
+        <button style="flex: 1; margin-top: 0; padding: 14px; background: white; border: 2px solid #0E6E46; color: #0E6E46; border-radius: 10px; font-weight: 700; font-size: 1rem;" onclick="retourMonCompteSearch()">← Retour</button>
+      </div>
+
+      <div id="moncompte-dossiers" style="margin-top: 16px;"></div>
     </div>
   </div>
 </div>
 
-<!-- MODAL SIGNALEMENT -->
-<div class="modal-overlay" id="signal-modal" onclick="if(event.target===this) fermerSignalement()">
-  <div class="modal-content">
-    <button class="modal-close" onclick="fermerSignalement()">✕</button>
-    <h2 style="margin-bottom: 16px; font-size: 1.1rem; color: #073C28; padding-right: 40px;">⚠️ Signaler une annonce</h2>
-    
-    <div style="background: #E7F2E9; padding: 12px; border-radius: 10px; margin-bottom: 20px;">
-      <p style="font-size: 0.85rem; color: #666; margin-bottom: 4px;">Annonce:</p>
-      <p style="font-size: 0.95rem; font-weight: 700; color: #073C28;" id="signal-annonce-nom"></p>
+<!-- MODALE ÉDITION DOSSIER -->
+<div class="moncompte-modal" id="modal-edition">
+  <div class="moncompte-modal-content">
+    <button class="moncompte-modal-close" onclick="fermerEditionMonCompte()">✕</button>
+    <div class="moncompte-modal-header">✏️ Éditer mon dossier</div>
+
+    <div class="edit-tabs">
+      <button class="edit-tab-btn active" onclick="switchEditTabMonCompte('infos')">Infos</button>
+      <button class="edit-tab-btn" onclick="switchEditTabMonCompte('statut')">Statut</button>
     </div>
 
-    <label style="margin-bottom: 12px; display: block; font-weight: 600; color: #333;">Raison du signalement</label>
-    <div id="signal-raisons" style="margin-bottom: 20px;"></div>
+    <div id="edit-infos-tab" class="edit-tab-content active">
+      <label>Domaine / Métier</label>
+      <button type="button" class="job-picker-btn" id="btn-edit-domaine" onclick="ouvrirSelecteurDomaineEdition()">-- Choisir un domaine --</button>
+      <input type="hidden" id="edit-categorie" value="">
+      <input type="hidden" id="edit-metier" value="">
 
-    <label style="display: block; margin-bottom: 8px;">Détails (optionnel)</label>
-    <textarea id="signal-details" placeholder="Expliquez pourquoi vous signalez cette annonce..."></textarea>
+      <label>Pays</label>
+      <input type="text" id="edit-pays" placeholder="Ex: RDC">
 
-    <button class="submit-btn" onclick="envoyerSignalement()" style="margin-top: 16px;">📤 Envoyer le signalement</button>
+      <label>Téléphone</label>
+      <input type="tel" id="edit-numero" placeholder="+243 9XX XXX XXX">
+
+      <button class="submit-btn" onclick="sauvegarderEditionMonCompte()">💾 Sauvegarder</button>
+      <div class="msg" id="edit-msg"></div>
+    </div>
+
+    <div id="edit-statut-tab" class="edit-tab-content">
+      <label>Statut du compte</label>
+      <select id="edit-statut" style="margin-bottom: 12px;">
+        <option value="actif">✅ Actif</option>
+        <option value="inactif">❌ Inactif (masqué)</option>
+      </select>
+
+      <p style="font-size: 0.85rem; color: #666; margin-bottom: 16px;">
+        <strong>Inactif:</strong> Votre compte est masqué mais vos données sont conservées.<br>
+        <strong>Actif:</strong> Votre compte et vos annonces sont visibles.
+      </p>
+
+      <button class="submit-btn" onclick="changerStatutMonCompte()">✔️ Changer le statut</button>
+
+      <div class="danger-zone">
+        <div class="danger-zone-title">⚠️ Zone critique</div>
+        <div class="danger-zone-desc">
+          Supprimer votre compte entraîne la suppression définitive de tous vos dossiers et offres. Cette action est irréversible.
+        </div>
+        <button class="submit-btn" style="background: #B33F2E; margin: 8px 0 0;" onclick="demanderConfirmationSuppressionMonCompte()">
+          🗑️ Supprimer mon compte
+        </button>
+      </div>
+
+      <div id="confirm-suppression" style="margin-top: 16px; padding: 12px; background: #ffe6e0; border-radius: 8px; border: 1px solid #B33F2E;">
+        <p style="font-size: 0.9rem; color: #B33F2E; font-weight: 600; margin-bottom: 12px;">
+          ⚠️ Êtes-vous sûr ? Tous les dossiers seront supprimés.
+        </p>
+        <button class="submit-btn" style="background: #B33F2E; margin: 0; padding: 10px;" onclick="confirmerSuppressionMonCompte()">
+          Oui, supprimer
+        </button>
+        <button style="width: 100%; margin: 8px 0 0; padding: 10px; border: 2px solid #B33F2E; background: white; color: #B33F2E; border-radius: 10px; font-weight: 700; font-size: 1rem;" onclick="annulerSuppressionMonCompte()">
+          Non, retour
+        </button>
+      </div>
+      
+      <div class="msg" id="edit-msg-statut"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE SIGNALEMENT -->
+<div class="moncompte-modal" id="modal-signalement">
+  <div class="moncompte-modal-content">
+    <button class="moncompte-modal-close" onclick="fermerSignalementMonCompte()">✕</button>
+    <div class="moncompte-modal-header">⚠️ Signaler une annonce</div>
+
+    <label>Annonce signalée</label>
+    <input type="text" id="signalement-annonce" readonly style="background: #f5f5f5;">
+
+    <label>Raison du signalement</label>
+    <select id="signalement-raison">
+      <option value="">Sélectionner une raison...</option>
+      <option value="contenu_offensant">Contenu offensant</option>
+      <option value="arnaque">Possible arnaque</option>
+      <option value="donnees_privees">Données privées exposées</option>
+      <option value="spam">Spam / Dupliquée</option>
+      <option value="autre">Autre</option>
+    </select>
+
+    <label>Description (optionnel)</label>
+    <textarea id="signalement-desc" placeholder="Décrivez le problème..." style="min-height: 100px; margin-bottom: 12px;"></textarea>
+
+    <button class="submit-btn" onclick="soumettreSignalementMonCompte()">📤 Soumettre le signalement</button>
+    <div class="msg" id="signalement-msg"></div>
+  </div>
+</div>
+
+<!-- MODALE SÉLECTION DOMAINE (édition du dossier "Mon Compte") -->
+<div class="moncompte-modal" id="modal-edit-domaine">
+  <div class="moncompte-modal-content">
+    <button class="moncompte-modal-close" onclick="fermerSelecteurDomaineEdition()">✕</button>
+    <div class="moncompte-modal-header" id="edit-domaine-modal-title">Choisissez un domaine</div>
+    <button type="button" class="job-modal-back" id="edit-domaine-back" style="display:none; margin-bottom:12px;" onclick="afficherCategoriesEditionDomaine()">◀ Retour</button>
+    <div class="depot-grid" id="edit-domaine-categories" style="display:none;"></div>
+    <div class="depot-metier-grid" id="edit-domaine-metiers" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- ============ ECRAN ADMIN (réservé au gérant de l'application) ============ -->
+<div class="screen" id="screen-admin">
+  <div class="card" id="admin-login-card">
+    <h2 data-i18n="h2_admin">Espace administrateur</h2>
+    <p style="color:#666; font-size:14px;">Réservé au gérant de JOB CONNECT.</p>
+    <label data-i18n="lbl_email">Adresse email</label>
+    <input type="email" id="admin-email" placeholder="exemple@gmail.com">
+    <label data-i18n="lbl_password">Mot de passe</label>
+    <div class="password-wrapper">
+      <input type="password" id="admin-password" placeholder="Votre mot de passe">
+      <button type="button" class="password-toggle" onclick="togglePasswordVisibility('admin-password', this)">👁️</button>
+    </div>
+    <button class="submit-btn" onclick="connexionAdmin()" data-i18n="btn_se_connecter">Se connecter</button>
+    <p style="text-align:center; margin-top:6px;">
+      <a href="#" style="color:#1565C0; font-size:0.85rem; text-decoration:underline;"
+         onclick="event.preventDefault(); envoyerResetAdmin()">Mot de passe oublié ?</a>
+    </p>
+    <div class="msg" id="admin-msg"></div>
+  </div>
+  <div class="card" id="admin-panel-card" style="display:none;">
+    <h2 data-i18n="h2_tous_comptes">Tous les comptes enregistrés</h2>
+    <button type="button" class="toggle-btn desactiver" onclick="deconnexionAdmin()" data-i18n="btn_deconnexion_admin">🚪 Se déconnecter de l'admin</button>
+    <div class="msg" id="admin-panel-msg"></div>
+    <input type="text" id="admin-search" class="admin-search-input" placeholder="🔍 Chercher par nom ou téléphone..." oninput="filtrerPanneauAdmin()">
+  </div>
+  <div id="admin-results"></div>
+</div>
+
+<!-- ============ MODAL SIGNALEMENT D'UNE ANNONCE ============ -->
+<div class="signal-modal-overlay" id="signal-modal-overlay" onclick="if(event.target===this) fermerSignalement()">
+  <div class="signal-modal">
+    <h2 style="font-size:1.05rem; margin-bottom:10px; color:#073C28;">🚩 Signaler cette annonce</h2>
+    <p style="font-size:0.85rem; color:#666; margin-bottom:14px;" id="signal-cible-nom"></p>
+    <div id="signal-raisons">
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Faux profil / arnaque"> Faux profil ou arnaque</label>
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Spam / publicité"> Spam ou publicité</label>
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Contenu inapproprié"> Contenu inapproprié</label>
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Ne répond pas / faux numéro"> Ne répond pas / faux numéro</label>
+      <label class="signal-reason-label"><input type="radio" name="signal-raison" value="Autre"> Autre raison</label>
+    </div>
+    <label>Détails (facultatif)</label>
+    <input type="text" id="signal-details" placeholder="Précisez si besoin...">
+    <button class="submit-btn" onclick="envoyerSignalement()">🚩 Envoyer le signalement</button>
+    <button class="country-modal-close" style="width:100%; margin-top:10px;" onclick="fermerSignalement()">Annuler</button>
     <div class="msg" id="signal-msg"></div>
   </div>
 </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import {
-    getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc, deleteDoc, serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<!-- ============ FENÊTRE DE SÉLECTION DE PAYS (avec recherche intégrée) ============ -->
+<div class="country-modal-overlay" id="country-modal-overlay" onclick="if(event.target===this) fermerSelecteurPays()">
+  <div class="country-modal">
+    <input type="text" id="country-modal-search" class="country-modal-search" placeholder="🔍 Tapez une lettre, ex: R..." autocomplete="off">
+    <div class="country-modal-list" id="country-modal-list"></div>
+    <button type="button" class="country-modal-close" onclick="fermerSelecteurPays()">Fermer</button>
+  </div>
+</div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBn2SAqVmUez262KRcZo54MVbSS512zsIg",
-    authDomain: "africa-jobs-a465c.firebaseapp.com",
-    projectId: "africa-jobs-a465c",
-    storageBucket: "africa-jobs-a465c.firebasestorage.app",
-    messagingSenderId: "59043305598",
-    appId: "1:59043305598:web:458168e88ac6a8ad89e02f"
+<!-- ============ FENÊTRE DE SÉLECTION DU TRAVAIL (catégorie -> métier) ============ -->
+<div class="job-modal-overlay" id="job-modal-overlay" onclick="if(event.target===this) fermerSelecteurTravail()">
+  <div class="job-modal">
+    <div class="job-modal-header">
+      <button type="button" class="job-modal-back" id="job-modal-back" onclick="retourCategoriesTravail()">◀ Retour</button>
+      <div class="job-modal-title" id="job-modal-title">Choisissez une catégorie</div>
+    </div>
+    <div class="job-modal-list" id="job-modal-list"></div>
+    <button type="button" class="job-modal-close" onclick="fermerSelecteurTravail()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ FENÊTRE DE RÉINITIALISATION DU MOT DE PASSE (arrivée depuis le lien reçu par email) ============ -->
+<div class="signal-modal-overlay" id="reset-modal-overlay">
+  <div class="signal-modal">
+    <h2 style="font-size:1.05rem; margin-bottom:10px; color:#073C28;">🔑 Choisir un nouveau mot de passe</h2>
+    <p style="font-size:0.85rem; color:#666; margin-bottom:14px;" id="reset-compte-email"></p>
+    <label>Nouveau mot de passe</label>
+    <input type="password" id="reset-password-1" placeholder="Au moins 6 caractères">
+    <label>Confirmer le nouveau mot de passe</label>
+    <input type="password" id="reset-password-2" placeholder="Retapez le mot de passe">
+    <button class="submit-btn" onclick="confirmerNouveauMotDePasse()">✅ Valider le nouveau mot de passe</button>
+    <div class="msg" id="reset-msg"></div>
+  </div>
+</div>
+
+<!-- ============ FENÊTRE DE RÉCUPÉRATION DE COMPTE (Google / email + mot de passe) ============ -->
+<div class="recup-modal-overlay" id="recup-modal-overlay" onclick="if(event.target===this) fermerRecuperationCompte()">
+  <div class="recup-modal">
+    <h2 data-i18n="h2_retrouver_compte">Retrouver mon compte</h2>
+    <p style="color:#666; font-size:0.88rem; margin-bottom:14px;">Connectez-vous avec l'email utilisé à l'inscription pour retrouver et réactiver votre compte.</p>
+
+    <label data-i18n="lbl_telephone_inscription">Numéro de téléphone utilisé à l'inscription</label>
+    <input type="tel" id="r-tel" placeholder="+243 ...">
+
+    <button type="button" class="google-btn" onclick="connexionGoogle()" data-i18n="btn_google">🔵 Continuer avec Google</button>
+    <div class="recup-separateur" data-i18n="txt_ou_email">— ou avec votre email —</div>
+
+    <label data-i18n="lbl_email">Adresse email</label>
+    <input type="email" id="r-email" placeholder="exemple@gmail.com">
+    <label data-i18n="lbl_password">Mot de passe</label>
+    <div class="password-wrapper">
+      <input type="password" id="r-password" placeholder="Votre mot de passe">
+      <button type="button" class="password-toggle" onclick="togglePasswordVisibility('r-password', this)">👁️</button>
+    </div>
+    <button class="submit-btn" onclick="connexionEmail()" data-i18n="btn_se_connecter">Se connecter</button>
+    <div class="msg" id="r-msg"></div>
+
+    <div id="r-results"></div>
+
+    <button type="button" class="job-modal-close" onclick="fermerRecuperationCompte()">Fermer</button>
+  </div>
+</div>
+
+<!-- Script normal : remplit les listes déroulantes IMMÉDIATEMENT, sans dépendre d'Internet -->
+<script>
+  const PAYS = [
+    "Afghanistan", "Afrique du Sud", "Albanie", "Algérie", "Allemagne", "Andorre",
+    "Angola", "Arabie Saoudite", "Argentine", "Arménie", "Australie", "Autriche",
+    "Azerbaïdjan", "Bahreïn", "Bangladesh", "Belgique", "Bénin", "Bhoutan",
+    "Biélorussie", "Birmanie", "Bolivie", "Bosnie-Herzégovine", "Botswana", "Brésil",
+    "Bulgarie", "Burkina Faso", "Burundi", "Cambodge", "Cameroun", "Canada",
+    "Chili", "Chine", "Chypre", "Colombie", "Comores", "Congo-Brazzaville",
+    "Corée du Sud", "Costa Rica", "Côte d'Ivoire", "Croatie", "Cuba", "Danemark",
+    "Djibouti", "Égypte", "Émirats Arabes Unis", "Équateur", "Érythrée", "Espagne",
+    "Estonie", "États-Unis", "Éthiopie", "Fidji", "Finlande", "France", "Gabon",
+    "Gambie", "Géorgie", "Ghana", "Grèce", "Guatemala", "Guinée", "Guinée-Bissau",
+    "Guinée Équatoriale", "Haïti", "Honduras", "Hongrie", "Inde", "Indonésie",
+    "Irak", "Iran", "Irlande", "Islande", "Israël", "Italie", "Jamaïque", "Japon",
+    "Jordanie", "Kazakhstan", "Kenya", "Kirghizistan", "Kosovo", "Koweït", "Laos",
+    "Lesotho", "Lettonie", "Liban", "Liberia", "Libye", "Liechtenstein", "Lituanie",
+    "Luxembourg", "Macédoine du Nord", "Madagascar", "Malaisie", "Malawi", "Mali",
+    "Malte", "Maroc", "Maurice", "Mauritanie", "Mexique", "Moldavie", "Monaco",
+    "Mongolie", "Monténégro", "Mozambique", "Namibie", "Népal", "Nicaragua",
+    "Niger", "Nigeria", "Norvège", "Nouvelle-Zélande", "Oman", "Ouganda",
+    "Ouzbékistan", "Pakistan", "Panama", "Papouasie-Nouvelle-Guinée", "Paraguay",
+    "Pays-Bas", "Pérou", "Philippines", "Pologne", "Portugal", "Qatar",
+    "RD Congo", "République Centrafricaine", "République Dominicaine",
+    "République Tchèque", "Roumanie", "Royaume-Uni", "Russie", "Rwanda",
+    "Salvador", "Sao Tomé-et-Principe", "Sénégal", "Serbie", "Seychelles",
+    "Sierra Leone", "Singapour", "Slovaquie", "Slovénie", "Somalie", "Soudan",
+    "Soudan du Sud", "Sri Lanka", "Suède", "Suisse", "Suriname", "Syrie",
+    "Tadjikistan", "Tanzanie", "Tchad", "Thaïlande", "Togo", "Tunisie",
+    "Turkménistan", "Turquie", "Ukraine", "Uruguay", "Venezuela", "Vietnam",
+    "Yémen", "Zambie", "Zimbabwe", "Autre"
+  ];
+
+  const TYPES_TRAVAIL = [
+    { id: "domestique", label: "Domestique", jobs: ["Ménage", "Garde d'enfants", "Sécurité", "Cuisine", "Garde-malade", "Santé mentale"] },
+    { id: "ventes", label: "Ventes", jobs: ["Vêtements", "Machines", "Galerie", "Restaurant"] },
+    { id: "routes", label: "Routes", jobs: ["Chauffeur", "Moto-taxi", "Bateau", "Avion"] },
+    { id: "finances", label: "Finances", jobs: ["Banque", "Hôpital", "École", "Frontière", "Port", "Aéroport"] },
+    { id: "technique", label: "Technique", jobs: ["Musiciens", "Informaticiens", "Électriciens", "Peintres", "Mécaniciens", "Réparateurs", "Arrangeur de son", "Constructions"] }
+  ];
+
+  // ===== Dossiers détaillés par métier : documents à fournir (travailleur) et critères à cocher (patron) =====
+  // Une entrée dans "parMetier" (clé = nom exact du poste) a priorité sur "parCategorie" (clé = id de catégorie).
+  // Pour ajouter un nouveau métier plus tard : ajouter une entrée ici, rien d'autre à modifier.
+  const DOC_CHAUFFEUR = {
+    documents: [
+      { key: "cv", label: "CV", requis: true },
+      { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+      { key: "identite", label: "Carte d'identité ou passeport", requis: true },
+      { key: "permis", label: "Permis de conduire correspondant à la catégorie du véhicule", requis: true },
+      { key: "medical", label: "Certificat médical d'aptitude (si exigé)", requis: false },
+      { key: "experience", label: "Attestations d'expérience", requis: false },
+      { key: "casier", label: "Casier judiciaire (si demandé)", requis: false }
+    ],
+    criteres: [
+      "Pièce d'identité valide",
+      "CV",
+      "Permis de conduire correspondant à la catégorie du véhicule",
+      "Certificat médical d'aptitude",
+      "Attestations d'expérience",
+      "Casier judiciaire",
+      "Bonne conduite, ponctualité et respect",
+      "Compétences nécessaires pour le poste"
+    ]
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Variables globales
-  let roleActuel = 'travailleur';
-  let signalCible = {};
-  let raisonSelectionnee = '';
-
-  // Navigation
-  window.allerVersEcran = function(nom) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + nom).classList.add('active');
-    
-    if (nom === 'depot') chargerAnnonces();
-    if (nom === 'mon-compte') document.getElementById('compte-details').style.display = 'none';
+  const DOC_BATIMENT = {
+    documents: [
+      { key: "cv", label: "CV", requis: true },
+      { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+      { key: "identite", label: "Carte d'identité", requis: true },
+      { key: "certifBatiment", label: "Certificat ou diplôme dans le métier (maçonnerie, plomberie, menuiserie, peinture, etc. — si disponible)", requis: false },
+      { key: "experience", label: "Attestation d'expérience", requis: false },
+      { key: "securite", label: "Certificat de sécurité sur chantier (si exigé)", requis: false }
+    ],
+    criteres: [
+      "Pièce d'identité valide",
+      "CV",
+      "Certificat ou diplôme dans le métier (si disponible)",
+      "Attestation d'expérience",
+      "Certificat de sécurité sur chantier (si exigé)",
+      "Références",
+      "Bonne conduite, ponctualité et respect"
+    ]
   };
 
-  // Rôle
-  window.selectionnerRole = function(role) {
-    roleActuel = role;
-    document.getElementById('btn-travailleur').style.background = role === 'travailleur' ? '#E7F2E9' : 'white';
-    document.getElementById('btn-travailleur').style.borderColor = role === 'travailleur' ? '#0E6E46' : '#ddd';
-    document.getElementById('btn-travailleur').style.color = role === 'travailleur' ? '#0E6E46' : '#333';
-    
-    document.getElementById('btn-patron').style.background = role === 'patron' ? '#E7F2E9' : 'white';
-    document.getElementById('btn-patron').style.borderColor = role === 'patron' ? '#0E6E46' : '#ddd';
-    document.getElementById('btn-patron').style.color = role === 'patron' ? '#0E6E46' : '#333';
+  const DEFAULT_DOSSIER = {
+    documents: [
+      { key: "cv", label: "CV", requis: true },
+      { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+      { key: "identite", label: "Carte d'identité", requis: true },
+      { key: "experience", label: "Attestation d'expérience (si disponible)", requis: false },
+      { key: "references", label: "Références", requis: false }
+    ],
+    criteres: [
+      "Pièce d'identité valide",
+      "CV",
+      "Lettre de motivation (si demandée)",
+      "Diplômes ou certificats (si le poste l'exige)",
+      "Attestations d'expérience (si disponibles)",
+      "Références d'anciens employeurs (si demandées)",
+      "Compétences nécessaires pour le poste",
+      "Bonne moralité, honnêteté et ponctualité"
+    ]
   };
 
-  // Déposer une annonce
-  window.deposerAnnonce = async function() {
-    const domaine = document.getElementById('domaine').value;
-    const pays = document.getElementById('pays').value;
-    const telephone = document.getElementById('telephone').value.trim();
-    const description = document.getElementById('description').value.trim();
-
-    if (!domaine || !pays || !telephone) {
-      afficherMsg('depot-msg', '❌ Veuillez remplir tous les champs', 'error');
-      return;
-    }
-
-    try {
-      await addDoc(collection(db, 'annonces'), {
-        role: roleActuel,
-        domaine: domaine,
-        pays: pays,
-        telephone: telephone,
-        description: description,
-        dateCreation: serverTimestamp()
-      });
-
-      afficherMsg('depot-msg', '✅ Annonce publiée avec succès!', 'success');
-      document.getElementById('domaine').value = '';
-      document.getElementById('pays').value = '';
-      document.getElementById('telephone').value = '';
-      document.getElementById('description').value = '';
-
-      setTimeout(() => {
-        document.getElementById('depot-msg').style.display = 'none';
-        chargerAnnonces();
-      }, 1500);
-    } catch (e) {
-      afficherMsg('depot-msg', '❌ Erreur: ' + e.message, 'error');
-    }
-  };
-
-  // Charger et afficher les annonces
-  window.chargerAnnonces = async function() {
-    const container = document.getElementById('annonces-list');
-    
-    try {
-      const snap = await getDocs(collection(db, 'annonces'));
-      
-      if (snap.empty) {
-        container.innerHTML = '<div class="empty-state">Aucune annonce pour le moment</div>';
-        return;
+  const DOSSIERS_METIERS = {
+    parMetier: {
+      "Chauffeur": DOC_CHAUFFEUR,
+      "Moto-taxi": DOC_CHAUFFEUR,
+      "Bateau": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "brevet", label: "Permis ou brevet de navigation", requis: true },
+          { key: "formationMaritime", label: "Certificat de formation maritime", requis: true },
+          { key: "medical", label: "Certificat médical", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide",
+          "CV",
+          "Permis ou brevet de navigation",
+          "Certificat de formation maritime",
+          "Certificat médical",
+          "Attestation d'expérience",
+          "Bonne conduite et respect"
+        ]
+      },
+      "Avion": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "identite", label: "Carte d'identité ou passeport", requis: true },
+          { key: "licence", label: "Licence de pilote valide", requis: true },
+          { key: "qualifications", label: "Qualifications pour le type d'avion", requis: true },
+          { key: "medicalAero", label: "Certificat médical aéronautique", requis: true },
+          { key: "carnetVol", label: "Carnet de vol (heures de vol)", requis: false },
+          { key: "experience", label: "Attestations d'expérience", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide ou passeport",
+          "CV",
+          "Licence de pilote valide",
+          "Qualifications pour le type d'avion",
+          "Certificat médical aéronautique",
+          "Carnet de vol (heures de vol)",
+          "Attestations d'expérience"
+        ]
+      },
+      "Informaticiens": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat en informatique", requis: false },
+          { key: "experience", label: "Attestations d'expérience", requis: false },
+          { key: "formation", label: "Certificats de formation (si disponibles)", requis: false },
+          { key: "portfolio", label: "Portfolio ou projets réalisés (si demandé)", requis: false },
+          { key: "references", label: "Références professionnelles", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Diplôme ou certificat en informatique",
+          "Attestations d'expérience", "Certificats de formation", "Portfolio ou projets réalisés",
+          "Références professionnelles", "Compétences nécessaires pour le poste"
+        ]
+      },
+      "Mécaniciens": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat en mécanique", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "formation", label: "Certificat de formation technique", requis: false },
+          { key: "references", label: "Références d'anciens employeurs", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Diplôme ou certificat en mécanique",
+          "Attestation d'expérience", "Certificat de formation technique", "Références d'anciens employeurs"
+        ]
+      },
+      "Musiciens": {
+        documents: [
+          { key: "cv", label: "CV artistique", requis: true },
+          { key: "lettre", label: "Lettre de demande", requis: false },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat de musique (si disponible)", requis: false },
+          { key: "enregistrements", label: "Enregistrements audio ou vidéo de ses prestations", requis: false },
+          { key: "experience", label: "Attestations d'expérience", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV artistique", "Diplôme ou certificat de musique",
+          "Enregistrements audio ou vidéo de prestations", "Attestations d'expérience", "Références"
+        ]
+      },
+      "Électriciens": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat en électricité", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "securite", label: "Certificat de sécurité ou de formation (si exigé)", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Diplôme ou certificat en électricité",
+          "Attestation d'expérience", "Certificat de sécurité ou de formation", "Références"
+        ]
+      },
+      "Constructions": DOC_BATIMENT,
+      "Peintres": DOC_BATIMENT,
+      "Garde d'enfants": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "formation", label: "Attestation ou certificat de formation en garde d'enfants (si disponible)", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "references", label: "Références d'anciens employeurs", requis: false },
+          { key: "casier", label: "Casier judiciaire ou certificat de bonne vie et mœurs", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Attestation ou certificat de formation en garde d'enfants",
+          "Attestation d'expérience", "Références d'anciens employeurs", "Casier judiciaire ou certificat de bonne vie et mœurs",
+          "Bonne conduite, ponctualité et respect"
+        ]
+      },
+      "Garde-malade": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Diplôme ou certificat d'aide-soignant ou d'infirmier (si exigé)", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "medical", label: "Certificat médical", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Diplôme ou certificat d'aide-soignant/infirmier",
+          "Attestation d'expérience", "Certificat médical", "Références"
+        ]
+      },
+      "Cuisine": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "diplome", label: "Certificat ou diplôme en cuisine (si disponible)", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "references", label: "Références", requis: false },
+          { key: "hygiene", label: "Certificat médical ou d'hygiène (si demandé)", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Certificat ou diplôme en cuisine",
+          "Attestation d'expérience", "Certificat médical ou d'hygiène", "Références"
+        ]
+      },
+      "Ménage": {
+        documents: [
+          { key: "cv", label: "CV ou lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "experience", label: "Attestation d'expérience (si disponible)", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV ou lettre de demande d'emploi",
+          "Attestation d'expérience", "Références", "Bonne conduite et honnêteté"
+        ]
+      },
+      "Sécurité": {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité", requis: true },
+          { key: "formation", label: "Certificat ou formation en sécurité (si exigé)", requis: false },
+          { key: "experience", label: "Attestation d'expérience", requis: false },
+          { key: "casier", label: "Casier judiciaire ou certificat de bonne vie et mœurs", requis: false },
+          { key: "medical", label: "Certificat médical", requis: false },
+          { key: "references", label: "Références", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV", "Certificat ou formation en sécurité",
+          "Attestation d'expérience", "Casier judiciaire ou certificat de bonne vie et mœurs",
+          "Certificat médical", "Références"
+        ]
       }
-
-      let html = '<h3 style="padding: 0 16px; margin: 20px 0 10px; font-size: 1rem; color: #073C28;">📋 Annonces publiées</h3>';
-      
-      snap.forEach(docSnap => {
-        const a = docSnap.data();
-        const roleLabel = a.role === 'travailleur' ? '👷 Travailleur' : '🏢 Patron';
-        const lienWhatsapp = `https://wa.me/${a.telephone.replace(/[^0-9]/g, '')}?text=Bonjour,%20je%20suis%20intéressé%20par%20votre%20annonce`;
-        
-        html += `
-          <div class="annonce-card">
-            <h3>${a.domaine} <span style="font-weight: normal; font-size: 0.85rem; color: #999;">${roleLabel}</span></h3>
-            <p>🌍 ${a.pays}</p>
-            <p>📞 ${a.telephone}</p>
-            ${a.description ? `<p style="color: #555; margin-top: 8px;">${a.description}</p>` : ''}
-            <div class="annonce-actions">
-              <a href="${lienWhatsapp}" target="_blank" rel="noopener" class="annonce-btn annonce-btn-contact">💬 Contacter</a>
-              <button class="annonce-btn annonce-btn-signaler" onclick="ouvrirSignalement('${docSnap.id}', '${a.domaine}')">⚠️ Signaler</button>
-            </div>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
-    } catch (e) {
-      container.innerHTML = '<div class="empty-state">❌ Erreur: ' + e.message + '</div>';
-    }
-  };
-
-  // SIGNALEMENT
-  window.ouvrirSignalement = function(id, nom) {
-    signalCible = { id, nom };
-    raisonSelectionnee = '';
-    
-    document.getElementById('signal-annonce-nom').textContent = nom;
-    document.getElementById('signal-details').value = '';
-    document.getElementById('signal-msg').innerHTML = '';
-    
-    // Créer les boutons de raison
-    const raisons = [
-      { id: 'arnaque', label: 'Possible arnaque' },
-      { id: 'spam', label: 'Spam / Publicité' },
-      { id: 'contenu', label: 'Contenu offensant' },
-      { id: 'donnees', label: 'Données privées exposées' },
-      { id: 'autre', label: 'Autre' }
-    ];
-    
-    let html = '';
-    raisons.forEach(r => {
-      html += `<button type="button" class="signal-reason-btn" onclick="selectionnerRaison('${r.id}', this)">${r.label}</button>`;
-    });
-    document.getElementById('signal-raisons').innerHTML = html;
-    
-    document.getElementById('signal-modal').classList.add('open');
-  };
-
-  window.selectionnerRaison = function(id, element) {
-    raisonSelectionnee = id;
-    document.querySelectorAll('.signal-reason-btn').forEach(btn => btn.classList.remove('selected'));
-    element.classList.add('selected');
-  };
-
-  window.fermerSignalement = function() {
-    document.getElementById('signal-modal').classList.remove('open');
-    signalCible = {};
-    raisonSelectionnee = '';
-  };
-
-  window.envoyerSignalement = async function() {
-    if (!raisonSelectionnee) {
-      afficherMsg('signal-msg', '❌ Veuillez choisir une raison', 'error');
-      return;
-    }
-
-    const details = document.getElementById('signal-details').value.trim();
-
-    try {
-      await addDoc(collection(db, 'signalements'), {
-        annonce_id: signalCible.id,
-        annonce_nom: signalCible.nom,
-        raison: raisonSelectionnee,
-        details: details || 'Aucun détail fourni',
-        dateSignalement: serverTimestamp()
-      });
-
-      afficherMsg('signal-msg', '✅ Signalement envoyé!', 'success');
-      
-      setTimeout(() => {
-        window.fermerSignalement();
-      }, 2000);
-    } catch (e) {
-      afficherMsg('signal-msg', '❌ Erreur: ' + e.message, 'error');
-    }
-  };
-
-  // MON COMPTE
-  window.rechercherCompte = async function() {
-    const tel = document.getElementById('recherche-tel').value.trim();
-    const msgDiv = document.getElementById('compte-msg');
-
-    if (!tel) {
-      afficherMsg('compte-msg', '❌ Veuillez entrer votre numéro', 'error');
-      return;
-    }
-
-    try {
-      const q = query(collection(db, 'annonces'), where('telephone', '==', tel));
-      const snap = await getDocs(q);
-
-      if (snap.empty) {
-        afficherMsg('compte-msg', '❌ Aucune annonce trouvée', 'error');
-        return;
+    },
+    parCategorie: {
+      finances: {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi ou de motivation", requis: true },
+          { key: "identite", label: "Copie de la carte d'identité ou du passeport", requis: true },
+          { key: "diplomes", label: "Copies des diplômes ou certificats", requis: true },
+          { key: "experience", label: "Attestations de travail ou d'expérience (si disponibles)", requis: false },
+          { key: "photo", label: "Photo d'identité (si demandée)", requis: false },
+          { key: "casier", label: "Casier judiciaire ou certificat de bonne vie et mœurs (si demandé)", requis: false },
+          { key: "autre", label: "Autre document demandé par l'employeur", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide",
+          "CV (Curriculum Vitae)",
+          "Lettre de motivation (si demandée)",
+          "Diplômes ou certificats",
+          "Attestations d'expérience (si le poste en demande)",
+          "Références d'anciens employeurs (dans certains cas)",
+          "Compétences nécessaires pour le poste",
+          "Bonne conduite, ponctualité et respect",
+          "Être en bonne santé si le travail l'exige"
+        ]
+      },
+      ventes: {
+        documents: [
+          { key: "cv", label: "CV", requis: true },
+          { key: "lettre", label: "Lettre de demande d'emploi", requis: true },
+          { key: "identite", label: "Carte d'identité ou passeport", requis: true },
+          { key: "diplome", label: "Diplôme ou attestation d'études (si exigé)", requis: false },
+          { key: "experience", label: "Attestation d'expérience dans la vente (si demandée)", requis: false },
+          { key: "references", label: "Références ou attestation de travail (si disponible)", requis: false },
+          { key: "casier", label: "Casier judiciaire ou certificat de bonne vie et mœurs (si demandé)", requis: false }
+        ],
+        criteres: [
+          "Pièce d'identité valide", "CV (Curriculum Vitae)", "Lettre de motivation (si demandée)",
+          "Niveau d'études ou diplôme (si le poste l'exige)", "Bonne présentation",
+          "Capacité à bien communiquer avec les clients", "Honnêteté et intégrité",
+          "Sens de l'accueil et du service", "Ponctualité et discipline",
+          "Expérience dans la vente (si demandée)", "Références ou attestation de travail",
+          "Capacité à utiliser une caisse ou gérer les paiements (pour certains postes)",
+          "Casier judiciaire ou certificat de bonne vie et mœurs (si demandé)"
+        ]
       }
-
-      let html = '';
-      snap.forEach(docSnap => {
-        const a = docSnap.data();
-        html += `
-          <div class="annonce-card">
-            <h3>${a.domaine}</h3>
-            <p>🌍 ${a.pays}</p>
-            <p>📝 ${a.description || 'Aucune description'}</p>
-            <div class="annonce-actions">
-              <button class="annonce-btn" style="background: #E7F2E9; color: #0E6E46; flex: 1; min-width: 100px;" onclick="supprimerAnnonce('${docSnap.id}')">🗑️ Supprimer</button>
-            </div>
-          </div>
-        `;
-      });
-
-      document.getElementById('compte-list').innerHTML = html;
-      document.getElementById('compte-details').style.display = 'block';
-      afficherMsg('compte-msg', `✅ ${snap.size} annonce(s) trouvée(s)`, 'success');
-    } catch (e) {
-      afficherMsg('compte-msg', '❌ Erreur: ' + e.message, 'error');
     }
   };
 
-  window.supprimerAnnonce = async function(id) {
-    if (!confirm('❌ Êtes-vous sûr? Cette action est irréversible.')) return;
-
-    try {
-      await deleteDoc(doc(db, 'annonces', id));
-      afficherMsg('compte-msg', '✅ Annonce supprimée', 'success');
-      setTimeout(() => window.rechercherCompte(), 1500);
-    } catch (e) {
-      afficherMsg('compte-msg', '❌ Erreur: ' + e.message, 'error');
-    }
-  };
-
-  // PARAMÈTRES
-  window.ouvrirParametres = function() {
-    document.getElementById('settings-overlay').classList.add('open');
-  };
-
-  window.fermerParametres = function() {
-    document.getElementById('settings-overlay').classList.remove('open');
-  };
-
-  window.ouvrirSelecteurLangue = function() {
-    document.getElementById('lang-overlay').classList.add('open');
-  };
-
-  window.fermerSelecteurLangue = function() {
-    document.getElementById('lang-overlay').classList.remove('open');
-  };
-
-  // Utilités
-  function afficherMsg(id, msg, type) {
-    const el = document.getElementById(id);
-    el.className = 'msg ' + type;
-    el.textContent = msg;
+  function getDossierConfig(catId, poste) {
+    return DOSSIERS_METIERS.parMetier[poste] || DOSSIERS_METIERS.parCategorie[catId] || DEFAULT_DOSSIER;
   }
 
-  // Initialisation
-  chargerAnnonces();
-  selectionnerRole('travailleur');
-</script>
+  function fillSelect(select, items, isObj) {
+    select.innerHTML = '<option value="">-- Choisir --</option>' +
+      items.map(it => isObj
+        ? `<option value="${it.id}">${it.label}</option>`
+        : `<option value="${it}">${it}</option>`
+      ).join("");
+  }
 
-</body>
-</html>
+  // ===== Sélecteur de travail : catégorie (bouton vert) -> métiers précis (boutons verts) =====
+  let cibleTravailActuelle = null; // { catInputId, posteInputId, btnId }
+
+  function afficherCategoriesTravail() {
+    const listEl = document.getElementById("job-modal-list");
+    document.getElementById("job-modal-title").textContent = "Choisissez une catégorie";
+    document.getElementById("job-modal-back").style.display = "none";
+    let html = "";
+    if (cibleTravailActuelle && cibleTravailActuelle.optionnel) {
+      html += `<button type="button" class="job-cat-btn" style="background:#666;" onclick="choisirTravail('','')">Tout type de travail</button>`;
+    }
+    html += TYPES_TRAVAIL.map(cat =>
+      `<button type="button" class="job-cat-btn" onclick="afficherJobsCategorie('${cat.id}')">${cat.label}</button>`
+    ).join("");
+    listEl.innerHTML = html;
+  }
+
+  function afficherJobsCategorie(catId) {
+    const cat = TYPES_TRAVAIL.find(t => t.id === catId);
+    if (!cat) return;
+    const posteActuel = (cibleTravailActuelle && cibleTravailActuelle.posteInputId)
+      ? (document.getElementById(cibleTravailActuelle.posteInputId) || {}).value : "";
+    const catActuelle = cibleTravailActuelle ? (document.getElementById(cibleTravailActuelle.catInputId) || {}).value : "";
+    const listEl = document.getElementById("job-modal-list");
+    document.getElementById("job-modal-title").textContent = cat.label;
+    document.getElementById("job-modal-back").style.display = "inline-block";
+    const cocheTous = catActuelle === catId && !posteActuel;
+    listEl.innerHTML =
+      `<button type="button" class="job-cat-btn" style="background:#073C28;" onclick="choisirTravail('${cat.id}','')">
+         <span class="job-checkbox${cocheTous ? " checked" : ""}"></span> ✅ ${cat.label} (tous les métiers)
+       </button>` +
+      cat.jobs.map(job => {
+        const coche = catActuelle === catId && posteActuel === job;
+        return `<button type="button" class="job-cat-btn" onclick="choisirTravail('${cat.id}', '${job.replace(/'/g, "\\'")}')">
+          <span class="job-checkbox${coche ? " checked" : ""}"></span> ${job}
+        </button>`;
+      }).join("");
+  }
+
+  window.retourCategoriesTravail = function () {
+    afficherCategoriesTravail();
+  };
+
+  window.ouvrirSelecteurTravail = function (catInputId, posteInputId, btnId) {
+    cibleTravailActuelle = { catInputId, posteInputId, btnId, optionnel: catInputId === "s-type" };
+    afficherCategoriesTravail();
+    document.getElementById("job-modal-overlay").classList.add("open");
+  };
+
+  window.fermerSelecteurTravail = function () {
+    document.getElementById("job-modal-overlay").classList.remove("open");
+  };
+
+  window.choisirTravail = function (catId, jobName) {
+    if (!cibleTravailActuelle) return;
+    const { catInputId, posteInputId, btnId } = cibleTravailActuelle;
+    document.getElementById(catInputId).value = catId;
+    if (posteInputId) {
+      const posteEl = document.getElementById(posteInputId);
+      if (posteEl) posteEl.value = jobName;
+    }
+    const cat = TYPES_TRAVAIL.find(t => t.id === catId);
+    let label = "-- Choisir un type de travail --";
+    if (cat) label = jobName ? `${cat.label} — ${jobName}` : `${cat.label} (tous les métiers)`;
+    else if (catId === "") label = "-- Tout type de travail --";
+    document.getElementById(btnId).textContent = label;
+    window.fermerSelecteurTravail();
+    if (catInputId === "t-type") window.updateDossierTravailleurUI();
+    if (catInputId === "p-type") window.updateDossierPatronUI();
+    if (catInputId === "depot-t-type") window.update
