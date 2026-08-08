@@ -537,6 +537,38 @@
   .signal-reason-label input[type="radio"] { width: 18px; height: 18px; accent-color: #B33F2E; }
   .signal-reason-label.checked { border-color: #B33F2E; background: #F7E6E2; }
 
+  /* ===== Sous-onglets Candidats / Recruteurs dans le panneau admin ===== */
+  .admin-usertabs {
+    display: flex;
+    gap: 6px;
+    margin: 10px 0;
+  }
+  .admin-usertab-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border-radius: 10px;
+    border: 1.5px solid #ddd;
+    background: white;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #555;
+  }
+  .admin-usertab-btn.active {
+    border-color: #0E6E46;
+    background: #E7F2E9;
+    color: #073C28;
+  }
+  .verifie-badge {
+    display: inline-block;
+    background: #0E6E46;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
   /* ===== Badges de signalement dans le panneau admin ===== */
   .admin-search-input {
     margin-bottom: 4px;
@@ -1414,9 +1446,9 @@
 <div class="tabs">
   <button class="tab-btn active" data-screen="inscription" data-i18n="tab_inscription">Inscription</button>
   <button class="tab-btn" id="tab-depot" data-screen="depot" data-i18n="tab_depot" style="display:none;">📦 Dépôt</button>
-  <button class="tab-btn" data-screen="recherche" data-i18n="tab_recherche">Recherche<span class="tab-notif-badge" id="tab-notif-badge">0</span></button>
-  <button class="tab-btn" data-screen="compte" data-i18n="tab_compte">Mon compte</button>
-  <button class="tab-btn" id="tab-admin" data-screen="admin" data-i18n="tab_admin" style="display:none;">Admin</button>
+  <button class="tab-btn" id="tab-recherche" data-screen="recherche" data-i18n="tab_recherche" style="display:none;">Recherche<span class="tab-notif-badge" id="tab-notif-badge">0</span></button>
+  <button class="tab-btn" id="tab-compte" data-screen="compte" data-i18n="tab_compte" style="display:none;">Mon compte</button>
+  <button class="tab-btn" id="tab-admin" data-screen="admin" data-i18n="tab_admin">Admin</button>
 </div>
 
 <!-- ============ FENÊTRE DE SÉLECTION DE LANGUE ============ -->
@@ -2092,6 +2124,10 @@
     <h2 data-i18n="h2_tous_comptes">Tous les comptes enregistrés</h2>
     <button type="button" class="toggle-btn desactiver" onclick="deconnexionAdmin()" data-i18n="btn_deconnexion_admin">🚪 Se déconnecter de l'admin</button>
     <div class="msg" id="admin-panel-msg"></div>
+    <div class="admin-usertabs">
+      <button type="button" class="admin-usertab-btn active" id="admin-usertab-travailleurs" onclick="window.switchAdminUserTab('travailleurs')">👷 Candidats</button>
+      <button type="button" class="admin-usertab-btn" id="admin-usertab-patrons" onclick="window.switchAdminUserTab('patrons')">🧑‍💼 Recruteurs</button>
+    </div>
     <input type="text" id="admin-search" class="admin-search-input" placeholder="🔍 Chercher par nom ou téléphone..." oninput="filtrerPanneauAdmin()">
   </div>
   <div id="admin-results"></div>
@@ -2758,7 +2794,8 @@
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
     GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendEmailVerification, signInWithPopup,
-    sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset, onAuthStateChanged
+    sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset, onAuthStateChanged,
+    setPersistence, browserLocalPersistence
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   // Hébergement des documents (CV, pièce d'identité, diplômes, etc.) via Cloudinary,
@@ -2798,6 +2835,16 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
+  // Garde la session ouverte durablement (même après plusieurs jours sans revenir sur l'app),
+  // tant que l'utilisateur ne se déconnecte pas explicitement. C'est le comportement par défaut
+  // de Firebase Auth sur le web, on le fixe ici explicitement pour être sûr qu'il ne change pas.
+  // ⚠️ Ceci dépend du stockage persistant du navigateur : si l'app est ouverte depuis un lien
+  // "content://" ou en navigation privée, le navigateur peut effacer ce stockage et forcer une
+  // reconnexion malgré ce réglage — ce n'est pas quelque chose que le code de l'app peut contourner.
+  setPersistence(auth, browserLocalPersistence).catch((e) => {
+    console.error("Impossible de configurer la persistance de connexion :", e);
+  });
+
   // Expose au script classique (non-module) qui gère l'écran d'accueil, le sélecteur de métier
   // et la connexion Google dans le formulaire d'inscription : les modules ES ont leur propre portée,
   // donc ces variables ne sont pas visibles ailleurs sans être attachées explicitement à window.
@@ -2805,6 +2852,38 @@
   window.GoogleAuthProvider = GoogleAuthProvider;
   window.signInWithPopup = signInWithPopup;
   window.signInWithRedirect = signInWithRedirect;
+
+  // Affiche l'onglet Recherche uniquement pour les utilisateurs inscrits et connectés
+  // (travailleur, patron ou administrateur connecté). Un visiteur non inscrit ne voit pas ce bouton.
+  window.afficherOuMasquerRecherche = function() {
+    const tabRecherche = document.getElementById("tab-recherche");
+    if (!tabRecherche) return;
+    const user = auth.currentUser;
+    tabRecherche.style.display = user ? "block" : "none";
+    // Si un utilisateur non connecté se trouvait déjà sur l'écran Recherche (ex: onglet
+    // resté ouvert après une déconnexion), on le renvoie vers l'écran Inscription.
+    if (!user) {
+      const ecranRecherche = document.getElementById("screen-recherche");
+      if (ecranRecherche && ecranRecherche.classList.contains("active") && typeof window.allerVersEcran === 'function') {
+        window.allerVersEcran("inscription");
+      }
+    }
+  };
+
+  // Affiche l'onglet "Mon compte" uniquement pour les utilisateurs connectés (travailleur,
+  // patron ou admin). Un visiteur non inscrit ne voit ni ne peut atteindre cet écran.
+  window.afficherOuMasquerCompte = function() {
+    const tabCompte = document.getElementById("tab-compte");
+    if (!tabCompte) return;
+    const user = auth.currentUser;
+    tabCompte.style.display = user ? "block" : "none";
+    if (!user) {
+      const ecranCompte = document.getElementById("screen-compte");
+      if (ecranCompte && ecranCompte.classList.contains("active") && typeof window.allerVersEcran === 'function') {
+        window.allerVersEcran("inscription");
+      }
+    }
+  };
 
   // Écouter les changements de connexion et afficher/masquer les onglets en conséquence
   onAuthStateChanged(auth, (user) => {
@@ -2814,6 +2893,8 @@
     if (typeof window.verifierAccesAdmin === 'function') {
       window.verifierAccesAdmin();
     }
+    window.afficherOuMasquerRecherche();
+    window.afficherOuMasquerCompte();
   });
 
   function showMsg(elId, ok, textOk, textErr) {
@@ -4589,11 +4670,12 @@
   // (URL directe, session expirée, etc.), on le renvoie de force vers l'écran de connexion admin.
   window.verifierAccesAdmin = async function () {
     const user = auth.currentUser;
-    const tabAdmin = document.getElementById("tab-admin");
     const role = user ? await verifierRoleAdmin(user.email) : null;
     window.currentAdminRole = role;
 
-    if (tabAdmin) tabAdmin.style.display = role ? "block" : "none";
+    // Le bouton Admin reste toujours visible (même pour les visiteurs non connectés) : c'est
+    // l'accès au panneau qui est protégé, pas le bouton. Un patron/travailleur qui clique dessus
+    // tombe sur l'écran de connexion admin, jamais sur le panneau lui-même (voir plus bas).
 
     if (!role) {
       // Accès refusé : on s'assure que le panneau est caché et qu'on est sur l'écran de connexion.
@@ -4628,8 +4710,6 @@
         return;
       }
       window.currentAdminRole = role;
-      const tabAdmin = document.getElementById("tab-admin");
-      if (tabAdmin) tabAdmin.style.display = "block";
       document.getElementById("admin-login-card").style.display = "none";
       document.getElementById("admin-panel-card").style.display = "block";
       await chargerPanneauAdmin();
@@ -4657,8 +4737,6 @@
   window.deconnexionAdmin = async function () {
     await signOut(auth);
     window.currentAdminRole = null;
-    const tabAdmin = document.getElementById("tab-admin");
-    if (tabAdmin) tabAdmin.style.display = "none";
     document.getElementById("admin-login-card").style.display = "block";
     document.getElementById("admin-panel-card").style.display = "none";
     document.getElementById("admin-results").innerHTML = "";
@@ -4670,6 +4748,14 @@
   // Mémoire de session du panneau admin, pour permettre le filtrage sans re-requêter Firestore
   let adminTousComptes = [];
   let adminSignalementsParCible = {}; // clé "coll_id" -> [ {id, raison, details, date} ]
+  let adminActiveUserTab = "travailleurs"; // sous-onglet actif : "travailleurs" (Candidats) ou "patrons" (Recruteurs)
+
+  window.switchAdminUserTab = function (coll) {
+    adminActiveUserTab = coll;
+    document.getElementById("admin-usertab-travailleurs").classList.toggle("active", coll === "travailleurs");
+    document.getElementById("admin-usertab-patrons").classList.toggle("active", coll === "patrons");
+    filtrerPanneauAdmin();
+  };
 
   async function chargerPanneauAdmin() {
     const resultsEl = document.getElementById("admin-results");
@@ -4717,21 +4803,20 @@
       (nbSignales > 0 ? ` 🚩 ${nbSignales} signalé(s).` : "");
     document.getElementById("admin-panel-msg").className = "msg success";
 
-    rendreListeAdmin(tous);
+    filtrerPanneauAdmin();
   }
 
   window.filtrerPanneauAdmin = function () {
     const terme = document.getElementById("admin-search").value.trim().toLowerCase();
-    if (!terme) {
-      rendreListeAdmin(adminTousComptes);
-      return;
+    let filtres = adminTousComptes.filter(item => item.coll === adminActiveUserTab);
+    if (terme) {
+      filtres = filtres.filter(item => {
+        const nomComplet = `${item.data.prenom || ""} ${item.data.nom || ""}`.toLowerCase();
+        const tel = (item.data.telephone || "").toLowerCase();
+        const email = (item.data.email || "").toLowerCase();
+        return nomComplet.includes(terme) || tel.includes(terme) || email.includes(terme);
+      });
     }
-    const filtres = adminTousComptes.filter(item => {
-      const nomComplet = `${item.data.prenom || ""} ${item.data.nom || ""}`.toLowerCase();
-      const tel = (item.data.telephone || "").toLowerCase();
-      const email = (item.data.email || "").toLowerCase();
-      return nomComplet.includes(terme) || tel.includes(terme) || email.includes(terme);
-    });
     rendreListeAdmin(filtres);
   };
 
@@ -4770,9 +4855,12 @@
         <button class="toggle-btn activer" onclick="marquerSignalementsTraites('${item.coll}', '${item.id}')">✅ Marquer les signalements comme traités</button>
       ` : "";
 
+      const estVerifie = item.data.verifie === true;
+
       return `<div class="compte-card ${aDesSignalements ? "a-des-signalements" : ""}" id="carte-${item.id}">
-        <h3>${esc(item.data.prenom || "")} ${esc(item.data.nom || "")} <span style="font-weight:normal; font-size:14px; color:#666;">(${roleLabel})</span></h3>
+        <h3>${esc(item.data.prenom || "")} ${esc(item.data.nom || "")} <span style="font-weight:normal; font-size:14px; color:#666;">(${roleLabel})</span>${estVerifie ? '<span class="verifie-badge">✅ Vérifié</span>' : ""}</h3>
         <p>📞 ${esc(item.data.telephone || "")} &nbsp;|&nbsp; ✉️ ${esc(item.data.email || "")}</p>
+        <button class="toggle-btn ${estVerifie ? "desactiver" : "activer"}" onclick="marquerVerifie('${item.coll}', '${item.id}', ${!estVerifie})">${estVerifie ? "↩️ Retirer la vérification" : "✅ Vérifier ce compte"}</button>
         ${blocPaiement}
         ${blocSignalements}
         <label data-i18n="lbl_pays">Pays</label>
@@ -4798,6 +4886,18 @@
       </div>`;
     }).join("");
   }
+
+  window.marquerVerifie = async function (coll, docId, valeur) {
+    try {
+      await updateDoc(doc(db, coll, docId), { verifie: valeur });
+      const item = adminTousComptes.find(t => t.coll === coll && t.id === docId);
+      if (item) item.data.verifie = valeur;
+      afficherMsgCarte(docId, true, valeur ? "✅ Compte vérifié." : "↩️ Vérification retirée.");
+      setTimeout(() => rendreListeAdmin(adminTousComptes.filter(i => i.coll === adminActiveUserTab)), 900);
+    } catch (e) {
+      afficherMsgCarte(docId, false, "Erreur : impossible de mettre à jour la vérification.");
+    }
+  };
 
   window.marquerPaye = async function (coll, docId) {
     try {
@@ -4866,8 +4966,15 @@
       statutEl.textContent = "⚪ Annonce désactivée (invisible)";
       const checkEl = document.getElementById("check-" + docId);
       if (checkEl) checkEl.checked = false;
-      afficherMsgCarte(docId, true, "⛔ Compte désactivé. Retour à l'écran Inscription...");
-      setTimeout(() => window.allerVersEcran("inscription"), 1200);
+      // Un admin qui désactive le compte d'un tiers depuis le panneau Admin doit rester sur
+      // le panneau Admin. Seul un utilisateur qui gère SON PROPRE compte (écran Mon compte,
+      // sans être admin) est renvoyé vers Inscription, puisque son compte n'est alors plus actif.
+      if (window.currentAdminRole) {
+        afficherMsgCarte(docId, true, "⛔ Compte désactivé.");
+      } else {
+        afficherMsgCarte(docId, true, "⛔ Compte désactivé. Retour à l'écran Inscription...");
+        setTimeout(() => window.allerVersEcran("inscription"), 1200);
+      }
     } catch (e) {
       afficherMsgCarte(docId, false, "Erreur : impossible de désactiver le compte.");
     }
@@ -4888,10 +4995,17 @@
     try {
       await updateDoc(doc(db, coll, docId), { supprime: true, actif: false });
       const carteEl = document.getElementById("carte-" + docId);
-      if (carteEl) {
-        carteEl.innerHTML = '<div class="msg success" style="display:block;">🗑️ Compte supprimé. Retour à l\'écran Inscription...</div>';
+      // Même logique : un admin qui supprime le compte d'un tiers reste sur le panneau Admin.
+      if (window.currentAdminRole) {
+        if (carteEl) {
+          carteEl.innerHTML = '<div class="msg success" style="display:block;">🗑️ Compte supprimé.</div>';
+        }
+      } else {
+        if (carteEl) {
+          carteEl.innerHTML = '<div class="msg success" style="display:block;">🗑️ Compte supprimé. Retour à l\'écran Inscription...</div>';
+        }
+        setTimeout(() => window.allerVersEcran("inscription"), 1200);
       }
-      setTimeout(() => window.allerVersEcran("inscription"), 1200);
     } catch (e) {
       afficherMsgCarte(docId, false, "Erreur : impossible de supprimer le compte.");
     }
@@ -5183,6 +5297,21 @@
 
   // Navigation entre onglets
   window.allerVersEcran = function (nomEcran) {
+    // Verrou d'accès : l'écran Recherche est réservé aux utilisateurs inscrits et connectés.
+    // Ce contrôle se fait ici (pas seulement au niveau de l'affichage du bouton) pour empêcher
+    // qu'un utilisateur non connecté y accède en manipulant l'URL, le HTML ou la console JS.
+    if (nomEcran === "recherche" && !(window.auth && window.auth.currentUser)) {
+      if (typeof window.afficherToast === 'function') {
+        window.afficherToast("Connectez-vous à votre compte pour accéder à la Recherche.");
+      }
+      nomEcran = "inscription";
+    }
+    if (nomEcran === "compte" && !(window.auth && window.auth.currentUser)) {
+      if (typeof window.afficherToast === 'function') {
+        window.afficherToast("Connectez-vous à votre compte pour accéder à Mon compte.");
+      }
+      nomEcran = "inscription";
+    }
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     const btnCible = document.querySelector(`.tab-btn[data-screen="${nomEcran}"]`);
