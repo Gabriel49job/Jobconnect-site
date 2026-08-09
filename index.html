@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#073C28">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>JOB CONNECT - Trouvez un travail, trouvez un travailleur, partout dans le monde</title>
 <meta name="description" content="JOB CONNECT met en relation travailleurs et employeurs en Afrique centrale et partout dans le monde. Inscrivez-vous gratuitement pour trouver un emploi ou un travailleur qualifié.">
@@ -203,6 +204,61 @@
     line-height: 1;
   }
   .hamburger-btn:active { background: rgba(255,255,255,0.25); }
+
+  .notif-btn {
+    position: absolute;
+    top: 16px;
+    right: 64px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 1.15rem;
+    line-height: 1;
+    display: none;
+  }
+  .notif-btn:active { background: rgba(255,255,255,0.25); }
+  .notif-badge {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 60px;
+    background: #B33F2E;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 800;
+    min-width: 17px;
+    height: 17px;
+    line-height: 17px;
+    border-radius: 9px;
+    padding: 0 4px;
+    box-shadow: 0 0 0 2px #0E6E46;
+  }
+  .notif-item {
+    padding: 12px;
+    border-radius: 10px;
+    background: #FAF6EF;
+    border: 1px solid #eee;
+    margin-bottom: 8px;
+  }
+  .notif-item.non-lue { border-left: 4px solid #0E6E46; background: #E7F2E9; }
+  .notif-item-titre { font-weight: 700; color: #073C28; font-size: 0.9rem; margin-bottom: 3px; }
+  .notif-item-msg { font-size: 0.82rem; color: #444; line-height: 1.4; }
+  .notif-item-date { font-size: 0.72rem; color: #888; margin-top: 4px; }
+  .notif-empty { text-align: center; color: #888; padding: 20px 10px; font-size: 0.88rem; }
+  .notif-tout-lu-btn {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #E7F2E9;
+    color: #073C28;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
 
   .settings-menu {
     display: flex;
@@ -1407,6 +1463,7 @@
   </div>
   <h1>JOB <span style="color:#E8A33D;">CONNECT</span></h1>
   <p data-i18n="tagline">La plateforme qui connecte patrons et travailleurs, partout dans le monde</p>
+  <button type="button" class="notif-btn" id="btn-notifications" onclick="window.ouvrirNotifications()" aria-label="Notifications">🔔<span class="notif-badge" id="notif-badge">0</span></button>
   <button type="button" class="hamburger-btn" id="btn-settings" onclick="ouvrirParametres()" aria-label="Paramètres">☰</button>
 </header>
 <div class="signature-divider"></div>
@@ -1424,6 +1481,18 @@
   <div class="country-modal">
     <div class="country-modal-list" id="lang-modal-list"></div>
     <button type="button" class="country-modal-close" onclick="fermerSelecteurLangue()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ PANNEAU NOTIFICATIONS ============ -->
+<div class="country-modal-overlay" id="notif-modal-overlay" onclick="if(event.target===this) window.fermerNotifications()">
+  <div class="country-modal">
+    <div class="job-modal-header" style="margin-bottom:10px;">
+      <div class="job-modal-title">🔔 Notifications</div>
+    </div>
+    <button type="button" class="notif-tout-lu-btn" onclick="window.marquerToutesNotifsLues()">✔️ Tout marquer comme lu</button>
+    <div class="country-modal-list" id="notif-modal-list"></div>
+    <button type="button" class="country-modal-close" onclick="window.fermerNotifications()">Fermer</button>
   </div>
 </div>
 
@@ -2824,6 +2893,12 @@
     if (typeof window.afficherOuMasquerDepot === 'function') {
       window.afficherOuMasquerDepot();
     }
+    if (typeof window.chargerNotifications === 'function') {
+      window.chargerNotifications();
+    } else if (!user) {
+      const btnNotif = document.getElementById("btn-notifications");
+      if (btnNotif) btnNotif.style.display = "none";
+    }
   });
 
   function showMsg(elId, ok, textOk, textErr) {
@@ -2872,6 +2947,193 @@
   }
   window.lienWhatsApp = lienWhatsApp;
 
+  // ===== ENVOI DE VRAIS EMAILS VIA EMAILJS (gratuit jusqu'à 200 emails/mois) =====
+  // ⚠️ À REMPLACER : créez un compte gratuit sur https://www.emailjs.com, ajoutez un service
+  // d'envoi (Gmail par ex.), créez UN template avec les variables {{to_email}}, {{to_name}},
+  // {{subject}}, {{message}}, puis collez ici votre Public Key, votre Service ID et votre Template ID.
+  const EMAILJS_PUBLIC_KEY = "Y-jhPSqnn9vwgMxFi";
+  const EMAILJS_SERVICE_ID = "service_sv8axw4";
+  const EMAILJS_TEMPLATE_ID = "template_lc64ad9";
+
+  if (window.emailjs && EMAILJS_PUBLIC_KEY !== "VOTRE_PUBLIC_KEY_EMAILJS") {
+    window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  }
+
+  window.envoyerEmailNotif = async function (destinataireEmail, destinataireNom, sujet, message) {
+    if (!destinataireEmail || !window.emailjs) return;
+    if (EMAILJS_PUBLIC_KEY === "VOTRE_PUBLIC_KEY_EMAILJS") return; // Configuration EmailJS pas encore renseignée
+    try {
+      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: destinataireEmail,
+        to_name: destinataireNom || "",
+        subject: sujet,
+        message: message
+      });
+    } catch (e) {
+      console.error("Erreur envoi email EmailJS:", e);
+    }
+  };
+
+  // ===== SYSTÈME DE NOTIFICATIONS (in-app, stockées dans Firestore, collection "notifications") =====
+  // Chaque notification : { uid, type, titre, message, lue, date }
+  // Types utilisés : bienvenue, nouvelle_offre, candidature_envoyee, candidature_recue, abonnement, securite
+  window.creerNotification = async function (uid, type, titre, message) {
+    if (!uid) return;
+    try {
+      await addDoc(collection(db, "notifications"), {
+        uid, type, titre, message,
+        lue: false,
+        date: serverTimestamp()
+      });
+    } catch (e) {
+      console.error("Erreur création notification:", e);
+    }
+  };
+
+  function formatDateNotif(d) {
+    const date = d?.toDate ? d.toDate() : new Date();
+    return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  }
+
+  window.chargerNotifications = async function () {
+    const user = auth.currentUser;
+    const btn = document.getElementById("btn-notifications");
+    const badge = document.getElementById("notif-badge");
+    if (!user) {
+      if (btn) btn.style.display = "none";
+      return;
+    }
+    if (btn) btn.style.display = "inline-block";
+    try {
+      const q = query(collection(db, "notifications"), where("uid", "==", user.uid), orderBy("date", "desc"));
+      const snap = await getDocs(q);
+      const notifs = [];
+      snap.forEach(docSnap => notifs.push({ id: docSnap.id, ...docSnap.data() }));
+      window._notifsCache = notifs;
+      const nbNonLues = notifs.filter(n => !n.lue).length;
+      if (badge) {
+        badge.style.display = nbNonLues > 0 ? "inline-block" : "none";
+        badge.textContent = nbNonLues > 99 ? "99+" : nbNonLues;
+      }
+      return notifs;
+    } catch (e) {
+      console.error("Erreur chargement notifications:", e);
+      return [];
+    }
+  };
+
+  function rendreListeNotifs(notifs) {
+    const listEl = document.getElementById("notif-modal-list");
+    if (!listEl) return;
+    if (!notifs.length) {
+      listEl.innerHTML = '<div class="notif-empty">Aucune notification pour le moment.</div>';
+      return;
+    }
+    listEl.innerHTML = notifs.map(n => `
+      <div class="notif-item ${n.lue ? "" : "non-lue"}" onclick="window.marquerNotifLue('${n.id}')">
+        <div class="notif-item-titre">${n.lue ? "" : "🟢 "}${esc(n.titre || "")}</div>
+        <div class="notif-item-msg">${esc(n.message || "")}</div>
+        <div class="notif-item-date">${formatDateNotif(n.date)}</div>
+      </div>
+    `).join("");
+  }
+
+  window.ouvrirNotifications = async function () {
+    document.getElementById("notif-modal-overlay").classList.add("open");
+    const notifs = await window.chargerNotifications();
+    rendreListeNotifs(notifs || []);
+  };
+
+  window.fermerNotifications = function () {
+    document.getElementById("notif-modal-overlay").classList.remove("open");
+  };
+
+  window.marquerNotifLue = async function (notifId) {
+    try {
+      await updateDoc(doc(db, "notifications", notifId), { lue: true });
+      const notifs = await window.chargerNotifications();
+      rendreListeNotifs(notifs || []);
+    } catch (e) {
+      console.error("Erreur marquage notification:", e);
+    }
+  };
+
+  window.marquerToutesNotifsLues = async function () {
+    const notifs = window._notifsCache || [];
+    try {
+      for (const n of notifs.filter(n => !n.lue)) {
+        await updateDoc(doc(db, "notifications", n.id), { lue: true });
+      }
+      const misesAJour = await window.chargerNotifications();
+      rendreListeNotifs(misesAJour || []);
+    } catch (e) {
+      console.error("Erreur marquage global notifications:", e);
+    }
+  };
+
+  // Quand un PATRON publie une offre : notifie les travailleurs déjà inscrits pour le même métier/pays.
+  window.notifierNouvelleOffreAuxTravailleurs = async function (offreData) {
+    try {
+      const q = query(collection(db, "travailleurs"), where("typeTravail", "==", offreData.typeTravail));
+      const snap = await getDocs(q);
+      const posteLabel = offreData.posteTravail || offreData.typeTravail;
+      snap.forEach(docSnap => {
+        const t = docSnap.data();
+        if (t.supprime) return;
+        if (offreData.posteTravail && t.posteTravail && t.posteTravail !== offreData.posteTravail) return;
+        if (offreData.pays && t.pays && t.pays !== offreData.pays) return;
+        if (t.uid) {
+          const titreEmail = "💼 Nouvelle offre d'emploi";
+          const msgEmail = `Une nouvelle offre correspondant à votre profil (${posteLabel}, ${offreData.pays || ""}) vient d'être publiée.`;
+          window.creerNotification(t.uid, "nouvelle_offre", titreEmail, msgEmail);
+          window.envoyerEmailNotif(t.email, t.nom, titreEmail, msgEmail);
+        }
+      });
+    } catch (e) {
+      console.error("Erreur notification nouvelle offre:", e);
+    }
+  };
+
+  // Quand un travailleur clique sur un patron pour lui envoyer sa candidature via WhatsApp :
+  // confirmation au travailleur + notification de réception au patron.
+  window.notifierEnvoiCandidature = function (travailleurUid, patronUid, patronNom, posteLabel, travailleurEmail, travailleurNom, patronEmail) {
+    if (travailleurUid) {
+      const titreT = "✅ Candidature envoyée";
+      const msgT = `Votre candidature pour le poste de ${posteLabel || "ce poste"} a bien été envoyée à ${patronNom || "l'employeur"}.`;
+      window.creerNotification(travailleurUid, "candidature_envoyee", titreT, msgT);
+      window.envoyerEmailNotif(travailleurEmail, travailleurNom, titreT, msgT);
+    }
+    if (patronUid) {
+      const titreP = "📩 Candidature reçue";
+      const msgP = `Vous avez reçu une nouvelle candidature pour le poste de ${posteLabel || "ce poste"}.`;
+      window.creerNotification(patronUid, "candidature_recue", titreP, msgP);
+      window.envoyerEmailNotif(patronEmail, patronNom, titreP, msgP);
+    }
+  };
+
+  // Quand un TRAVAILLEUR dépose un dossier : notifie les patrons déjà inscrits pour le même métier/pays.
+  window.notifierNouveauCandidatAuxPatrons = async function (candidatData) {
+    try {
+      const q = query(collection(db, "patrons"), where("typeTravail", "==", candidatData.typeTravail));
+      const snap = await getDocs(q);
+      const posteLabel = candidatData.posteTravail || candidatData.typeTravail;
+      snap.forEach(docSnap => {
+        const p = docSnap.data();
+        if (p.supprime) return;
+        if (candidatData.posteTravail && p.posteTravail && p.posteTravail !== candidatData.posteTravail) return;
+        if (candidatData.pays && p.pays && p.pays !== candidatData.pays) return;
+        if (p.uid) {
+          const titreEmail = "👷 Nouveau candidat disponible";
+          const msgEmail = `Un candidat correspondant à votre offre (${posteLabel}, ${candidatData.pays || ""}) vient de s'inscrire.`;
+          window.creerNotification(p.uid, "candidature_recue", titreEmail, msgEmail);
+          window.envoyerEmailNotif(p.email, p.nom, titreEmail, msgEmail);
+        }
+      });
+    } catch (e) {
+      console.error("Erreur notification nouveau candidat:", e);
+    }
+  };
+
   // Affiche, EN BAS du formulaire, la liste des patrons déjà inscrits pour le même métier/pays,
   // une fois que le travailleur a rempli et enregistré son dossier. Cliquer sur un patron ouvre
   // directement WhatsApp avec le dossier (nom, poste, liens des documents) pré-rempli.
@@ -2903,8 +3165,11 @@
       });
       listEl.innerHTML = matches.map(p => {
         const lien = lienWhatsApp(p.telephone, texte);
+        const onclickNotif = lien
+          ? `window.notifierEnvoiCandidature('${esc(data.uid || "")}','${esc(p.uid || "")}','${esc(p.nom || "Patron")}','${esc(data.posteTravail || data.typeTravail || "")}','${esc(data.email || "")}','${esc(data.nom || "")}','${esc(p.email || "")}');`
+          : "return false;";
         return `
-        <a class="patron-choix-item" href="${lien || "#"}" target="_blank" rel="noopener" ${lien ? "" : 'onclick="return false;" style="opacity:0.5;"'}>
+        <a class="patron-choix-item" href="${lien || "#"}" target="_blank" rel="noopener" onclick="${onclickNotif}" ${lien ? "" : 'style="opacity:0.5;"'}>
           <strong>${esc(p.nom || "Patron")}</strong><br>
           📍 ${esc(p.pays || "")} — ${esc(p.lieuTravail || "")}<br>
           💼 ${esc(p.posteTravail || "")}<br>
@@ -3063,6 +3328,9 @@
       showMsg("t-msg", true, "Dossier enregistré avec succès ! " + (tGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
       document.getElementById("t-step-dossier").style.display = "none";
       window.chargerPatronsCorrespondants(data);
+      window.creerNotification(uid, "bienvenue", "🎉 Bienvenue sur JOB CONNECT", "Votre compte travailleur a été créé et votre dossier de candidature a été enregistré avec succès.");
+      window.envoyerEmailNotif(email, data.nom, "🎉 Bienvenue sur JOB CONNECT", "Votre compte travailleur a été créé et votre dossier de candidature a été enregistré avec succès.");
+      window.notifierNouveauCandidatAuxPatrons(data);
       // Afficher l'onglet Dépôt après inscription réussie (sans quitter l'écran : la liste des patrons reste visible)
       await afficherOuMasquerDepot();
     } catch (e) {
@@ -3082,6 +3350,9 @@
             showMsg("t-msg", true, "Compte réparé et dossier enregistré avec succès !", "");
             document.getElementById("t-step-dossier").style.display = "none";
             window.chargerPatronsCorrespondants(data);
+            window.creerNotification(cred.user.uid, "bienvenue", "🎉 Bienvenue sur JOB CONNECT", "Votre compte travailleur a été créé et votre dossier de candidature a été enregistré avec succès.");
+            window.envoyerEmailNotif(email, data.nom, "🎉 Bienvenue sur JOB CONNECT", "Votre compte travailleur a été créé et votre dossier de candidature a été enregistré avec succès.");
+            window.notifierNouveauCandidatAuxPatrons(data);
           }
         } catch (e2) {
           showMsg("t-msg", false, "", "Cet email est déjà utilisé avec un autre mot de passe. Utilisez « Retrouver mon compte » en bas de la page.");
@@ -3180,6 +3451,9 @@
       showMsg("p-msg", true, "Offre enregistrée avec succès ! " + (pGoogleUser ? "" : "Un email de confirmation vous a été envoyé, pensez à vérifier votre boîte mail."), "");
       document.getElementById("p-step-criteres").style.display = "none";
       window.chargerTravailleursCorrespondants(data);
+      window.creerNotification(uid, "bienvenue", "🎉 Bienvenue sur JOB CONNECT", "Votre compte patron a été créé et votre offre d'emploi a été enregistrée avec succès.");
+      window.envoyerEmailNotif(email, data.nom, "🎉 Bienvenue sur JOB CONNECT", "Votre compte patron a été créé et votre offre d'emploi a été enregistrée avec succès.");
+      window.notifierNouvelleOffreAuxTravailleurs(data);
       // Afficher l'onglet Dépôt après inscription réussie (sans quitter l'écran : la liste des travailleurs reste visible)
       await afficherOuMasquerDepot();
     } catch (e) {
@@ -3196,6 +3470,9 @@
             showMsg("p-msg", true, "Compte réparé et offre enregistrée avec succès !", "");
             document.getElementById("p-step-criteres").style.display = "none";
             window.chargerTravailleursCorrespondants(data);
+            window.creerNotification(cred.user.uid, "bienvenue", "🎉 Bienvenue sur JOB CONNECT", "Votre compte patron a été créé et votre offre d'emploi a été enregistrée avec succès.");
+            window.envoyerEmailNotif(email, data.nom, "🎉 Bienvenue sur JOB CONNECT", "Votre compte patron a été créé et votre offre d'emploi a été enregistrée avec succès.");
+            window.notifierNouvelleOffreAuxTravailleurs(data);
           }
         } catch (e2) {
           showMsg("p-msg", false, "", "Cet email est déjà utilisé avec un autre mot de passe. Utilisez « Retrouver mon compte » en bas de la page.");
@@ -4247,6 +4524,8 @@
         try { await updateDoc(doc(db, coll, docId), { emailVerifie: true }); } catch (eUp) {}
       }
       // Identité confirmée : on relance la recherche pour afficher les contrôles de gestion complets
+      window.creerNotification(cred.user.uid, "securite", "🔒 Connexion à votre compte", "Une connexion vient d'avoir lieu sur votre compte pour en gérer les informations.");
+      window.envoyerEmailNotif(cred.user.email, "", "🔒 Connexion à votre compte", "Une connexion vient d'avoir lieu sur votre compte JOB CONNECT pour en gérer les informations. Si ce n'est pas vous, changez votre mot de passe.");
       await retrouverCompte();
     } catch (e) {
       afficherMsgCarte(docId, false, "Email ou mot de passe incorrect.");
@@ -4317,6 +4596,10 @@
       const posteTravail = document.getElementById("editposte-" + docId).value;
       await updateDoc(doc(db, coll, docId), { pays, typeTravail, posteTravail });
       afficherMsgCarte(docId, true, "✅ Profil mis à jour avec succès !");
+      if (auth.currentUser) {
+        window.creerNotification(auth.currentUser.uid, "securite", "🔒 Modification de votre compte", "Les informations de votre profil (pays et/ou type de travail) viennent d'être modifiées.");
+        window.envoyerEmailNotif(auth.currentUser.email, "", "🔒 Modification de votre compte", "Les informations de votre profil JOB CONNECT (pays et/ou type de travail) viennent d'être modifiées. Si ce n'est pas vous, contactez-nous.");
+      }
     } catch (e) {
       afficherMsgCarte(docId, false, "Erreur lors de la mise à jour du profil.");
     }
@@ -4760,6 +5043,17 @@
       dansUnMois.setDate(dansUnMois.getDate() + 30);
       await updateDoc(doc(db, coll, docId), { payeJusqua: dansUnMois, actif: true });
       afficherMsgCarte(docId, true, "💰 Paiement enregistré, compte valide 30 jours de plus.");
+      try {
+        const snapCompte = await getDoc(doc(db, coll, docId));
+        const donneesCompte = snapCompte.exists() ? snapCompte.data() : null;
+        const uidCompte = donneesCompte ? donneesCompte.uid : null;
+        if (uidCompte) {
+          const titreEmail = "💰 Paiement confirmé";
+          const msgEmail = `Votre paiement a été reçu. Votre abonnement JOB CONNECT est actif pour 30 jours de plus, jusqu'au ${dansUnMois.toLocaleDateString("fr-FR")}.`;
+          window.creerNotification(uidCompte, "abonnement", titreEmail, msgEmail);
+          window.envoyerEmailNotif(donneesCompte.email, donneesCompte.nom, titreEmail, msgEmail);
+        }
+      } catch (eNotif) {}
       setTimeout(() => rendreListeAdmin(adminTousComptes), 900);
     } catch (e) {
       afficherMsgCarte(docId, false, "Erreur : impossible d'enregistrer le paiement.");
@@ -4797,7 +5091,7 @@
       if (coll === "patrons") {
         const snap = await getDoc(doc(db, coll, docId));
         if (snap.exists() && essaiGratuitExpire(snap.data())) {
-          afficherMsgCarte(docId, false, "⏳ Votre mois d'essai gratuit est terminé. Pour republier votre annonce, envoyez 5$ via Airtel Money au +256792994716, puis contactez-nous sur WhatsApp au même numéro pour activer votre compte.");
+          afficherMsgCarte(docId, false, "⏳ Votre mois d'essai gratuit est terminé. Pour republier votre annonce, envoyez 5$ via MTN Money au +256792994716, puis contactez-nous sur WhatsApp au même numéro pour activer votre compte.");
           return;
         }
       }
