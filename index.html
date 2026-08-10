@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#073C28">
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+ <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+ <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>JOB CONNECT - Trouvez un travail, trouvez un travailleur, partout dans le monde</title>
 <meta name="description" content="JOB CONNECT met en relation travailleurs et employeurs en Afrique centrale et partout dans le monde. Inscrivez-vous gratuitement pour trouver un emploi ou un travailleur qualifié.">
@@ -6506,6 +6508,15 @@
     msgDiv.innerHTML = `<div class="${className}">${msg}</div>`;
   }
 </script>
-
+ <!-- Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('[JOB CONNECT] Service Worker OK'))
+      .catch(err => console.error('[JOB CONNECT] Service Worker Error:', err));
+  });
+}
+</script>
 </body>
 </html>
