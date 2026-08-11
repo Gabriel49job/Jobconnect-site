@@ -2298,11 +2298,18 @@
   ];
 
   const TYPES_TRAVAIL = [
-    { id: "domestique", label: "Domestique", jobs: ["Ménage", "Garde d'enfants", "Sécurité", "Cuisine", "Garde-malade", "Santé mentale"] },
-    { id: "ventes", label: "Ventes", jobs: ["Vêtements", "Machines", "Galerie", "Restaurant"] },
-    { id: "routes", label: "Routes", jobs: ["Chauffeur", "Moto-taxi", "Bateau", "Avion"] },
-    { id: "finances", label: "Finances", jobs: ["Banque", "Hôpital", "École", "Frontière", "Port", "Aéroport"] },
-    { id: "technique", label: "Technique", jobs: ["Musiciens", "Informaticiens", "Électriciens", "Peintres", "Mécaniciens", "Réparateurs", "Arrangeur de son", "Constructions"] }
+    { id: "informatique", label: "INFORMATIQUE & TECHNOLOGIE", jobs: ["💻 Développeur logiciel", "🌐 Développeur web", "📱 Développeur mobile", "⚙️ Ingénieur informatique", "🛠️ Technicien informatique", "🔒 Cybersécurité", "🖧 Administrateur réseau", "🤖 Intelligence artificielle", "🎨 Graphiste numérique", "✨ Designer UI/UX"] },
+    { id: "sante", label: "SANTÉ & MÉDECINE", jobs: ["👨‍⚕️ Médecin", "👩‍⚕️ Infirmier", "🤝 Aide-soignant", "💊 Pharmacien", "🔪 Chirurgien", "🦷 Dentiste", "👶 Sage-femme", "💪 Kinésithérapeute", "🧬 Laborantin", "📋 Assistant médical"] },
+    { id: "construction", label: "CONSTRUCTION & BÂTIMENT", jobs: ["🧱 Maçon", "🏗️ Architecte", "⚡ Électricien bâtiment", "🚰 Plombier", "🎨 Peintre", "🪟 Carreleur", "🪵 Charpentier", "🔥 Soudeur", "🪟 Vitrier", "🚜 Conducteur d'engins"] },
+    { id: "transport", label: "TRANSPORT & AUTOMOBILE", jobs: ["🚚 Chauffeur camion", "🚕 Chauffeur taxi", "🚌 Conducteur bus", "📦 Livreur", "🔧 Mécanicien automobile", "🏍️ Réparateur moto", "⚙️ Technicien automobile", "✈️ Pilote"] },
+    { id: "commerce", label: "COMMERCE & VENTE", jobs: ["🛍️ Vendeur", "💼 Commercial", "💳 Caissier", "📢 Agent marketing", "🏪 Responsable magasin", "📦 Importateur", "🌍 Exportateur", "🤝 Entrepreneur"] },
+    { id: "maison", label: "MAISON & SERVICES", jobs: ["👶 Baby-sitter", "🏥 Garde malade", "👨‍🍳 Cuisinier", "🧹 Nettoyeur", "🌿 Jardinier", "👔 Blanchisseur", "🚨 Agent de sécurité", "🚗 Chauffeur privé"] },
+    { id: "education", label: "ÉDUCATION", jobs: ["🎓 Enseignant", "👨‍🏫 Professeur", "📚 Tuteur privé", "👥 Formateur", "🧒 Éducateur"] },
+    { id: "agriculture", label: "AGRICULTURE & ÉLEVAGE", jobs: ["🌾 Agriculteur", "🐄 Éleveur", "🎣 Pêcheur", "🌱 Technicien agricole", "🐾 Vétérinaire"] },
+    { id: "media", label: "MÉDIA & CRÉATION", jobs: ["📰 Journaliste", "📸 Photographe", "🎬 Vidéaste", "🎵 Musicien", "🎤 Chanteur", "🎛️ Producteur", "📻 Animateur radio", "✍️ Créateur de contenu"] },
+    { id: "finance", label: "FINANCE & ADMINISTRATION", jobs: ["💰 Comptable", "🏦 Banquier", "📝 Secrétaire", "📊 Assistant administratif", "💼 Gestionnaire", "⚖️ Avocat"] },
+    { id: "industrie", label: "INDUSTRIE & FABRICATION", jobs: ["⚙️ Opérateur machine", "🔩 Technicien industriel", "🔥 Soudeur industriel", "✅ Contrôleur qualité", "👨‍💼 Chef d'équipe"] },
+    { id: "beaute", label: "BEAUTÉ & MODE", jobs: ["✂️ Coiffeur", "💅 Esthéticien", "💄 Maquilleur", "👗 Couturier", "👠 Styliste"] }
   ];
 
   // ===== Dossiers détaillés par métier : documents à fournir (travailleur) et critères à cocher (patron) =====
@@ -2615,71 +2622,7 @@
   // ===== Sélecteur de travail : catégorie (bouton vert) -> métiers précis (boutons verts) =====
   let cibleTravailActuelle = null; // { catInputId, posteInputId, btnId }
 
-function afficherCategoriesTravail() {
-    const listEl = document.getElementById("job-modal-list");
-    document.getElementById("job-modal-title").textContent = "Choisissez un domaine";
-    document.getElementById("job-modal-back").style.display = "none";
-    let html = "";
-    if (cibleTravailActuelle && cibleTravailActuelle.optionnel) {
-      html += `<button type="button" class="job-cat-btn" style="background:#666;" onclick="choisirTravail('','')">Tout domaine</button>`;
-    }
-    html += Object.keys(DEPOT_METIERS_CONFIG).map(cat =>
-      `<button type="button" class="job-cat-btn" onclick="afficherJobsCategorie('${cat.replace(/'/g, "\\'")}')">${cat}</button>`
-    ).join("");
-    listEl.innerHTML = html;
-  }
-
-  function afficherJobsCategorie(catId) {
-    const metiers = DEPOT_METIERS_CONFIG[catId];
-    if (!metiers) return;
-    const posteActuel = (cibleTravailActuelle && cibleTravailActuelle.posteInputId)
-      ? (document.getElementById(cibleTravailActuelle.posteInputId) || {}).value : "";
-    const catActuelle = cibleTravailActuelle ? (document.getElementById(cibleTravailActuelle.catInputId) || {}).value : "";
-    const listEl = document.getElementById("job-modal-list");
-    document.getElementById("job-modal-title").textContent = catId;
-    document.getElementById("job-modal-back").style.display = "inline-block";
-    const cocheTous = catActuelle === catId && !posteActuel;
-    listEl.innerHTML =
-      `<button type="button" class="job-cat-btn" style="background:#073C28;" onclick="choisirTravail('${catId.replace(/'/g, "\\'")}','')">
-         <span class="job-checkbox${cocheTous ? " checked" : ""}"></span> ✅ ${catId} (tous les métiers)
-       </button>` +
-      metiers.map(job => {
-        const coche = catActuelle === catId && posteActuel === job;
-        return `<button type="button" class="job-cat-btn" onclick="choisirTravail('${catId.replace(/'/g, "\\'")}', '${job.replace(/'/g, "\\'")}')">
-          <span class="job-checkbox${coche ? " checked" : ""}"></span> ${job}
-        </button>`;
-      }).join("");
-  }
-
-  window.retourCategoriesTravail = function () {
-    afficherCategoriesTravail();
-  };
-
-  window.ouvrirSelecteurTravail = function (catInputId, posteInputId, btnId) {
-    cibleTravailActuelle = { catInputId, posteInputId, btnId, optionnel: catInputId === "s-type" };
-    afficherCategoriesTravail();
-    document.getElementById("job-modal-overlay").classList.add("open");
-  };
-
-  window.fermerSelecteurTravail = function () {
-    document.getElementById("job-modal-overlay").classList.remove("open");
-  };
-
-  window.choisirTravail = function (catId, jobName) {
-    if (!cibleTravailActuelle) return;
-    const { catInputId, posteInputId, btnId } = cibleTravailActuelle;
-    document.getElementById(catInputId).value = catId;
-    if (posteInputId) {
-      const posteEl = document.getElementById(posteInputId);
-      if (posteEl) posteEl.value = jobName;
-    }
-    let label = "-- Choisir un domaine --";
-    if (catId) label = jobName ? `${catId} — ${jobName}` : `${catId} (tous les métiers)`;
-    document.getElementById(btnId).textContent = label;
-    window.fermerSelecteurTravail();
-    if (catInputId === "t-type") window.updateDossierTravailleurUI();
-    if (catInputId === "p-type") window.updateDossierPatronUI();
-  };function afficherCategoriesTravail() {
+  function afficherCategoriesTravail() {
     const listEl = document.getElementById("job-modal-list");
     document.getElementById("job-modal-title").textContent = "Choisissez une catégorie";
     document.getElementById("job-modal-back").style.display = "none";
@@ -2719,6 +2662,35 @@ function afficherCategoriesTravail() {
     afficherCategoriesTravail();
   };
 
+  window.ouvrirSelecteurTravail = function (catInputId, posteInputId, btnId) {
+    cibleTravailActuelle = { catInputId, posteInputId, btnId, optionnel: catInputId === "s-type" };
+    afficherCategoriesTravail();
+    document.getElementById("job-modal-overlay").classList.add("open");
+  };
+
+  window.fermerSelecteurTravail = function () {
+    document.getElementById("job-modal-overlay").classList.remove("open");
+  };
+
+  window.choisirTravail = function (catId, jobName) {
+    if (!cibleTravailActuelle) return;
+    const { catInputId, posteInputId, btnId } = cibleTravailActuelle;
+    document.getElementById(catInputId).value = catId;
+    if (posteInputId) {
+      const posteEl = document.getElementById(posteInputId);
+      if (posteEl) posteEl.value = jobName;
+    }
+    const cat = TYPES_TRAVAIL.find(t => t.id === catId);
+    let label = "-- Choisir un type de travail --";
+    if (cat) label = jobName ? `${cat.label} — ${jobName}` : `${cat.label} (tous les métiers)`;
+    else if (catId === "") label = "-- Tout type de travail --";
+    document.getElementById(btnId).textContent = label;
+    window.fermerSelecteurTravail();
+    if (catInputId === "t-type") window.updateDossierTravailleurUI();
+    if (catInputId === "p-type") window.updateDossierPatronUI();
+    if (catInputId === "depot-t-type") window.updateDossierTravailleurDepotUI();
+    if (catInputId === "depot-p-type") window.updateDossierPatronDepotUI();
+  };
 
   // Retrouve le libellé lisible d'une clé de document à partir de la config du métier (utilisé aussi pour WhatsApp)
   window.labelPourDocumentCle = function (catId, poste, key) {
