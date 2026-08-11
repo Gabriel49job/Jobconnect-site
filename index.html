@@ -4933,17 +4933,20 @@
         adminSignalementsParCible[cle].push({ id: docSnap.id, ...s });
       });
     } catch (e) {
-      // Si la collection n'existe pas encore ou erreur de permission, on continue sans signalements
-    }
-
-    // 2) Charger tous les comptes (travailleurs + patrons)
+      // 2) Charger tous les comptes depuis depot_annonces
     let tous = [];
-    for (const coll of ["travailleurs", "patrons"]) {
-      const snap = await getDocs(collection(db, coll));
+    try {
+      const snap = await getDocs(collection(db, "depot_annonces"));
       snap.forEach(docSnap => {
         const d = docSnap.data();
-        if (d.supprime !== true) tous.push({ id: docSnap.id, coll, data: d });
+        tous.push({ 
+          id: docSnap.id, 
+          coll: "depot_annonces", 
+          data: d 
+        });
       });
+    } catch (e) {
+      console.error("Erreur chargement comptes:", e);
     }
 
     // 3) Trier : comptes signalés en premier (les plus signalés d'abord), puis les plus récents
@@ -4958,9 +4961,11 @@
 
     adminTousComptes = tous;
 
-    const nbSignales = tous.filter(item => (adminSignalementsParCible[`${item.coll}_${item.id}`] || []).length > 0).length;
+    const nbTrav = tous.filter(t => t.data.role === "travailleur").length;
+    const nbPat = tous.filter(t => t.data.role === "patron").length;
+    const nbSignales = tous.filter(item => (adminSignalementsParCible[`depot_annonces_${item.id}`] || []).length > 0).length;
     document.getElementById("admin-panel-msg").textContent =
-      `${tous.length} compte(s) — ${tous.filter(t => t.coll === "travailleurs").length} travailleur(s), ${tous.filter(t => t.coll === "patrons").length} patron(s).` +
+      `${tous.length} compte(s) — ${nbTrav} travailleur(s), ${nbPat} patron(s).` +
       (nbSignales > 0 ? ` 🚩 ${nbSignales} signalé(s).` : "");
     document.getElementById("admin-panel-msg").className = "msg success";
 
