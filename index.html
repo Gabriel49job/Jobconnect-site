@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#073C28">
- <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
- <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>JOB CONNECT - Trouvez un travail, trouvez un travailleur, partout dans le monde</title>
 <meta name="description" content="JOB CONNECT met en relation travailleurs et employeurs en Afrique centrale et partout dans le monde. Inscrivez-vous gratuitement pour trouver un emploi ou un travailleur qualifié.">
@@ -4933,20 +4931,17 @@
         adminSignalementsParCible[cle].push({ id: docSnap.id, ...s });
       });
     } catch (e) {
-      // 2) Charger tous les comptes depuis depot_annonces
+      // Si la collection n'existe pas encore ou erreur de permission, on continue sans signalements
+    }
+
+    // 2) Charger tous les comptes (travailleurs + patrons)
     let tous = [];
-    try {
-      const snap = await getDocs(collection(db, "depot_annonces"));
+    for (const coll of ["travailleurs", "patrons"]) {
+      const snap = await getDocs(collection(db, coll));
       snap.forEach(docSnap => {
         const d = docSnap.data();
-        tous.push({ 
-          id: docSnap.id, 
-          coll: "depot_annonces", 
-          data: d 
-        });
+        if (d.supprime !== true) tous.push({ id: docSnap.id, coll, data: d });
       });
-    } catch (e) {
-      console.error("Erreur chargement comptes:", e);
     }
 
     // 3) Trier : comptes signalés en premier (les plus signalés d'abord), puis les plus récents
@@ -4961,11 +4956,9 @@
 
     adminTousComptes = tous;
 
-    const nbTrav = tous.filter(t => t.data.role === "travailleur").length;
-    const nbPat = tous.filter(t => t.data.role === "patron").length;
-    const nbSignales = tous.filter(item => (adminSignalementsParCible[`depot_annonces_${item.id}`] || []).length > 0).length;
+    const nbSignales = tous.filter(item => (adminSignalementsParCible[`${item.coll}_${item.id}`] || []).length > 0).length;
     document.getElementById("admin-panel-msg").textContent =
-      `${tous.length} compte(s) — ${nbTrav} travailleur(s), ${nbPat} patron(s).` +
+      `${tous.length} compte(s) — ${tous.filter(t => t.coll === "travailleurs").length} travailleur(s), ${tous.filter(t => t.coll === "patrons").length} patron(s).` +
       (nbSignales > 0 ? ` 🚩 ${nbSignales} signalé(s).` : "");
     document.getElementById("admin-panel-msg").className = "msg success";
 
@@ -6520,15 +6513,6 @@
     msgDiv.innerHTML = `<div class="${className}">${msg}</div>`;
   }
 </script>
- <!-- Service Worker Registration -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('[JOB CONNECT] Service Worker OK'))
-      .catch(err => console.error('[JOB CONNECT] Service Worker Error:', err));
-  });
-}
-</script>
+
 </body>
 </html>
