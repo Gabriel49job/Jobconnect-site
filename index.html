@@ -2439,6 +2439,11 @@
       <a href="#" style="color:#1565C0; font-size:0.85rem; text-decoration:underline;"
          onclick="event.preventDefault(); envoyerResetAdmin()">Mot de passe oublié ?</a>
     </p>
+    <div style="text-align:center; margin:14px 0; color:#999; font-size:0.8rem;">— ou —</div>
+    <button type="button" class="toggle-btn" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;"
+            onclick="window.connexionAdminGoogle()">
+      <span>🔵</span> Se connecter avec Google
+    </button>
     <div class="msg" id="admin-msg"></div>
   </div>
   <div class="card" id="admin-panel-card" style="display:none;">
@@ -2452,7 +2457,7 @@
   <div class="card" id="admin-gestion-card" style="display:none;">
     <h2>🛠️ Comptes Admin</h2>
     <p style="font-size:0.85rem; color:#666; margin-bottom:12px;">
-      Toute personne dans cette liste peut se connecter à l'espace administrateur avec son propre email/mot de passe (le compte doit d'abord exister via Inscription).
+      Toute personne dans cette liste peut se connecter à l'espace administrateur avec son propre email : soit par mot de passe (le compte doit d'abord exister via Inscription), soit directement via "Se connecter avec Google" en cas d'oubli du mot de passe.
     </p>
     <div style="display:flex; gap:8px; margin-bottom:12px;">
       <input type="email" id="admin-nouvel-email" placeholder="email@exemple.com" style="flex:1;">
@@ -5234,6 +5239,37 @@
     } catch (e) {
       showMsg("admin-msg", false, "", "Email ou mot de passe incorrect.");
     }
+  };
+
+  window.connexionAdminGoogle = async function () {
+    document.getElementById("admin-msg").className = "msg";
+    const provider = new GoogleAuthProvider();
+    let cred;
+    try {
+      cred = await signInWithPopup(auth, provider);
+    } catch (e) {
+      if (e.code === "auth/popup-blocked" || e.code === "auth/cancelled-popup-request") {
+        try { await signInWithRedirect(auth, provider); return; } catch (e2) {
+          showMsg("admin-msg", false, "", "Connexion Google impossible (" + (e2.code || e2.message) + ").");
+          return;
+        }
+      } else if (e.code === "auth/popup-closed-by-user") {
+        return;
+      }
+      showMsg("admin-msg", false, "", "Connexion Google impossible (" + (e.code || e.message) + ").");
+      return;
+    }
+    const estAdmin = await estCompteAdmin(cred.user.email);
+    if (!estAdmin) {
+      await signOut(auth);
+      showMsg("admin-msg", false, "", "Accès refusé : ce compte Google (" + cred.user.email + ") n'est pas administrateur.");
+      return;
+    }
+    document.getElementById("admin-login-card").style.display = "none";
+    document.getElementById("admin-panel-card").style.display = "block";
+    document.getElementById("admin-gestion-card").style.display = "block";
+    await chargerPanneauAdmin();
+    await window.chargerListeAdmins();
   };
 
   window.envoyerResetAdmin = async function () {
