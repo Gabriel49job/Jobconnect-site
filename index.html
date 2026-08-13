@@ -1679,6 +1679,7 @@
   <div class="profile-menu" id="profile-menu">
     <button type="button" class="profile-menu-item" onclick="window.fermerMenuProfil(); window.allerVersEcran('compte');">👤 Mon Compte</button>
     <button type="button" class="profile-menu-item" onclick="window.fermerMenuProfil(); window.allerVersEcran('admin');">🛠️ Admin</button>
+    <button type="button" class="profile-menu-item" onclick="window.fermerMenuProfil(); window.deconnexionAdmin();">🚪 Déconnecter Admin</button>
   </div>
 </header>
 <div class="signature-divider"></div>
@@ -2301,9 +2302,13 @@
       <!-- Affichée après recherche réussie -->
       <div class="moncompte-profile-display" id="moncompte-profile-display"></div>
       
-      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
         <button class="submit-btn" style="margin-top: 0; flex: 1;" onclick="afficherEditionDossierMonCompte()">✏️ Éditer</button>
         <button style="flex: 1; margin-top: 0; padding: 14px; background: white; border: 2px solid #0E6E46; color: #0E6E46; border-radius: 10px; font-weight: 700; font-size: 1rem;" onclick="retourMonCompteSearch()">← Retour</button>
+      </div>
+      <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+        <button style="flex: 1; margin-top: 0; padding: 14px; background: white; border: 2px solid #E8A33D; color: #073C28; border-radius: 10px; font-weight: 700; font-size: 1rem;" onclick="window.allerVersEcran('inscription')">➕ Ajouter un compte</button>
+        <button style="flex: 1; margin-top: 0; padding: 14px; background: white; border: 2px solid #B33F2E; color: #B33F2E; border-radius: 10px; font-weight: 700; font-size: 1rem;" onclick="window.deconnecterMonCompte()">🚪 Déconnecter</button>
       </div>
 
       <div id="moncompte-dossiers" style="margin-top: 16px;"></div>
@@ -2442,6 +2447,21 @@
     <div class="msg" id="admin-panel-msg"></div>
     <input type="text" id="admin-search" class="admin-search-input" placeholder="🔍 Chercher par nom ou téléphone..." oninput="filtrerPanneauAdmin()">
   </div>
+
+  <!-- GESTION DES COMPTES ADMIN -->
+  <div class="card" id="admin-gestion-card" style="display:none;">
+    <h2>🛠️ Comptes Admin</h2>
+    <p style="font-size:0.85rem; color:#666; margin-bottom:12px;">
+      Toute personne dans cette liste peut se connecter à l'espace administrateur avec son propre email/mot de passe (le compte doit d'abord exister via Inscription).
+    </p>
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <input type="email" id="admin-nouvel-email" placeholder="email@exemple.com" style="flex:1;">
+      <button type="button" class="submit-btn" style="margin-top:0; width:auto; padding:11px 16px;" onclick="window.ajouterCompteAdmin()">➕ Ajouter</button>
+    </div>
+    <div class="msg" id="admin-gestion-msg"></div>
+    <div id="admin-liste-emails"></div>
+  </div>
+
   <div id="admin-results"></div>
 </div>
 
@@ -3108,7 +3128,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore, collection, addDoc, query, where, getDocs, getDoc, serverTimestamp, orderBy, doc, updateDoc, deleteDoc, increment
+    getFirestore, collection, addDoc, query, where, getDocs, getDoc, setDoc, serverTimestamp, orderBy, doc, updateDoc, deleteDoc, increment
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import {
     getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut,
@@ -4817,7 +4837,7 @@
     try {
       // On force le lien de réinitialisation à revenir vers notre propre site (au lieu du domaine
       // firebaseapp.com par défaut, qui ne fonctionne pas puisque le site est hébergé sur Vercel).
-      const actionCodeSettings = { url: window.location.origin + "/", handleCodeInApp: false };
+      const actionCodeSettings = { url: "https://jobconnect-site.vercel.app/", handleCodeInApp: false };
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
       afficherMsgCarte(docId, true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).");
     } catch (e) {
@@ -5138,7 +5158,7 @@
       return;
     }
     try {
-      const actionCodeSettings = { url: window.location.origin + "/", handleCodeInApp: false };
+      const actionCodeSettings = { url: "https://jobconnect-site.vercel.app/", handleCodeInApp: false };
       await sendPasswordResetEmail(auth, user.email, actionCodeSettings);
       showMsg("securite-msg", true, "📧 Un lien de réinitialisation a été envoyé à " + user.email + ". Vérifiez votre boîte mail (et vos spams).", "");
     } catch (e) {
@@ -5176,7 +5196,19 @@
     appliquerLangue(code);
   })();
 
-  const ADMIN_EMAIL = "mushagalusag49@gmail.com";
+  const ADMIN_EMAIL = "mushagalusag49@gmail.com"; // Super-admin de secours, toujours autorisé même si Firestore est vide/inaccessible
+
+  // Vérifie si un email est admin : soit le super-admin de secours, soit présent dans la collection Firestore "admins"
+  async function estCompteAdmin(email) {
+    if (email === ADMIN_EMAIL) return true;
+    try {
+      const snap = await getDoc(doc(db, "admins", email));
+      return snap.exists();
+    } catch (e) {
+      console.error("Erreur vérification admin:", e);
+      return false;
+    }
+  }
 
   window.connexionAdmin = async function () {
     const email = document.getElementById("admin-email").value.trim();
@@ -5188,14 +5220,17 @@
     }
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      if (cred.user.email !== ADMIN_EMAIL) {
+      const estAdmin = await estCompteAdmin(cred.user.email);
+      if (!estAdmin) {
         await signOut(auth);
         showMsg("admin-msg", false, "", "Accès refusé : ce compte n'est pas administrateur.");
         return;
       }
       document.getElementById("admin-login-card").style.display = "none";
       document.getElementById("admin-panel-card").style.display = "block";
+      document.getElementById("admin-gestion-card").style.display = "block";
       await chargerPanneauAdmin();
+      await window.chargerListeAdmins();
     } catch (e) {
       showMsg("admin-msg", false, "", "Email ou mot de passe incorrect.");
     }
@@ -5208,12 +5243,11 @@
       return;
     }
     try {
-      const actionCodeSettings = { url: window.location.origin + "/", handleCodeInApp: false };
+      const actionCodeSettings = { url: "https://jobconnect-site.vercel.app/", handleCodeInApp: false };
       await sendPasswordResetEmail(auth, email, actionCodeSettings);
       showMsg("admin-msg", true, "📧 Si un compte existe avec cet email, un lien de réinitialisation vient d'être envoyé. Vérifiez votre boîte mail (et vos spams).", "");
     } catch (e) {
-      // MODE DEBUG TEMPORAIRE : affiche l'erreur réelle pour diagnostiquer pourquoi l'email n'arrive pas.
-      showMsg("admin-msg", false, "", "DEBUG - Erreur réelle : " + (e.code || "") + " / " + (e.message || ""));
+      showMsg("admin-msg", false, "", "❌ Impossible d'envoyer l'email pour le moment. Réessayez dans un instant.");
     }
   };
 
@@ -5221,9 +5255,66 @@
     await signOut(auth);
     document.getElementById("admin-login-card").style.display = "block";
     document.getElementById("admin-panel-card").style.display = "none";
+    document.getElementById("admin-gestion-card").style.display = "none";
     document.getElementById("admin-results").innerHTML = "";
     document.getElementById("admin-email").value = "";
     document.getElementById("admin-password").value = "";
+  };
+
+  // ============ GESTION DES COMPTES ADMIN (liste Firestore) ============
+  window.chargerListeAdmins = async function () {
+    const listeEl = document.getElementById("admin-liste-emails");
+    if (!listeEl) return;
+    listeEl.innerHTML = '<p style="text-align:center; color:#888; padding:10px;">⏳ Chargement...</p>';
+    try {
+      const snap = await getDocs(collection(db, "admins"));
+      let html = `<div class="settings-item" style="margin-bottom:8px;"><span>👑 ${esc(ADMIN_EMAIL)}</span><span style="color:#888; font-size:0.8rem;">Super-admin</span></div>`;
+      if (snap.empty) {
+        html += '<p style="text-align:center; color:#888; padding:8px; font-size:0.85rem;">Aucun autre admin pour le moment.</p>';
+      } else {
+        snap.forEach(d => {
+          const email = d.id;
+          html += `
+            <div class="settings-item" style="margin-bottom:8px;">
+              <span>👤 ${esc(email)}</span>
+              <button type="button" style="background:#B33F2E; color:white; border:none; border-radius:6px; padding:6px 10px; font-size:0.8rem; font-weight:700;" onclick="window.retirerCompteAdmin('${esc(email)}')">Retirer</button>
+            </div>`;
+        });
+      }
+      listeEl.innerHTML = html;
+    } catch (e) {
+      listeEl.innerHTML = '<p style="color:#B33F2E; padding:8px;">❌ Erreur de chargement de la liste.</p>';
+    }
+  };
+
+  window.ajouterCompteAdmin = async function () {
+    const input = document.getElementById("admin-nouvel-email");
+    const email = input.value.trim().toLowerCase();
+    if (!email || !email.includes("@")) {
+      showMsg("admin-gestion-msg", false, "", "Veuillez entrer un email valide.");
+      return;
+    }
+    if (email === ADMIN_EMAIL) {
+      showMsg("admin-gestion-msg", false, "", "Ce compte est déjà super-admin.");
+      return;
+    }
+    try {
+      await setDoc(doc(db, "admins", email), { email: email, ajouteLe: serverTimestamp() });
+      showMsg("admin-gestion-msg", true, "✅ " + email + " a été ajouté comme admin. Cette personne doit avoir un compte JOB CONNECT existant (via Inscription) pour pouvoir se connecter.", "");
+      input.value = "";
+      await window.chargerListeAdmins();
+    } catch (e) {
+      showMsg("admin-gestion-msg", false, "", "❌ Erreur: " + e.message);
+    }
+  };
+
+  window.retirerCompteAdmin = async function (email) {
+    try {
+      await deleteDoc(doc(db, "admins", email));
+      await window.chargerListeAdmins();
+    } catch (e) {
+      showMsg("admin-gestion-msg", false, "", "❌ Erreur lors de la suppression: " + e.message);
+    }
   };
 
   // Mémoire de session du panneau admin, pour permettre le filtrage sans re-requêter Firestore
@@ -6839,6 +6930,15 @@
     document.getElementById('moncompte-found').style.display = 'none';
     document.getElementById('c-tel').value = currentAccountMonCompte ? currentAccountMonCompte.phone : '';
     currentAccountMonCompte = null;
+  };
+
+  // Quitte complètement le compte affiché (contrairement à Retour, vide aussi le numéro recherché)
+  window.deconnecterMonCompte = function() {
+    document.getElementById('moncompte-found').style.display = 'none';
+    document.getElementById('c-tel').value = '';
+    currentAccountMonCompte = null;
+    const msgDiv = document.getElementById('c-msg');
+    if (msgDiv) msgDiv.innerHTML = '';
   };
 
   function showMsgMonCompte(msgDiv, msg, status) {
