@@ -207,6 +207,53 @@
   }
   .hamburger-btn:active { background: rgba(255,255,255,0.25); }
 
+  .profile-btn {
+    position: absolute;
+    top: 16px;
+    right: 108px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.16);
+    color: #fff;
+    font-size: 1.1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .profile-btn:active { background: rgba(255,255,255,0.28); }
+
+  .profile-menu {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 16px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    min-width: 190px;
+    padding: 6px;
+    z-index: 50;
+  }
+  .profile-menu.open { display: block; }
+  .profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 10px;
+    border-radius: 8px;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1C2620;
+  }
+  .profile-menu-item:active { background: #E7F2E9; }
+
   .notif-btn {
     position: absolute;
     top: 16px;
@@ -1627,7 +1674,12 @@
   <h1>JOB <span style="color:#E8A33D;">CONNECT</span></h1>
   <p data-i18n="tagline">La plateforme qui connecte patrons et travailleurs, partout dans le monde</p>
   <button type="button" class="notif-btn" id="btn-notifications" onclick="window.ouvrirNotifications()" aria-label="Notifications">🔔<span class="notif-badge" id="notif-badge">0</span></button>
-  <button type="button" class="hamburger-btn" id="btn-settings" onclick="ouvrirParametres()" aria-label="Paramètres">☰</button>
+  <button type="button" class="profile-btn" id="btn-profile" onclick="window.toggleMenuProfil(event)" aria-label="Profil">👤</button>
+  <button type="button" class="hamburger-btn" id="btn-settings" onclick="ouvrirParametres()" aria-label="Paramètres">⚙️</button>
+  <div class="profile-menu" id="profile-menu">
+    <button type="button" class="profile-menu-item" onclick="window.fermerMenuProfil(); window.allerVersEcran('compte');">👤 Mon Compte</button>
+    <button type="button" class="profile-menu-item" onclick="window.fermerMenuProfil(); window.allerVersEcran('admin');">🛠️ Admin</button>
+  </div>
 </header>
 <div class="signature-divider"></div>
 
@@ -1636,8 +1688,6 @@
     <button class="tab-btn" data-screen="depot" data-i18n="tab_depot">🏢 Emploi</button>
     <button class="tab-btn" data-screen="marche" data-i18n="tab_marche">🏪 Marché</button>
   <button class="tab-btn" data-screen="recherche" data-i18n="tab_recherche">Recherche<span class="tab-notif-badge" id="tab-notif-badge">0</span></button>
-  <button class="tab-btn" data-screen="compte" data-i18n="tab_compte">Mon compte</button>
-  <button class="tab-btn" data-screen="admin" data-i18n="tab_admin">Admin</button>
 </div>
 
 <!-- ============ FENÊTRE DE SÉLECTION DE LANGUE ============ -->
@@ -1664,16 +1714,68 @@
 <div class="country-modal-overlay" id="settings-modal-overlay" onclick="if(event.target===this) fermerParametres()">
   <div class="country-modal">
     <div class="settings-menu">
+      <button type="button" class="settings-item" onclick="fermerParametres(); window.allerVersEcran('compte');">
+        <span>👤 Mon Compte</span>
+        <span>›</span>
+      </button>
+      <button type="button" class="settings-item" onclick="fermerParametres(); window.ouvrirNotifications();">
+        <span>🔔 Notifications</span>
+        <span>›</span>
+      </button>
       <button type="button" class="settings-item" onclick="fermerParametres(); ouvrirSelecteurLangue();">
         <span>🌐 Langue</span>
         <span class="settings-item-value" id="settings-lang-value">Français</span>
       </button>
       <a class="settings-item" href="confidentialite.html" target="_blank" rel="noopener">
-        <span>🔒 Politique de confidentialité</span>
+        <span>🔒 Confidentialité</span>
         <span>›</span>
       </a>
+      <button type="button" class="settings-item" onclick="fermerParametres(); window.ouvrirSecurite();">
+        <span>🛡️ Sécurité</span>
+        <span>›</span>
+      </button>
+      <button type="button" class="settings-item" onclick="fermerParametres(); window.ouvrirAideSupport();">
+        <span>❓ Aide &amp; Support</span>
+        <span>›</span>
+      </button>
     </div>
     <button type="button" class="country-modal-close" onclick="fermerParametres()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ PANNEAU SÉCURITÉ ============ -->
+<div class="country-modal-overlay" id="securite-modal-overlay" onclick="if(event.target===this) window.fermerSecurite()">
+  <div class="country-modal">
+    <div class="job-modal-header" style="margin-bottom:10px;">
+      <div class="job-modal-title">🛡️ Sécurité</div>
+    </div>
+    <p style="font-size:0.9rem; color:#555; margin-bottom:14px;">
+      Recevez un lien par email pour choisir un nouveau mot de passe.
+    </p>
+    <button type="button" class="submit-btn" onclick="window.envoyerResetMotDePasseUtilisateur()">🔑 Réinitialiser mon mot de passe</button>
+    <div class="msg" id="securite-msg"></div>
+    <button type="button" class="country-modal-close" onclick="window.fermerSecurite()">Fermer</button>
+  </div>
+</div>
+
+<!-- ============ PANNEAU AIDE & SUPPORT ============ -->
+<div class="country-modal-overlay" id="aide-modal-overlay" onclick="if(event.target===this) window.fermerAideSupport()">
+  <div class="country-modal">
+    <div class="job-modal-header" style="margin-bottom:10px;">
+      <div class="job-modal-title">❓ Aide &amp; Support</div>
+    </div>
+    <p style="font-size:0.9rem; color:#555; margin-bottom:14px;">
+      Une question, un problème ? Contactez-nous :
+    </p>
+    <a class="settings-item" style="margin-bottom:10px;" href="https://wa.me/256792994716" target="_blank" rel="noopener">
+      <span>💬 WhatsApp</span>
+      <span>›</span>
+    </a>
+    <a class="settings-item" href="mailto:mushagalusag49@gmail.com">
+      <span>✉️ Email</span>
+      <span>›</span>
+    </a>
+    <button type="button" class="country-modal-close" onclick="window.fermerAideSupport()">Fermer</button>
   </div>
 </div>
 
@@ -5002,6 +5104,54 @@
   };
   window.fermerParametres = function () {
     document.getElementById("settings-modal-overlay").classList.remove("open");
+  };
+
+  // ============ MENU PROFIL (icône ronde en haut à droite) ============
+  window.toggleMenuProfil = function (e) {
+    if (e) e.stopPropagation();
+    document.getElementById("profile-menu").classList.toggle("open");
+  };
+  window.fermerMenuProfil = function () {
+    document.getElementById("profile-menu").classList.remove("open");
+  };
+  document.addEventListener("click", function (e) {
+    const menu = document.getElementById("profile-menu");
+    const btn = document.getElementById("btn-profile");
+    if (menu && menu.classList.contains("open") && !menu.contains(e.target) && e.target !== btn) {
+      menu.classList.remove("open");
+    }
+  });
+
+  // ============ PANNEAU SÉCURITÉ ============
+  window.ouvrirSecurite = function () {
+    const el = document.getElementById("securite-msg");
+    if (el) { el.style.display = "none"; el.textContent = ""; }
+    document.getElementById("securite-modal-overlay").classList.add("open");
+  };
+  window.fermerSecurite = function () {
+    document.getElementById("securite-modal-overlay").classList.remove("open");
+  };
+  window.envoyerResetMotDePasseUtilisateur = async function () {
+    const user = auth.currentUser;
+    if (!user || !user.email) {
+      showMsg("securite-msg", false, "", "Vous devez être connecté avec un compte email pour réinitialiser votre mot de passe.");
+      return;
+    }
+    try {
+      const actionCodeSettings = { url: window.location.origin + "/", handleCodeInApp: false };
+      await sendPasswordResetEmail(auth, user.email, actionCodeSettings);
+      showMsg("securite-msg", true, "📧 Un lien de réinitialisation a été envoyé à " + user.email + ". Vérifiez votre boîte mail (et vos spams).", "");
+    } catch (e) {
+      showMsg("securite-msg", false, "", "❌ Erreur: " + e.message);
+    }
+  };
+
+  // ============ PANNEAU AIDE & SUPPORT ============
+  window.ouvrirAideSupport = function () {
+    document.getElementById("aide-modal-overlay").classList.add("open");
+  };
+  window.fermerAideSupport = function () {
+    document.getElementById("aide-modal-overlay").classList.remove("open");
   };
 
   window.ouvrirSelecteurLangue = function () {
