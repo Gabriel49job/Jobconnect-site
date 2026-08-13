@@ -345,9 +345,14 @@
     border-radius: 10px;
     font-size: 1rem;
     font-weight: 700;
-    cursor: pointer;
-    z-index: 10;
+    cursor: pointer !important;
+    z-index: 100 !important;
     position: relative;
+    pointer-events: auto !important;
+  }
+  .submit-btn:hover {
+    background: #073C28;
+    opacity: 0.95;
   }
   .submit-btn:active { background: #073C28; }
   .submit-btn:disabled { background: #9FC2AC; }
@@ -6844,7 +6849,7 @@
           </div>
         </div>
 
-        <button type="button" class="submit-btn" onclick="window.sauvegarderAnnonceMarche()">✅ Publier l'annonce</button>
+        <button type="button" class="submit-btn" id="marche-publish-btn" onclick="console.log('clic détecté'); window.sauvegarderAnnonceMarche();">✅ Publier l'annonce</button>
         <div class="msg" id="marche-msg"></div>
       </div>
     </div>
@@ -6967,9 +6972,14 @@ if ('serviceWorker' in navigator) {
     const content = modal.querySelector('.marche-action-content');
     content.innerHTML = `
       <h3>${categorie}</h3>
+      <div style="margin-bottom: 12px; text-align: center; color: #666; font-size: 0.9rem;">
+        <strong>Que voulez-vous faire ?</strong>
+      </div>
       <div class="marche-action-buttons">
-        <button class="marche-action-btn" onclick="window.commencerAnnonceMarche('voir')">🔍 Voir les annonces</button>
-        <button class="marche-action-btn" onclick="window.commencerAnnonceMarche('creer')">✏️ Créer une annonce</button>
+        <button class="marche-action-btn" style="background: #0E6E46;" onclick="window.commencerActionMarche('acheter')">🛒 Acheter</button>
+        <button class="marche-action-btn" style="background: #0E6E46;" onclick="window.commencerActionMarche('vendre')">🏷️ Vendre</button>
+        <button class="marche-action-btn" style="background: #0E6E46;" onclick="window.commencerActionMarche('louer')">🔑 Louer</button>
+        <button class="marche-action-btn" style="background: #0E6E46;" onclick="window.commencerActionMarche('mettre_en_location')">📢 Mettre en location</button>
         <button class="marche-action-btn cancel" onclick="window.fermerMarcheAction()">Annuler</button>
       </div>
     `;
@@ -6986,14 +6996,31 @@ if ('serviceWorker' in navigator) {
     return modal;
   }
 
-  window.commencerAnnonceMarche = function(action) {
+  window.commencerActionMarche = function(action) {
     marcheState.action = action;
     window.fermerMarcheAction();
 
-    if (action === 'creer') {
+    if (action === 'acheter') {
+      // L'utilisateur cherche à ACHETER - afficher les annonces de VENTE
+      document.getElementById('marche-categories-view').style.display = 'none';
+      document.getElementById('marche-form-view').style.display = 'none';
+      document.getElementById('marche-search-view').style.display = 'block';
+      window.chargerAnnoncesMarche();
+    } else if (action === 'vendre' || action === 'mettre_en_location') {
+      // L'utilisateur veut VENDRE ou METTRE EN LOCATION - afficher le formulaire
       document.getElementById('marche-categories-view').style.display = 'none';
       document.getElementById('marche-form-view').style.display = 'block';
       document.getElementById('marche-search-view').style.display = 'none';
+      
+      // Définir le type de transaction
+      const typeTransactionSelect = document.getElementById('marche-type-transaction');
+      if (typeTransactionSelect) {
+        if (action === 'vendre') {
+          typeTransactionSelect.value = 'vente';
+        } else if (action === 'mettre_en_location') {
+          typeTransactionSelect.value = 'location';
+        }
+      }
       
       // Afficher/masquer les champs spécifiques
       const cat = marcheState.categorie;
@@ -7002,7 +7029,8 @@ if ('serviceWorker' in navigator) {
       
       document.getElementById('marche-details-immobilier').style.display = showImmobilier ? 'block' : 'none';
       document.getElementById('marche-details-vehicule').style.display = showVehicule ? 'block' : 'none';
-    } else if (action === 'voir') {
+    } else if (action === 'louer') {
+      // L'utilisateur cherche à LOUER - afficher les annonces de LOCATION
       document.getElementById('marche-categories-view').style.display = 'none';
       document.getElementById('marche-form-view').style.display = 'none';
       document.getElementById('marche-search-view').style.display = 'block';
@@ -7103,10 +7131,12 @@ if ('serviceWorker' in navigator) {
   window.chargerAnnoncesMarche = async function() {
     const resultsDiv = document.getElementById('marche-resultats');
     if (!resultsDiv) return;
-    resultsDiv.innerHTML = '<p style="text-align: center; color: #666;">⏳ Chargement...</p>';
+    resultsDiv.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">⏳ Chargement des annonces...</p>';
 
     try {
       const cat = marcheState.categorie || '';
+      console.log('📦 Chargement des annonces pour:', cat);
+      
       const q = query(
         collection(db, 'marche_annonces'),
         where('categorie', '==', cat),
@@ -7116,29 +7146,54 @@ if ('serviceWorker' in navigator) {
       );
       const snapshot = await getDocs(q);
 
+      console.log('📊 Annonces trouvées:', snapshot.size);
+
       if (snapshot.empty) {
-        resultsDiv.innerHTML = '<p style="text-align: center; color: #888;">Aucune annonce trouvée</p>';
+        resultsDiv.innerHTML = '<div style="text-align: center; color: #888; padding: 30px;"><p>📭 Aucune annonce trouvée dans cette catégorie</p><p style="font-size: 0.85rem; margin-top: 10px;">Soyez le premier à publier une annonce !</p></div>';
         return;
       }
 
       resultsDiv.innerHTML = '';
-      snapshot.forEach(doc => {
+      
+      // Ajouter un titre avec le nombre d'annonces
+      const titleDiv = document.createElement('div');
+      titleDiv.style.cssText = 'margin-bottom: 16px; padding: 12px; background: #E7F2E9; border-radius: 8px; text-align: center;';
+      titleDiv.innerHTML = `<strong style="color: #073C28;">📊 ${snapshot.size} annonce${snapshot.size > 1 ? 's' : ''} trouvée${snapshot.size > 1 ? 's' : ''}</strong>`;
+      resultsDiv.appendChild(titleDiv);
+      
+      snapshot.forEach((doc, index) => {
         const data = doc.data();
         const card = document.createElement('div');
         card.className = 'result-card';
+        
+        // Format du prix avec localisation
+        const prixFormate = new Intl.NumberFormat('fr-FR').format(Math.round(data.prix));
+        
         card.innerHTML = `
-          <h3>${esc(data.titre)}</h3>
-          <p><strong>Prix:</strong> ${data.prix.toLocaleString()} ${data.devise}</p>
-          <p><strong>Type:</strong> ${data.type_transaction}</p>
-          <p><strong>Lieu:</strong> ${esc(data.ville)}, ${esc(data.pays)}</p>
-          <p><strong>État:</strong> ${data.etat}</p>
-          <p style="font-size: 0.88rem; color: #666; margin-top: 8px;">${esc(data.description.substring(0, 100))}...</p>
-          <a href="https://wa.me/${data.tel.replace(/[^0-9]/g, '')}?text=Intéressé%20par:%20${encodeURIComponent(data.titre)}" target="_blank" class="whatsapp-link">💬 Contacter via WhatsApp</a>
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+            <h3 style="margin: 0; flex: 1;">${esc(data.titre)}</h3>
+            <span style="background: #0E6E46; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.9rem; white-space: nowrap; margin-left: 8px;">${prixFormate} ${data.devise}</span>
+          </div>
+          
+          <div style="background: #F5F1E8; padding: 10px; border-radius: 8px; margin: 10px 0; font-size: 0.88rem;">
+            <p style="margin: 4px 0;"><strong>📍 Localisation :</strong> ${esc(data.ville)}, ${esc(data.pays)}</p>
+            <p style="margin: 4px 0;"><strong>🏷️ Type :</strong> ${data.type_transaction === 'vente' ? '🛒 Vente' : '🔑 Location'}</p>
+            <p style="margin: 4px 0;"><strong>✅ État :</strong> ${data.etat}</p>
+            <p style="margin: 4px 0;"><strong>📞 Tel :</strong> ${esc(data.tel)}</p>
+          </div>
+          
+          <p style="font-size: 0.88rem; color: #333; margin: 10px 0; line-height: 1.5;"><strong>Description :</strong><br>${esc(data.description.substring(0, 150))}</p>
+          
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <a href="https://wa.me/${data.tel.replace(/[^0-9]/g, '')}?text=Bonjour,%20Je%20suis%20intéressé%20par%20votre%20annonce:%20${encodeURIComponent(data.titre)}" target="_blank" class="whatsapp-link" style="flex: 1; text-align: center; margin: 0;">💬 WhatsApp</a>
+            <button onclick="alert('Tel: ${esc(data.tel)}\nPour appeler directement')" style="flex: 1; background: #FBEEDA; color: #073C28; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">☎️ Appeler</button>
+          </div>
         `;
         resultsDiv.appendChild(card);
       });
     } catch (e) {
-      resultsDiv.innerHTML = '<p style="color: #B33F2E;">❌ Erreur: ' + e.message + '</p>';
+      console.error('❌ Erreur:', e);
+      resultsDiv.innerHTML = '<p style="color: #B33F2E; padding: 16px; text-align: center;">❌ Erreur: ' + e.message + '</p>';
     }
   };
 
@@ -7189,6 +7244,21 @@ if ('serviceWorker' in navigator) {
       resultsDiv.innerHTML = '<p style="color: #B33F2E;">❌ Erreur: ' + e.message + '</p>';
     }
   };
+
+  
+  
+  // Ajouter event listener au bouton Publier
+  setTimeout(() => {
+    const btnPublier = document.getElementById('marche-publish-btn');
+    if (btnPublier) {
+      btnPublier.addEventListener('click', (e) => {
+        console.log('🔵 Bouton cliqué (via addEventListener)');
+        e.preventDefault();
+        window.sauvegarderAnnonceMarche();
+      });
+      console.log('✅ Event listener attaché au bouton Publier');
+    }
+  }, 500);
 
   </script>
 </body>
